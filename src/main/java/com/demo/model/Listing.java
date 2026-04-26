@@ -2,7 +2,7 @@ package com.demo.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.apache.catalina.User;
+//import org.apache.catalina.User;
 
 import java.time.LocalDateTime;
 
