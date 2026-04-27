@@ -26,7 +26,11 @@ public class Review {
 
     private String comment;
 
-    private LocalDate createdAt;
+    private Boolean verified;
+
+    private LocalDate creationDate;
+    private LocalDate modifiedDate;
+
 
 
 }
