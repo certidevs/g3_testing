@@ -28,7 +28,9 @@ class BookingRepositoryTest {
         listingRepository.deleteAll();
 
         casa1 = Listing.builder().title("Casa del Pardo").pricePerNight(55.0).isActive(true).build();
+        listingRepository.save(casa1);
         reserva1 = Booking.builder().listing(casa1).status(BookingStatus.CONFIRMED).build();
+        bookingRepository.save(reserva1);
 
     }
 
