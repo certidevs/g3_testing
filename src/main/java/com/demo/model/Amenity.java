@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  * */
 
 @Entity
-@Table(name = "listings")
+@Table(name = "amenities")
 @Getter
 @Setter
 @NoArgsConstructor
