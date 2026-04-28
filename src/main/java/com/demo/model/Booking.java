@@ -23,7 +23,7 @@ public class Booking {
     private Long id;
 
     private LocalDateTime checkIn;
-    private LocalDateTime chekOut;
+    private LocalDateTime checkOut;
 
     private Double totalPrice;
 
