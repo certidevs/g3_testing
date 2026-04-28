@@ -39,7 +39,8 @@ public class Listing {
 
     @Builder.Default
     private Boolean isActive = true;
-    @Column(nullable = false, updatable = false)
+
+    //@Column(nullable = false, updatable = false)
     private LocalDateTime registeredAt;
 
     //@ManyToOne
