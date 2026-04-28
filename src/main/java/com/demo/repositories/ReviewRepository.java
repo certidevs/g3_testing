@@ -13,4 +13,5 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByCreationDateBetween(LocalDate startDate, LocalDate endDate);
     List<Review> findByRating(int rating);
     List<Review>findByVerifiedFalse();
+    List<Review>findByBooking_ListingId(Long listingId);
 }

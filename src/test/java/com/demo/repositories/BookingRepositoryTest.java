@@ -25,7 +25,11 @@ class BookingRepositoryTest {
     ListingRepository listingRepository;
 
     Listing casa1;
+    Listing casa2;
     Booking res1;
+    Booking res2;
+    Booking res3;
+    Booking res4;
 
 
     @BeforeEach
@@ -34,9 +38,16 @@ class BookingRepositoryTest {
         listingRepository.deleteAll();
 
         casa1 = Listing.builder().title("Casa del Pardo").pricePerNight(55.0).registeredAt(LocalDateTime.of(2026,3,22,17,15)).isActive(true).build();
-        listingRepository.save(casa1);
+        casa2 = Listing.builder().title("Casa de la playa").pricePerNight(42.0).registeredAt(LocalDateTime.now()).isActive(true).build();
+        List<Listing> casas = List.of(casa1, casa2);
+        listingRepository.saveAll(casas);
+
         res1 = Booking.builder().listing(casa1).status(BookingStatus.CONFIRMED).checkOut(LocalDateTime.now()).checkIn(LocalDateTime.of(2026,4,20,15,20)).build();
-        bookingRepository.save(res1);
+        res2 = Booking.builder().listing(casa1).status(BookingStatus.PENDING).build();
+        res3= Booking.builder().listing(casa2).status(BookingStatus.CONFIRMED).build();
+        res4 = Booking.builder().listing(casa2).status(BookingStatus.CONFIRMED).build();
+        List<Booking> reservas = List.of(res1, res2, res3, res4);
+        bookingRepository.saveAll(reservas);
 
     }
 
@@ -68,9 +79,19 @@ class BookingRepositoryTest {
     void findByListingId(){
         List<Booking> bookings = bookingRepository.findByListingId(casa1.getId());
         assertNotNull(bookings);
+        assertEquals(2, bookings.size());
+    }
+
+    @Test
+    @DisplayName("Buscar por id de la casa y estado confirmado")
+    void findByListingIdAndBookingStatusConfirmed(){
+        List<Booking>bookings = bookingRepository.findByListingIdAndStatus(casa1.getId(), BookingStatus.CONFIRMED);
+        assertNotNull(bookings);
         assertEquals(1, bookings.size());
     }
 
+    //Buscar todas las reseveras entre una fecha y otra o solo hacerlo de una reserva
+    //Buscar todas las resevas de una casa de una fecha y otra
 
 
 
