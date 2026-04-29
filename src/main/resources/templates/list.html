@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!--List Addons :))-->
+    <meta charset="UTF-8">
+    <title>Servicios Extra - Airbnb</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; background-color: #f7f7f7; }
+        h1 { color: #484848; }
+        .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: white; border: 1px solid #ddd; padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .price { color: #ff385c; font-weight: bold; font-size: 1.2em; margin-top: 10px; }
+        .desc { color: #717171; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+<h1>Servicios Adicionales para tu estancia</h1>
+<div class="container">
+    <div th:each="a : ${addons}" class="card">
+        <h2 th:text="${a.name}">Nombre del servicio</h2>
+        <p class="desc" th:text="${a.description}">Descripción del servicio...</p>
+        <p class="price" th:text="${a.price} + '€'"></p>
+    </div>
+</div>
+</body>
+</html>
