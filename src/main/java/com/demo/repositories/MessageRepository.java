@@ -9,6 +9,5 @@ import java.util.List;
 
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Long> {
-
     List<Message> findByConversationId(Long conversationId, Sort sort);
 }

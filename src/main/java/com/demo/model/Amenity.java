@@ -31,6 +31,9 @@ public class Amenity {
     @Column(columnDefinition="TEXT") //permite almacenar textos largos sin límite de caracteres, ideal para descripciones detalladas
     private String icon;
 
+    @ManyToOne
+    private Listing listing;
+
     //@ManyToOne
     //private User user;
 
