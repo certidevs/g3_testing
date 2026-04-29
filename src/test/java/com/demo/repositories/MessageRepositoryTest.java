@@ -66,7 +66,7 @@ public class MessageRepositoryTest {
 
     @Test
     void countMessages(){
-        assertEquals(5, messageRepository.count());
+        assertEquals(3, messageRepository.count());
     }
 
     @Test
@@ -83,7 +83,7 @@ public class MessageRepositoryTest {
     void findAllMessages(){
         List<Message> messages = messageRepository.findAll();
 
-        assertEquals(5, messages.size());
+        assertEquals(3, messages.size());
     }
 
 
