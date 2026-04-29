@@ -20,11 +20,6 @@ public class Conversation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //ManyToOne con la entidad user proximamente
-    private String host;
-    private String guest;
-
-
     @OneToOne
     @ToString.Exclude
     private Booking booking;
