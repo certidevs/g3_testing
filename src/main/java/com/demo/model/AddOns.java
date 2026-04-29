@@ -2,8 +2,6 @@ package com.demo.model;
 
 import com.demo.dto.AddOnDTO;
 import com.demo.mappers.AddOnDTO;
-import com.demo.mappers.AddOnMapper;
-import com.demo.repositories.AddOnRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
