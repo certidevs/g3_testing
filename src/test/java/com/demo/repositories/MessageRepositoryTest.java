@@ -24,17 +24,14 @@ public class MessageRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        // 1. Limpiamos en orden inverso a las dependencias para evitar violaciones de FK
         messageRepository.deleteAll();
         conversationRepository.deleteAll();
         bookingRepository.deleteAll();
 
-        // 2. Creamos la entidad base (Booking)
         Booking booking = Booking.builder()
                 .build();
         bookingRepository.save(booking);
 
-        // 3. Creamos la Conversación ligada al Booking
         Conversation conversation = Conversation.builder()
                 .booking(booking)
                 .host("Mohamed")
@@ -42,7 +39,6 @@ public class MessageRepositoryTest {
                 .build();
         conversationRepository.save(conversation);
 
-        // 4. Creamos los Mensajes ligados a esa conversación
         List<Message> messages = List.of(
                 Message.builder()
                         .content("Hola, ¿a qué hora llegas?")
