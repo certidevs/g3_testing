@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/head :: head('Detalle Amenity')}"></head>
+<body class="d-flex flex-column min-vh-100">
+
+<nav th:replace="~{layout/navbar :: navbar}"></nav>
+
+<main class="container flex-grow-1">
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h1 class="card-title mb-3" th:text="${'Amenity ' + amenity.id}">Amenity</h1>
+
+            <dl class="row mb-0">
+                <dt class="col-sm-3"><i class="fa-solid fa-tag me-1"></i> Nombre</dt>
+                <dd class="col-sm-9" th:text="${amenity.name}"></dd>
+            </dl>
+        </div>
+
+        <div class="card-footer bg-transparent" th:if="${amenity.listing != null}">
+            <i class="fa-solid fa-store text-primary me-1"></i>
+            Pertenece a la propiedad
+            <a class="fw-semibold"
+               th:href="@{/listing/{id}(id=${amenity.listing.id})}"
+               th:text="${amenity.listing.name != null ? amenity.listing.name : 'Ver casa'}">Ver casa</a>
+        </div>
+    </div>
+
+    <!-- TODO Añadir lista de opiniones -->
+    <!-- TODO Añadir lista de alérgenos -->
+    <!-- TODO Añadir botón de Pedir plato que lo añada al pedido -->
+
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+<script th:replace="~{layout/footer :: scripts}"></script>
+
+</body>
+</html>
