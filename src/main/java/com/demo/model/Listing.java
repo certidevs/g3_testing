@@ -2,7 +2,6 @@ package com.demo.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-//import org.apache.catalina.User;
 
 import java.time.LocalDateTime;
 
@@ -17,6 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 
 public class Listing {
 
@@ -24,11 +24,12 @@ public class Listing {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //@Column(nullable = false)
     private String title;
+
     @Column(length=500) //aumenta espacio a 500 caracteres vs 256 por defecto
     private String shortDescription;
-    @Column(columnDefinition="TEXT") //permite almacenar textos largos sin límite de caracteres, ideal para descripciones detalladas
+
+    @Column(length=10000)
     private String longDescription;
 
     private Double pricePerNight;
@@ -36,6 +37,7 @@ public class Listing {
     private Integer maxNights;
     private Integer maxGuests;
 
+    private String imageUrl;
 
     @Builder.Default
     private Boolean isActive = true;
@@ -43,8 +45,9 @@ public class Listing {
     //@Column(nullable = false, updatable = false)
     private LocalDateTime registeredAt;
 
-    //@ManyToOne
-    //private User user;
+    @ToString.Exclude
+    @ManyToOne
+    private User owner;
 
 
 
