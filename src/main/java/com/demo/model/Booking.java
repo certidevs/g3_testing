@@ -29,6 +29,14 @@ public class Booking {
 
     private BookingStatus status;
 
+    @ManyToOne
+    @ToString.Exclude
+    User host;
+
+    @ManyToOne
+    @ToString.Exclude
+    User guest;
+
     @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "listing_id")
