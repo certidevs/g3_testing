@@ -3,6 +3,7 @@ package com.demo.repositories;
 import com.demo.model.Amenity;
 import com.demo.model.Listing;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
@@ -23,6 +24,10 @@ class AmenityRepositoryTest {
 
     Listing casa1;
     Listing casa2;
+    Amenity wifi;
+    Amenity piscina;
+    Amenity parking;
+    Amenity cocina;
 
     @BeforeEach
     void setUp() {
@@ -31,10 +36,10 @@ class AmenityRepositoryTest {
 
             listingRepository.saveAll(List.of(casa1, casa2));
             //añadir características a los amenities
-            var wifi = Amenity.builder().name("Wifi").listing(casa1).build();
-            var piscina = Amenity.builder().name("Piscina").listing(casa1).build();
-            var parking = Amenity.builder().name("Parking").listing(casa2).build();
-            var cocina = Amenity.builder().name("Cocina").listing(casa2).build();
+            wifi = Amenity.builder().name("Wifi").listing(casa1).build();
+            piscina = Amenity.builder().name("Piscina").listing(casa1).build();
+            parking = Amenity.builder().name("Parking").listing(casa2).build();
+            cocina = Amenity.builder().name("Cocina").listing(casa2).build();
             amenityRepository.saveAll(List.of(wifi, piscina, parking, cocina));
 
     }
@@ -62,16 +67,10 @@ class AmenityRepositoryTest {
         assertEquals(2, amenitiesCasa2.size());
     }
 
+
     @Test
     void findByNameContainingIgnoreCase() {
-        // Crea y guarda algunos amenities
-        var wifi = Amenity.builder().name("Wifi").listing(casa1).build();
-        var piscina = Amenity.builder().name("Piscina").listing(casa1).build();
-        var parking = Amenity.builder().name("Parking").listing(casa2).build();
-        var cocina = Amenity.builder().name("Cocina").listing(casa2).build();
-        amenityRepository.saveAll(List.of(wifi, piscina, parking, cocina));
 
-        // Busca amenities que contengan "wi" (debería encontrar "Wifi")
         List<Amenity> amenitiesFound = amenityRepository.findByNameContainingIgnoreCase("wi");
 
         // Verifica que se haya encontrado el amenity correcto
@@ -89,18 +88,12 @@ class AmenityRepositoryTest {
 
     @Test
     void findByNameAndListing_Id() {
-        // Crea y guarda algunos amenities
-        var wifi = Amenity.builder().name("Wifi").listing(casa1).build();
-        var piscina = Amenity.builder().name("Piscina").listing(casa1).build();
-        var parking = Amenity.builder().name("Parking").listing(casa2).build();
-        var cocina = Amenity.builder().name("Cocina").listing(casa2).build();
-        amenityRepository.saveAll(List.of(wifi, piscina, parking, cocina));
 
         // Busca el amenity "Wifi" para casa1
         List<Amenity> amenitiesFoundCasa1 = amenityRepository.findByNameAndListing_Id("Wifi", casa1.getId());
 
         // Verifica que se haya encontrado el amenity correcto para casa1
-        assertEquals(2, amenitiesFoundCasa1.size());
+        assertEquals(1, amenitiesFoundCasa1.size());
         assertEquals("Wifi", amenitiesFoundCasa1.getFirst().getName());
         assertEquals(casa1.getId(), amenitiesFoundCasa1.getFirst().getListing().getId());
 
@@ -114,7 +107,7 @@ class AmenityRepositoryTest {
         List<Amenity> amenitiesFoundCasa2 = amenityRepository.findByNameAndListing_Id("Cocina", casa2.getId());
 
         // Verifica que se haya encontrado el amenity correcto para casa2
-        assertEquals(2, amenitiesFoundCasa2.size());
+        assertEquals(1, amenitiesFoundCasa2.size());
         assertEquals("Cocina", amenitiesFoundCasa2.getFirst().getName());
         assertEquals(casa2.getId(), amenitiesFoundCasa2.getFirst().getListing().getId());
     }
