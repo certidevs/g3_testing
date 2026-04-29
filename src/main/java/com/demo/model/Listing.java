@@ -2,7 +2,6 @@ package com.demo.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-//import org.apache.catalina.User;
 
 import java.time.LocalDateTime;
 
@@ -17,6 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 
 public class Listing {
 
@@ -37,14 +37,17 @@ public class Listing {
     private Integer maxNights;
     private Integer maxGuests;
 
+    private String imageUrl;
+
     @Builder.Default
     private Boolean isActive = true;
 
     //@Column(nullable = false, updatable = false)
     private LocalDateTime registeredAt;
 
-    //@ManyToOne
-    //private User user;
+    @ToString.Exclude
+    @ManyToOne
+    private User owner;
 
 
 
