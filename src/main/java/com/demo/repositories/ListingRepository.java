@@ -9,6 +9,6 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
 
     List<Listing> findByIsActiveTrue();
     List<Listing> findByIsActiveTrueAndPricePerNightBetween(Double minPrice, Double maxPrice);
-    List<Listing> findByIsActiveAndMaxGuestsGreaterThanEqual(Boolean isActive, Integer maxGuests);
+    List<Listing> findByIsActiveTrueAndMaxGuestsGreaterThanEqual(Integer minGuests);
 
 }
