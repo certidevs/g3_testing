@@ -33,8 +33,9 @@ public class Message {
     @Builder.Default
     private Boolean isRead = false;
 
-    //ManyToOne con la entidad user proximamente
-    private String sender;
+    @ManyToOne
+    @ToString.Exclude
+    private User sender;
 
     @ManyToOne
     @ToString.Exclude
