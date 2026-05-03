@@ -1,7 +1,7 @@
 package com.demo.repositories;
 
 import com.demo.model.Listing;
-import jakarta.persistence.Column;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,7 @@ class ListingRepositoryTest {
 
         List<Listing> result = listingRepository.findByIsActiveTrue();
         assertEquals(1, result.size());
-        assertTrue(result.get(0).getIsActive());
+        assertTrue(result.getFirst().getIsActive());
     }
 
     @Test
