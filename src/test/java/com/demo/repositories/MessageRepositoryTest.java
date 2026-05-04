@@ -4,6 +4,7 @@ package com.demo.repositories;
 import com.demo.model.Booking;
 import com.demo.model.Conversation;
 import com.demo.model.Message;
+import com.demo.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,38 +22,47 @@ public class MessageRepositoryTest {
     @Autowired MessageRepository messageRepository;
     @Autowired ConversationRepository conversationRepository;
     @Autowired BookingRepository bookingRepository;
+    @Autowired UserRepository userRepositoy;
 
     @BeforeEach
     void setUp() {
         messageRepository.deleteAll();
         conversationRepository.deleteAll();
         bookingRepository.deleteAll();
+        userRepositoy.deleteAll();
 
         Booking booking = Booking.builder()
                 .build();
         bookingRepository.save(booking);
 
+        User host = User.builder()
+                .name("Mohamed")
+                .email("moha").build();
+
+        User guest = User.builder()
+                .name("Juan")
+                .email("juan").build();
+        userRepositoy.saveAll(List.of(host, guest));
+
         Conversation conversation = Conversation.builder()
                 .booking(booking)
-                .host("Mohamed")
-                .guest("Juan")
                 .build();
         conversationRepository.save(conversation);
 
         List<Message> messages = List.of(
                 Message.builder()
                         .content("Hola, ¿a qué hora llegas?")
-                        .sender("Mohamed")
+                        .sender(host)
                         .conversation(conversation)
                         .build(),
                 Message.builder()
                         .content("Llego a las 5pm, gracias.")
-                        .sender("Juan")
+                        .sender(guest)
                         .conversation(conversation)
                         .build(),
                 Message.builder()
                         .content("Perfecto, te espero.")
-                        .sender("Mohamed")
+                        .sender(host)
                         .conversation(conversation)
                         .build()
         );
