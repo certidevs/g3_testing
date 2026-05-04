@@ -5,6 +5,7 @@ import com.demo.model.enums.BookingStatus;
 import com.demo.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Profile("!test")
 public class DataInitializer implements CommandLineRunner {
 
     private final AmenityRepository amenityRepository;
