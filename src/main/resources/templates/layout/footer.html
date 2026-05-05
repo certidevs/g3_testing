@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<footer th:fragment="footer" class="bg-white border-top mt-5 py-4">
+    <div class="container text-center small text-muted">
+        <p class="mb-0">
+            <i class="fa-regular fa-copyright"></i> 2026 G3 Alquiler Vacacional — Adecco
+        </p>
+        <p class="text-muted mt-2" style="font-size: 0.85rem;">
+            <i class="fa-solid fa-heart text-danger"></i> Plataforma de gestión de alquileres vacacionales
+        </p>
+    </div>
+</footer>
+
+<!-- Bundle JS de Bootstrap (incluye Popper). Va al final del body -->
+<script th:fragment="scripts" th:src="@{/webjars/bootstrap/5.3.8/dist/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
