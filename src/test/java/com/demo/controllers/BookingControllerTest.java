@@ -18,6 +18,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -73,6 +74,20 @@ class BookingControllerTest {
                 .andExpect(model().attribute("bookings", hasSize(2)));
 
 
+
+    }
+
+    @Test
+    void borrarBooking() throws Exception{
+        assertTrue(bookingRepository.findById(b1.getId()).isPresent());
+
+        mockMvc.perform(post("/booking/"+b1.getId()+"/delete"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/bookings"))
+                .andExpect(flash().attributeExists("message"))
+                .andExpect(flash().attribute("message", "Reserva y entidades relacionadas eliminadas exitosamente."));
+
+        assertFalse(bookingRepository.findById(b1.getId()).isPresent());
 
     }
 
