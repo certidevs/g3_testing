@@ -123,7 +123,23 @@ public class DataInitializer implements CommandLineRunner {
                 .isRead(false)
                 .build();
 
-        messageRepository.saveAll(List.of(m1, m2));
+        Message m3 = Message.builder()
+                .content("Te esperamos con muchas ganas.")
+                .sender(owner)
+                .conversation(conv)
+                .sentAt(LocalDateTime.now().plusMinutes(6))
+                .isRead(false)
+                .build();
+
+        Message m4 = Message.builder()
+                .content("Muchas Gracias !!")
+                .sender(guest)
+                .conversation(conv)
+                .sentAt(LocalDateTime.now().plusMinutes(8))
+                .isRead(false)
+                .build();
+
+        messageRepository.saveAll(List.of(m1, m2, m3, m4));
 
         Review review = Review.builder()
                 .rating(5)
