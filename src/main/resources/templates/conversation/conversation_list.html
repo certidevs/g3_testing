@@ -1,10 +1,97 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Mensajes | Booking App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #f8f9fa; }
+        .card-conversation {
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-left: 5px solid #0d6efd;
+        }
+        .card-conversation:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        .avatar-circle {
+            width: 50px;
+            height: 50px;
+            background-color: #e9ecef;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #495057;
+        }
+    </style>
 </head>
 <body>
 
+<nav class="navbar navbar-dark bg-primary mb-4">
+    <div class="container">
+        <span class="navbar-brand mb-0 h1"><i class="bi bi-chat-dots-fill me-2"></i> Mensajería</span>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h4 class="mb-4 text-secondary">Tus Conversaciones</h4>
+
+            <div th:if="${conversations == null || conversations.isEmpty()}" class="text-center py-5">
+                <i class="bi bi-chat-left-text text-muted" style="font-size: 3rem;"></i>
+                <p class="mt-3 text-muted">No tienes mensajes todavía.</p>
+                <a href="/" class="btn btn-outline-primary btn-sm">Explorar alojamientos</a>
+            </div>
+
+            <div th:each="conv : ${conversations}" class="card card-conversation mb-3 shadow-sm"
+                 th:onclick="|window.location.href='/conversation/' + ${conv.id}|">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <!-- Avatar con la inicial del Host -->
+                        <div class="avatar-circle me-3">
+                            <span th:text="${#strings.substring(conv.booking.host.name, 0, 1)}">U</span>
+                        </div>
+
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0 text-dark" th:text="${conv.booking.listing != null ? conv.booking.listing.title : 'Reserva sin título'}">
+                                    Título del Alojamiento
+                                </h6>
+                                <small class="text-muted" th:text="${#temporals.format(conv.booking.checkIn, 'dd MMM')}">
+                                    15 May
+                                </small>
+                            </div>
+
+                            <p class="text-muted mb-0 small">
+                                <i class="bi bi-person me-1"></i>
+                                Anfitrión: <span th:text="${conv.booking.host.name}">Nombre Host</span>
+                            </p>
+
+                            <div class="mt-2">
+                                <span class="badge bg-light text-primary border border-primary-subtle">
+                                    Reserva #<span th:text="${conv.booking.id}">001</span>
+                                </span>
+                                <span th:if="${conv.booking.status.name() == 'CONFIRMED'}" class="badge bg-success-subtle text-success">Confirmada</span>
+                            </div>
+                        </div>
+
+                        <div class="ms-3 text-primary">
+                            <i class="bi bi-chevron-right"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
