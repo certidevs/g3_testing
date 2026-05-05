@@ -38,6 +38,7 @@ class BookingControllerTest {
 
     Booking b1;
     Booking b2;
+    Booking b3;
     Listing apartamento;
 
     @BeforeEach
@@ -46,9 +47,9 @@ class BookingControllerTest {
         listingRepository.save(apartamento);
 
         b1= Booking.builder().listing(apartamento).status(BookingStatus.CONFIRMED).checkIn(LocalDateTime.of(2026,4,22,15,30)).checkOut(LocalDateTime.of(2026,4,26,15,30)).build();
-        b2= Booking.builder().listing(apartamento).status(BookingStatus.CONFIRMED).checkIn(LocalDateTime.of(2026,3,22,15,30)).checkOut(LocalDateTime.of(2026,3,26,15,30)).build();
-
-        List<Booking> lista = List.of(b1,b2);
+        b2= Booking.builder().listing(apartamento).status(BookingStatus.PENDING).checkIn(LocalDateTime.of(2026,3,22,15,30)).checkOut(LocalDateTime.of(2026,3,26,15,30)).build();
+        b3 = Booking.builder().listing(apartamento).status(BookingStatus.PENDING).build();
+        List<Booking> lista = List.of(b1,b2,b3);
         bookingRepository.saveAll(lista);
 
     }
@@ -90,6 +91,36 @@ class BookingControllerTest {
         assertFalse(bookingRepository.findById(b1.getId()).isPresent());
 
     }
+
+    @Test
+    void confirmarBooking()throws Exception{
+        assertTrue(bookingRepository.findById(b2.getId()).isPresent());
+
+        mockMvc.perform(post("/booking/"+b2.getId()+"/confirm"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/bookings"))
+                .andExpect(flash().attributeExists("message"))
+                .andExpect(flash().attribute("message", "Reserva confirmada exitosamente."));
+
+
+        assertEquals(BookingStatus.CONFIRMED, bookingRepository.findById(b2.getId()).get().getStatus());
+    }
+
+    @Test
+    void cancelarBooking()throws Exception{
+        assertTrue(bookingRepository.findById(b3.getId()).isPresent());
+
+        mockMvc.perform(post("/booking/"+b3.getId()+"/cancel"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/bookings"))
+                .andExpect(flash().attributeExists("message"))
+                .andExpect(flash().attribute("message", "Reserva cancelada exitosamente."));
+
+        assertEquals(BookingStatus.CANCELED, bookingRepository.findById(b3.getId()).get().getStatus());
+
+
+    }
+
 
 
 }
