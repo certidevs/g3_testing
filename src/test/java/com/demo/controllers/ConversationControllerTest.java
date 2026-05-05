@@ -104,4 +104,13 @@ public class ConversationControllerTest {
                 .andExpect(redirectedUrl("/bookings"));
     }
 
+    @Test
+    void conversationList()throws Exception{
+        mockMvc.perform(get("/conversation"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("conversation/conversation_list"))
+                .andExpect(model().attributeExists("conversations"))
+                .andExpect(model().attribute("conversations", hasSize(1)));
+    }
+
 }
