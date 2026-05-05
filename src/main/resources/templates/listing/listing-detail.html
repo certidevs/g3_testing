@@ -1,10 +1,99 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{layout/head :: head('Detalle Listing')}"></head>
+
+<body class="d-flex flex-column min-vh-100">
+
+<nav th:replace="~{layout/navbar :: navbar}"></nav>
+
+<main class="container flex-grow-1">
+
+    <!-- Cabecera del listing -->
+    <div class="d-flex justify-content-between align-items-start mb-3">
+
+        <div>
+            <h1 class="mb-2" th:text="${listing.title}">Título del Listing</h1>
+
+            <p class="mb-2 fs-5 text-muted" th:text="${listing.shortDescription}">
+                Descripción corta
+            </p>
+
+            <span class="badge bg-success me-1">
+                <i class="fa-solid fa-euro-sign me-1"></i>
+                <span th:text="${listing.pricePerNight}">0</span> €/noche
+            </span>
+
+            <span class="badge bg-info text-dark me-1">
+                <i class="fa-solid fa-users me-1"></i>
+                <span th:text="${listing.maxGuests}">0</span> huéspedes
+            </span>
+
+            <span class="badge bg-light text-dark border me-1">
+                <i class="fa-solid fa-moon me-1"></i>
+                <span th:text="${listing.minNights}">0</span> noches mín.
+            </span>
+
+            <span class="badge bg-light text-dark border me-1">
+                <i class="fa-solid fa-sun me-1"></i>
+                <span th:text="${listing.maxNights}">0</span> noches máx.
+            </span>
+        </div>
+
+        <span th:if="${listing.isActive}" class="badge bg-success fs-6">
+            <i class="fa-solid fa-circle-check me-1"></i> Activo
+        </span>
+        <span th:unless="${listing.isActive}" class="badge bg-danger fs-6">
+            <i class="fa-solid fa-circle-xmark me-1"></i> Inactivo
+        </span>
+
+    </div>
+
+    <!-- Imagen principal -->
+    <div class="mb-4">
+        <img th:if="${listing.imageUrl != null}"
+             th:src="${listing.imageUrl}"
+             class="img-fluid rounded shadow-sm"
+             alt="Imagen del listing"
+             style="max-height: 400px; object-fit: cover;">
+    </div>
+
+    <hr>
+
+    <!-- Descripción larga -->
+    <h2 class="mt-4">
+        <i class="fa-solid fa-align-left text-primary me-2"></i> Descripción completa
+    </h2>
+
+    <p class="fs-5" th:text="${listing.longDescription}">
+        Aquí va la descripción larga del listing.
+    </p>
+
+    <hr>
+
+    <!-- Información adicional -->
+    <h2 class="mt-4">
+        <i class="fa-solid fa-circle-info text-primary me-2"></i> Información adicional
+    </h2>
+
+    <ul class="list-group mb-4">
+        <li class="list-group-item">
+            <strong>ID:</strong> <span th:text="${listing.id}"></span>
+        </li>
+        <li class="list-group-item">
+            <strong>Registrado el:</strong>
+            <span th:text="${#temporals.format(listing.registeredAt, 'dd/MM/yyyy')}"></span>
+        </li>
+        <li class="list-group-item">
+            <strong>Propietario ID:</strong>
+            <span th:text="${listing.owner.name}"></span>
+        </li>
+    </ul>
+
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+<script th:replace="~{layout/footer :: scripts}"></script>
 
 </body>
 </html>

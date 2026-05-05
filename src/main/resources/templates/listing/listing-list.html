@@ -1,10 +1,77 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{layout/head :: head('Listings')}"></head>
+
+<body class="d-flex flex-column min-vh-100">
+
+<nav th:replace="~{layout/navbar :: navbar}"></nav>
+
+<main class="container flex-grow-1">
+
+    <!-- Título + contador -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Listings</h1>
+        <span class="badge bg-secondary fs-6"
+              th:text="|${#lists.size(listings)} resultados|">0 resultados</span>
+    </div>
+
+    <!-- Grid de tarjetas -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+
+        <div class="col" th:each="listing : ${listings}">
+            <div class="card h-100 shadow-sm">
+
+                <!-- Imagen opcional -->
+                <img th:if="${listing.imageUrl != null}"
+                     th:src="${listing.imageUrl}"
+                     class="card-img-top"
+                     alt="Imagen del listing">
+
+                <div class="card-body">
+
+                    <!-- Título -->
+                    <h5 class="card-title">
+                        <i class="fa-solid fa-house text-primary me-2"></i>
+                        <span th:text="${listing.title}">Título</span>
+                    </h5>
+
+                    <!-- Descripción corta -->
+                    <p class="card-text" th:text="${listing.shortDescription}">
+                        Descripción corta
+                    </p>
+
+                    <!-- Precio + huéspedes -->
+                    <p class="card-text">
+
+                        <span class="badge bg-success">
+                            <i class="fa-solid fa-euro-sign me-1"></i>
+                            <span th:text="${listing.pricePerNight}">0</span> €/noche
+                        </span>
+
+                        <span class="badge bg-info text-dark ms-2">
+                            <i class="fa-solid fa-users me-1"></i>
+                            <span th:text="${listing.maxGuests}">0</span> huéspedes
+                        </span>
+
+                    </p>
+
+                </div>
+
+                <!-- Footer con botón -->
+                <div class="card-footer bg-transparent border-0 pt-0">
+                    <a class="btn btn-primary btn-sm"
+                       th:href="@{/listings/{id}(id=${listing.id})}">
+                        Ver detalle
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</main>
 
 </body>
 </html>
