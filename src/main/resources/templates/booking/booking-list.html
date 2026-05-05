@@ -1,10 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="layout/head :: head('Reservas')">
+    </head>
 
-</body>
+
+    <body>
+        <nav th:replace="layout/navbar :: navbar"></nav>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="mb-0" th:text="${saludo}">Reservas</h1>
+            <span class="badge bg-secondary fs-6"
+                  th:text="|${#lists.size(bookings)} resultados|">0 resultados</span>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+            <div class="col" th:each="booking : ${bookings}">
+                <div class="card card-booking h100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fa-solid fa-store text-primary me-2"></i>
+                            <span th:text="${booking.listing.title}">Nombre</span>
+                        </h5>
+                        <p class="card-text">
+                            <span class="badge bg-success">
+                                <i class="fa-solid fa-euro-sign me-1">
+                                    <span th:text="${booking.totalPrice}">0</span>
+                                </i>
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </body>
 </html>
