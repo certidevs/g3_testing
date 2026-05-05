@@ -98,7 +98,7 @@ class BookingControllerTest {
 
         mockMvc.perform(post("/booking/"+b2.getId()+"/confirm"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/bookings"))
+                .andExpect(redirectedUrl("/booking/"+b2.getId()))
                 .andExpect(flash().attributeExists("message"))
                 .andExpect(flash().attribute("message", "Reserva confirmada exitosamente."));
 
@@ -112,7 +112,7 @@ class BookingControllerTest {
 
         mockMvc.perform(post("/booking/"+b3.getId()+"/cancel"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/bookings"))
+                .andExpect(redirectedUrl("/booking/"+b3.getId()))
                 .andExpect(flash().attributeExists("message"))
                 .andExpect(flash().attribute("message", "Reserva cancelada exitosamente."));
 
