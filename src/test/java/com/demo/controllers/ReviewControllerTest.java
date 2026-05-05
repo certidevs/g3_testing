@@ -16,6 +16,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -49,14 +51,22 @@ class ReviewControllerTest {
     }
 
     @Test
-    void detectarReview(){
+    void detectarReview() throws Exception{
         assertTrue(reviewRepository.findById(rev1.getId()).isPresent());
     }
 
     @Test
-    void eliminarReview(){
+    void eliminarReview() throws Exception {
         reviewRepository.deleteById(rev1.getId());
         assertFalse(reviewRepository.findById(rev1.getId()).isPresent());
+
+        mockMvc.perform(get("/reviews/delete/" + rev1.getId()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/reviews"))
+                .andExpect(flash().attributeExists("message"))
+                .andExpect(flash().attribute("message", "Borrado exitosamente"));
+
+
     }
 
 
