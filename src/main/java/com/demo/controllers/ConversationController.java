@@ -22,7 +22,7 @@ public class ConversationController {
     private MessageRepository messageRepository;
 
     @GetMapping("/conversation/{id}")
-    String getConversation(@PathVariable("id") Long id, Model model){
+    String getConversationById(@PathVariable("id") Long id, Model model){
         Conversation conversation = conversationRepository.findByBookingId(id);
 
         if(conversation != null) {
@@ -34,5 +34,15 @@ public class ConversationController {
         }else{
             return "redirect:/bookings";
         }
+    }
+
+
+    //De momento pondré que recupere todas las conversaciones, cuando pongas lo del logging lo cambio.
+    @GetMapping("/conversation")
+    String getConversaionts(Model model){
+        List<Conversation> conversations = conversationRepository.findAll();
+
+        model.addAttribute("conversations", conversations);
+        return "conversation/conversation_list";
     }
 }

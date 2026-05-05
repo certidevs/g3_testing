@@ -7,14 +7,19 @@ import com.demo.repositories.BookingRepository;
 import com.demo.repositories.ListingRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @SpringBootTest
 @Transactional
@@ -26,6 +31,9 @@ class BookingControllerTest {
 
     @Autowired
     ListingRepository listingRepository;
+
+    @Autowired
+    MockMvc mockMvc;
 
     Booking b1;
     Booking b2;
@@ -41,6 +49,30 @@ class BookingControllerTest {
 
         List<Booking> lista = List.of(b1,b2);
         bookingRepository.saveAll(lista);
+
+    }
+
+    @Test
+    void detectarBooking() throws Exception{
+        assertTrue(bookingRepository.findById(b1.getId()).isPresent());
+        mockMvc.perform(get("/booking/" + b1.getId()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("booking/booking-detail"))
+                .andExpect(model().attributeExists("booking"))
+                .andExpect(model().attributeExists("listing"));
+
+    }
+
+    @Test
+    void listaBooking() throws Exception{
+        assertFalse(bookingRepository.findAll().isEmpty());
+        mockMvc.perform(get("/bookings"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("booking/booking-list"))
+                .andExpect(model().attributeExists("bookings"))
+                .andExpect(model().attribute("bookings", hasSize(2)));
+
+
 
     }
 
