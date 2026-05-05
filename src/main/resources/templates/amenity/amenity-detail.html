@@ -22,7 +22,7 @@
             Pertenece a la propiedad
             <a class="fw-semibold"
                th:href="@{/listing/{id}(id=${amenity.listing.id})}"
-               th:text="${amenity.listing.name != null ? amenity.listing.name : 'Ver casa'}">Ver casa</a>
+               th:text="${amenity.listing.title != null ? amenity.listing.title : 'Ver casa'}">Ver casa</a>
         </div>
     </div>
 

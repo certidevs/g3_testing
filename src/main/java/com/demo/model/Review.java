@@ -24,7 +24,7 @@ public class Review {
     @Min(1)
     @Max(5)
     private Integer rating;
-
+    @Column(length = 1000)
     private String comment;
 
     // poner false pro defecto
