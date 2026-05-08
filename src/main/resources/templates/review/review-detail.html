@@ -1,10 +1,109 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{layout/head :: head('Detalle de Reseña')}"></head>
+
+<body class="d-flex flex-column min-vh-100 bg-light">
+
+<nav th:replace="~{layout/navbar :: navbar}"></nav>
+
+<main class="container flex-grow-1 my-4">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a th:href="@{/reviews}" class="text-decoration-none">
+                    <i class="fa-solid fa-star me-1"></i>Reseñas
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Reseña #<span th:text="${review.id}"></span>
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Tarjeta principal -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                <div>
+                    <h1 class="h3 mb-1">Reseña #<span th:text="${review.id}"></span></h1>
+                    <div class="text-muted small">
+                        <i class="fa-regular fa-calendar me-1"></i>
+                        <span th:text="${#temporals.format(review.creationDate, 'dd/MM/yyyy HH:mm')}"></span>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <div class="mb-1">
+                        <i th:each="i : ${#numbers.sequence(1, 5)}"
+                           class="fa-solid fa-star fs-5"
+                           th:classappend="${i <= review.rating} ? 'text-warning' : 'text-muted opacity-25'"></i>
+                    </div>
+                    <span class="badge bg-warning text-dark fs-6"
+                          th:text="|${review.rating} / 5|">3 / 5</span>
+                    <div class="mt-1">
+                        <span class="badge" th:classappend="${review.verified ? 'bg-success' : 'bg-secondary'}">
+                            <i class="fa-solid fa-check-circle me-1" th:if="${review.verified}"></i>
+                            <i class="fa-solid fa-circle me-1" th:unless="${review.verified}"></i>
+                            <span th:text="${review.verified ? 'Verificada' : 'No verificada'}"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <hr/>
+
+            <p class="card-text fs-5 lh-base" th:text="${review.comment}">Comentario de la reseña</p>
+        </div>
+
+        <div class="card-footer bg-white" th:if="${booking != null}">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center">
+                        <i class="fa-solid fa-house fa-2x text-primary me-3"></i>
+                        <div>
+                            <div class="text-muted small">Propiedad</div>
+                            <a th:href="@{/listings/{id}(id=${booking.listing.id})}"
+                               class="fw-semibold text-decoration-none"
+                               th:text="${booking.listing.title}">Propiedad</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center">
+                        <i class="fa-solid fa-calendar-check fa-2x text-success me-3"></i>
+                        <div>
+                            <div class="text-muted small">Reserva</div>
+                            <a th:href="@{/bookings/{id}(id=${booking.id})}"
+                               class="fw-semibold text-decoration-none"
+                               th:text="'Reserva #' + ${booking.id}">Reserva #ID</a>
+                            <span class="text-muted small">
+                                — <span th:text="${#temporals.format(booking.checkIn, 'dd/MM/yyyy')}"></span> al <span th:text="${#temporals.format(booking.checkOut, 'dd/MM/yyyy')}"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones -->
+    <div class="d-flex flex-wrap gap-2">
+        <a th:href="@{/reviews}" class="btn btn-outline-secondary">
+            <i class="fa-solid fa-arrow-left me-1"></i> Volver al listado
+        </a>
+        <a th:href="@{/reviews/delete/{id}(id=${review.id})}"
+           class="btn btn-danger"
+           onclick="return confirm('¿Seguro que quieres borrar esta reseña?');">
+            <i class="fa-solid fa-trash me-1"></i> Borrar
+        </a>
+    </div>
+
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+<script th:replace="~{layout/footer :: scripts}"></script>
 
 </body>
 </html>
