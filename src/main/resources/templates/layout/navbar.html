@@ -1,48 +1,86 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 shadow-sm">
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm py-3">
     <div class="container">
-        <a class="navbar-brand d-flex align-items-center" th:href="@{/}">
-            <img th:src="@{/images/logo.png}" alt="G3 Alquiler Vacacional"
-                 height="32" class="me-2 rounded-3">
-            <span>G3 Alquiler Vacacional</span>
+        <!-- Logo y Marca: Actualizado a OpenHouse -->
+        <a class="navbar-brand d-flex align-items-center fw-bold text-primary" th:href="@{/}">
+            <div class="bg-primary rounded-3 d-flex align-items-center justify-content-center me-2 shadow-sm" style="width: 40px; height: 40px;">
+                <i class="fa-solid fa-door-open text-white"></i>
+            </div>
+            <span class="fs-4 tracking-tight" style="color: #1e293b;">openHouse</span>
         </a>
-        <button class="navbar-toggler" type="button"
-                data-bs-toggle="collapse" data-bs-target="#mainNav"
-                aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+
+        <!-- Botón Hamburguesa para móviles -->
+        <button class="navbar-toggler border-0 shadow-none" type="button"
+                data-bs-toggle="collapse" data-bs-target="#mainNav">
             <span class="navbar-toggler-icon"></span>
         </button>
+
+        <!-- Menú de Navegación -->
         <div class="collapse navbar-collapse" id="mainNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/listings}">
-                        <i class="fa-solid fa-house me-1"></i> Propiedades
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item px-2">
+                    <a class="nav-link fw-medium d-flex align-items-center gap-2" th:href="@{/listings}">
+                        <i class="fa-solid fa-house-chimney text-muted"></i> Propiedades
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/bookings}">
-                        <i class="fa-solid fa-calendar me-1"></i> Reservas
+                <li class="nav-item px-2">
+                    <a class="nav-link fw-medium d-flex align-items-center gap-2" th:href="@{/bookings}">
+                        <i class="fa-solid fa-calendar-days text-muted"></i> Reservas
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/reviews}">
-                        <i class="fa-solid fa-star me-1"></i> Reseñas
+                <li class="nav-item px-2">
+                    <a class="nav-link fw-medium d-flex align-items-center gap-2" th:href="@{/reviews}">
+                        <i class="fa-solid fa-star-half-stroke text-muted"></i> Reseñas
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/conversation}">
-                        <i class="fa-solid fa-envelope me-1"></i> Conversaciones
+                <li class="nav-item px-2">
+                    <a class="nav-link fw-medium d-flex align-items-center gap-2" th:href="@{/conversation}">
+                        <i class="fa-solid fa-comments text-muted"></i> Mensajes
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/amenity}">
-                        <i class="fa-solid fa-spa me-1"></i> Comodidades
+                <li class="nav-item px-2">
+                    <a class="nav-link fw-medium d-flex align-items-center gap-2" th:href="@{/amenity}">
+                        <i class="fa-solid fa-list-check text-muted"></i> Comodidades
+                    </a>
+                </li>
+
+                <!-- Botón de Acción -->
+                <li class="nav-item ms-lg-3">
+                    <a class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold" th:href="@{/listings/new}">
+                        Anunciar casa
                     </a>
                 </li>
             </ul>
         </div>
     </div>
+
+    <!-- Estilos exclusivos para la Navbar -->
+    <style>
+        .navbar {
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .nav-link {
+            color: #64748b !important;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+        .nav-link:hover {
+            color: #0d6efd !important;
+            background-color: #f8fafc;
+            border-radius: 8px;
+        }
+        .navbar-brand span {
+            letter-spacing: -1px;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        /* Efecto activo suave */
+        .nav-link i {
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+    </style>
 </nav>
 </body>
 </html>
