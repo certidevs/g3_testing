@@ -44,6 +44,7 @@ public class BookingController {
 
         model.addAttribute("booking", bookingRepository.findById(id).orElseThrow());
         model.addAttribute("listing", bookingRepository.findListingByBookingId(id));
+        model.addAttribute("review",bookingRepository.findReviewByBookingId(id));
 
         return "booking/booking-detail";
 
