@@ -1,6 +1,5 @@
 package com.demo.model;
 
-import com.demo.model.enums.AmenityType;
 import jakarta.persistence.*;
 import lombok.*;
 //import org.apache.catalina.User;
@@ -8,8 +7,9 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 /**
- * Entidad que representa una propiedad publicada en la plataforma.
- * */
+
+ Entidad que representa una propiedad publicada en la plataforma.
+ */
 
 @Entity
 @Table(name = "amenities")
@@ -31,9 +31,6 @@ public class Amenity {
     private String description;
     @Column(columnDefinition="TEXT") //permite almacenar textos largos sin límite de caracteres, ideal para descripciones detalladas
     private String icon;
-
-    @Enumerated(EnumType.STRING)
-    private AmenityType type;
 
     @ManyToOne
     private Listing listing;

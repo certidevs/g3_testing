@@ -1,72 +1,59 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{layout/head :: head('Detalle Amenity')}"></head>
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100 bg-light">
 
 <nav th:replace="~{layout/navbar :: navbar}"></nav>
 
-<main class="container flex-grow-1">
+<main class="container flex-grow-1 my-5">
 
-    <!-- Card con los datos de Amenities -->
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <h1 class="card-title mb-3" th:text="'Amenity ' + ${amenity.id}">Amenity</h1>
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <h1 class="card-title h2 mb-0" th:text="${amenity.name}">Nombre del Amenity</h1>
+                <span class="badge bg-info text-dark p-2">
+                    <i class="fa-solid fa-star me-1"></i>Servicio
+                </span>
+            </div>
+
+            <hr class="text-muted">
 
             <dl class="row mb-0">
-                <dt class="col-sm-3"><i class="fa-solid fa-tag me-1"></i> Nombre</dt>
-                <dd class="col-sm-9" th:text="${amenity.name}"></dd>
+                <dt class="col-sm-3 text-muted"><i class="fa-solid fa-fingerprint me-2"></i>ID Registro</dt>
+                <dd class="col-sm-9" th:text="${amenity.id}"></dd>
 
-                <dt class="col-sm-3"><i class="fa-solid fa-euro-sign me-1"></i> Precio</dt>
-                <dd class="col-sm-9" th:text="${amenity.price != null ? amenity.price + ' €' : 'Sin precio'}"></dd>
+                <dt class="col-sm-3 text-muted"><i class="fa-solid fa-circle-info me-2"></i>Descripción</dt>
+                <dd class="col-sm-9" th:text="${amenity.description != null ? amenity.description : 'Sin descripción detallada'}"></dd>
 
-                <dt class="col-sm-3"><i class="fa-regular fa-pen-to-square me-1"></i> Descripción</dt>
-                <dd class="col-sm-9" th:text="${amenity.description != null ? amenity.description : 'Sin descripción'}"></dd>
-
-                <dt class="col-sm-3"><i class="fa-solid fa-list me-1"></i> Tipo</dt>
+                <dt class="col-sm-3 text-muted"><i class="fa-solid fa-icons me-2"></i>Icono</dt>
                 <dd class="col-sm-9">
-                    <span th:switch="${amenity.type}">
-                        <span class="badge bg-success" th:case="${T(com.demo.model.enums.AmenityType).STARTER}">🥬 Personales</span>
-                        <span class="badge bg-primary" th:case="${T(com.demo.model.enums.AmenityType).MAIN_COURSE}">🐟 Comunitarios</span>
-                        <span class="badge bg-warning text-dark" th:case="${T(com.demo.model.enums.AmenityType).DESSERT}">🍦 Productos y Servicios</span>
-                        <span class="badge bg-secondary" th:case="*">No definido</span>
-                    </span>
+                    <i th:class="${amenity.icon != null ? amenity.icon : 'fa-solid fa-tag'}"></i>
+                    <span class="ms-1 text-muted small" th:text="${amenity.icon != null ? amenity.icon : 'Por defecto'}"></span>
                 </dd>
             </dl>
         </div>
 
-        <div class="card-footer bg-transparent" th:if="${amenity.demo != null}">
-            <i class="fa-solid fa-store text-primary me-1"></i>
-            Este Amenity está disponible
-            <a class="fw-semibold"
-               th:href="@{/listing/{id}(id=${amenity.listing.id})}"
-               th:text="${amenity.listing.name}"></a>
+        <div class="card-footer bg-white p-3" th:if="${amenity.listing != null}">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-house-circle-check text-primary me-2"></i>
+                <span>Disponible en la propiedad: </span>
+                <a class="fw-semibold ms-1 text-decoration-none"
+                   th:href="@{/listing/{id}(id=${amenity.listing.id})}"
+                   th:text="${amenity.listing.title}">Nombre de la Propiedad</a>
+            </div>
         </div>
     </div>
 
-    <!-- Opiniones del plato -->
-    <h2 class="mt-5">
-        <i class="fa-regular fa-comments text-primary me-2"></i> Opiniones sobre este Amenity
-    </h2>
+    <div class="mt-5">
+        <h2 class="h4 mb-4">
+            <i class="fa-regular fa-comments text-primary me-2"></i>Información Adicional
+        </h2>
 
-    <div th:if="${reviews.isEmpty()}" class="alert alert-light border">
-        <i class="fa-regular fa-face-smile me-1"></i>
-        Nadie ha comentado todavía, sé el primero en escribir una opinión.
-    </div>
-
-    <div class="row row-cols-1 row-cols-md-2 g-3" th:unless="${reviews.isEmpty()}">
-        <div class="col" th:each="review : ${reviews}">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title" th:text="${review.title}">Título</h5>
-                    <p class="card-text" th:text="${review.content}">Descripción</p>
-                    <span class="badge bg-warning text-dark">
-                        <i class="fa-solid fa-star me-1"></i>
-                        <span th:text="${review.rating + ' / 5'}"></span>
-                    </span>
-                </div>
-                <div class="card-footer text-muted small bg-transparent">
-                    <i class="fa-regular fa-calendar me-1"></i>
-                    <span th:text="${review.creationDate}"></span>
+        <div class="alert alert-light border shadow-sm">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-circle-exclamation text-info me-3 fa-2x"></i>
+                <div>
+                    <p class="mb-0 text-muted">Este amenity es gestionado por el propietario. Para más detalles sobre su uso o disponibilidad, consulte la guía de la propiedad.</p>
                 </div>
             </div>
         </div>
