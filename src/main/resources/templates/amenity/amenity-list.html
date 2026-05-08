@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{layout/head :: head('Listado de Amenities')}"></head>
+
+<body class="d-flex flex-column min-vh-100 bg-light">
+
+<nav th:replace="~{layout/navbar :: navbar}"></nav>
+
+<main class="container flex-grow-1 my-4">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+        <h1 class="mb-0">
+            <i class="fa-solid fa-utensils text-primary me-2"></i>Amenities
+        </h1>
+        <span class="badge bg-secondary fs-6"
+              th:text="|${#lists.size(amenities)} amenities|">0 amenities</span>
+    </div>
+
+    <!-- Estado vacío -->
+    <div th:if="${#lists.isEmpty(dishes)}" class="alert alert-light border text-center py-5">
+        <i class="fa-regular fa-folder-open fa-2x mb-2 d-block text-muted"></i>
+        <p class="mb-0 text-muted">Todavía no hay Amenities registrados</p>
+    </div>
+
+    <!-- Grid de amenities -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3"
+         th:unless="${#lists.isEmpty(amenities)}">
+        <div class="col" th:each="amenity : ${amenities}">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <span th:switch="${amenity.type}">
+                                <span class="badge bg-success" th:case="${T(com.demo.model.enums.AmenityType).STARTER}">
+                                    <i class="fa-solid fa-leaf me-1"></i>Entrantes
+                                </span>
+                                <span class="badge bg-primary" th:case="${T(com.restaurantes.model.enums.DishType).MAIN_COURSE}">
+                                    <i class="fa-solid fa-drumstick-bite me-1"></i>Principales
+                                </span>
+                                <span class="badge bg-warning text-dark" th:case="${T(com.restaurantes.model.enums.DishType).DESSERT}">
+                                    <i class="fa-solid fa-ice-cream me-1"></i>Postres
+                                </span>
+                                <span class="badge bg-secondary" th:case="*">Sin tipo</span>
+                            </span>
+                    <span class="fw-bold text-success">
+                                <span th:if="${dish.price != null}"
+                                      th:text="|${#numbers.formatDecimal(dish.price, 1, 2)} €|">0,00 €</span>
+                                <span th:unless="${dish.price != null}" class="text-muted small">Sin precio</span>
+                            </span>
+                </div>
+
+                <div class="card-body">
+                    <h5 class="card-title mb-2" th:text="${dish.name}">Nombre</h5>
+                    <p class="card-text text-muted small mb-0"
+                       th:text="${dish.description != null ? dish.description : 'Sin descripción'}">
+                        Descripción
+                    </p>
+                </div>
+
+                <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+                    <small class="text-muted text-truncate me-2" th:if="${dish.restaurant != null}">
+                        <i class="fa-solid fa-store text-danger me-1"></i>
+                        <a th:href="@{/restaurants/{id}(id=${dish.restaurant.id})}"
+                           class="text-decoration-none text-muted"
+                           th:text="${dish.restaurant.name}">Restaurante</a>
+                    </small>
+                    <a th:href="@{/dishes/{id}(id=${dish.id})}"
+                       class="btn btn-sm btn-outline-primary flex-shrink-0">
+                        <i class="fa-regular fa-eye me-1"></i>Ver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+<script th:replace="~{layout/footer :: scripts}"></script>
+
+</body>
+</html>
+>

@@ -7,28 +7,70 @@
 
 <main class="container flex-grow-1">
 
+    <!-- Card con los datos de Amenities -->
     <div class="card shadow-sm">
         <div class="card-body">
-            <h1 class="card-title mb-3" th:text="${'Amenity ' + amenity.id}">Amenity</h1>
+            <h1 class="card-title mb-3" th:text="'Amenity ' + ${amenity.id}">Amenity</h1>
 
             <dl class="row mb-0">
                 <dt class="col-sm-3"><i class="fa-solid fa-tag me-1"></i> Nombre</dt>
                 <dd class="col-sm-9" th:text="${amenity.name}"></dd>
+
+                <dt class="col-sm-3"><i class="fa-solid fa-euro-sign me-1"></i> Precio</dt>
+                <dd class="col-sm-9" th:text="${amenity.price != null ? amenity.price + ' €' : 'Sin precio'}"></dd>
+
+                <dt class="col-sm-3"><i class="fa-regular fa-pen-to-square me-1"></i> Descripción</dt>
+                <dd class="col-sm-9" th:text="${amenity.description != null ? amenity.description : 'Sin descripción'}"></dd>
+
+                <dt class="col-sm-3"><i class="fa-solid fa-list me-1"></i> Tipo</dt>
+                <dd class="col-sm-9">
+                    <span th:switch="${amenity.type}">
+                        <span class="badge bg-success" th:case="${T(com.demo.model.enums.AmenityType).STARTER}">🥬 Personales</span>
+                        <span class="badge bg-primary" th:case="${T(com.demo.model.enums.AmenityType).MAIN_COURSE}">🐟 Comunitarios</span>
+                        <span class="badge bg-warning text-dark" th:case="${T(com.demo.model.enums.AmenityType).DESSERT}">🍦 Productos y Servicios</span>
+                        <span class="badge bg-secondary" th:case="*">No definido</span>
+                    </span>
+                </dd>
             </dl>
         </div>
 
-        <div class="card-footer bg-transparent" th:if="${amenity.listing != null}">
+        <div class="card-footer bg-transparent" th:if="${amenity.demo != null}">
             <i class="fa-solid fa-store text-primary me-1"></i>
-            Pertenece a la propiedad
+            Este Amenity está disponible
             <a class="fw-semibold"
                th:href="@{/listing/{id}(id=${amenity.listing.id})}"
-               th:text="${amenity.listing.title != null ? amenity.listing.title : 'Ver casa'}">Ver casa</a>
+               th:text="${amenity.listing.name}"></a>
         </div>
     </div>
 
-    <!-- TODO Añadir lista de opiniones -->
-    <!-- TODO Añadir lista de alérgenos -->
-    <!-- TODO Añadir botón de Pedir plato que lo añada al pedido -->
+    <!-- Opiniones del plato -->
+    <h2 class="mt-5">
+        <i class="fa-regular fa-comments text-primary me-2"></i> Opiniones sobre este Amenity
+    </h2>
+
+    <div th:if="${reviews.isEmpty()}" class="alert alert-light border">
+        <i class="fa-regular fa-face-smile me-1"></i>
+        Nadie ha comentado todavía, sé el primero en escribir una opinión.
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 g-3" th:unless="${reviews.isEmpty()}">
+        <div class="col" th:each="review : ${reviews}">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${review.title}">Título</h5>
+                    <p class="card-text" th:text="${review.content}">Descripción</p>
+                    <span class="badge bg-warning text-dark">
+                        <i class="fa-solid fa-star me-1"></i>
+                        <span th:text="${review.rating + ' / 5'}"></span>
+                    </span>
+                </div>
+                <div class="card-footer text-muted small bg-transparent">
+                    <i class="fa-regular fa-calendar me-1"></i>
+                    <span th:text="${review.creationDate}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </main>
 

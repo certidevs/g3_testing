@@ -15,8 +15,20 @@ public class AmenityController {
     private final AmenityRepository amenityRepository;
 
 
+    @GetMapping("/amenity")
+    public String amenity(Model model, @PathVariable Long id) {
+
+        model.addAttribute("amenity", amenityRepository.findAll());
+
+
+        return "amenity/amenity-list";
+
+    }
+
+
+
     //mapping
-    @GetMapping("amenity/{id}")
+    @GetMapping("/amenity/{id}")
     public String amenityDetail(Model model, @PathVariable Long id) {
 
         model.addAttribute("amenity", amenityRepository.findById(id).orElseThrow());
