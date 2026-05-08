@@ -212,6 +212,68 @@
 
     <hr>
 
+    <!-- Sección de Reseñas -->
+    <h2 class="mt-4 mb-3">
+        <i class="fa-solid fa-star text-primary me-2"></i> Reseñas de esta reserva
+    </h2>
+
+    <!-- Si hay reseñas -->
+    <div th:if="${booking.review != null}" class="mb-4">
+        <div class="card border-warning shadow-sm">
+            <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fa-solid fa-star-half-stroke me-2"></i>
+                    <strong>Valoración: </strong>
+                    <span th:text="${booking.review.rating}">0</span>/5
+                </div>
+                <div>
+                    <span class="badge bg-light text-dark" th:if="${booking.review.verified}">
+                        <i class="fa-solid fa-check-circle me-1"></i> Verificada
+                    </span>
+                    <span class="badge bg-light text-dark" th:unless="${booking.review.verified}">
+                        <i class="fa-solid fa-circle me-1"></i> No verificada
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Estrellas visuales -->
+                <div class="mb-3">
+                    <span th:each="i : ${#numbers.sequence(1, 5)}">
+                        <i th:if="${i <= booking.review.rating}" class="fa-solid fa-star text-warning"></i>
+                        <i th:unless="${i <= booking.review.rating}" class="fa-regular fa-star text-warning"></i>
+                    </span>
+                </div>
+
+                <!-- Comentario -->
+                <p class="card-text fs-6" th:text="${booking.review.comment}">
+                    Aquí va el comentario de la reseña...
+                </p>
+
+                <!-- Información adicional de la reseña -->
+                <hr class="my-2">
+                <div class="small text-muted">
+                    <p class="mb-1">
+                        <strong>Fecha de la reseña:</strong>
+                        <span th:text="${#temporals.format(booking.review.creationDate, 'dd/MM/yyyy')}">01/01/2026</span>
+                    </p>
+                    <p class="mb-0">
+                        <strong>ID de Reseña:</strong>
+                        <span th:text="${booking.review.id}">#000</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Si no hay reseñas -->
+    <div th:unless="${booking.review != null}" class="alert alert-info alert-dismissible fade show mb-4" role="alert">
+        <i class="fa-solid fa-circle-info me-2"></i>
+        <strong>Sin reseñas</strong> - Esta reserva no tiene ninguna reseña asignada aún.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <hr>
+
     <!-- Información adicional -->
     <h2 class="mt-4 mb-3">
         <i class="fa-solid fa-rectangle-list text-primary me-2"></i> Información adicional
