@@ -2,6 +2,7 @@ package com.demo.controllers;
 
 import com.demo.model.Listing;
 import com.demo.repositories.ListingRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,15 +11,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
+@AllArgsConstructor
 @Controller
-@RequestMapping("/listings")
+@RequestMapping("/listings") //ruta base para todos los métodos
 class ListingController {
 
     private final ListingRepository listingRepository;
 
-    public ListingController(ListingRepository listingRepository) {
-        this.listingRepository = listingRepository;
-    }
 
     @GetMapping
     public String list(Model model){
