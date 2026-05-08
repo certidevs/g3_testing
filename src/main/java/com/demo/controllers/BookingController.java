@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @AllArgsConstructor
@@ -31,6 +32,15 @@ public class BookingController {
 
     @GetMapping("/bookings")
     public String bookings(Model model) {
+        List<Booking> bookings = bookingRepository.findAll();
+
+        // Calcular totalPrice para cada reserva si no está establecido
+        for (Booking booking : bookings) {
+            if (booking.getTotalPrice() == null || booking.getTotalPrice() == 0) {
+                long days = ChronoUnit.DAYS.between(booking.getCheckIn(), booking.getCheckOut());
+                booking.setTotalPrice(days * booking.getListing().getPricePerNight());
+            }
+        }
 
         model.addAttribute("bookings", bookingRepository.findAll());
         model.addAttribute("listings", listingRepository.findAll());
@@ -41,6 +51,13 @@ public class BookingController {
 
     @GetMapping("bookings/{id}")
     public String bookingDetail(Model model, @PathVariable Long id) {
+        Booking booking = bookingRepository.findById(id).orElseThrow();
+
+        // Calcular totalPrice si no está establecido
+        if (booking.getTotalPrice() == null || booking.getTotalPrice() == 0) {
+            long days = ChronoUnit.DAYS.between(booking.getCheckIn(), booking.getCheckOut());
+            booking.setTotalPrice(days * booking.getListing().getPricePerNight());
+        }
 
         model.addAttribute("booking", bookingRepository.findById(id).orElseThrow());
         model.addAttribute("listing", bookingRepository.findListingByBookingId(id));
