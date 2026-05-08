@@ -57,7 +57,7 @@ class BookingControllerTest {
     @Test
     void detectarBooking() throws Exception{
         assertTrue(bookingRepository.findById(b1.getId()).isPresent());
-        mockMvc.perform(get("/booking/" + b1.getId()))
+        mockMvc.perform(get("/bookings/" + b1.getId()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("booking/booking-detail"))
                 .andExpect(model().attributeExists("booking"))
@@ -82,7 +82,7 @@ class BookingControllerTest {
     void borrarBooking() throws Exception{
         assertTrue(bookingRepository.findById(b1.getId()).isPresent());
 
-        mockMvc.perform(post("/booking/"+b1.getId()+"/delete"))
+        mockMvc.perform(post("/bookings/"+b1.getId()+"/delete"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/bookings"))
                 .andExpect(flash().attributeExists("message"))
@@ -96,7 +96,7 @@ class BookingControllerTest {
     void confirmarBooking()throws Exception{
         assertTrue(bookingRepository.findById(b2.getId()).isPresent());
 
-        mockMvc.perform(post("/booking/"+b2.getId()+"/confirm"))
+        mockMvc.perform(post("/bookings/"+b2.getId()+"/confirm"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/booking/"+b2.getId()))
                 .andExpect(flash().attributeExists("message"))
@@ -110,7 +110,7 @@ class BookingControllerTest {
     void cancelarBooking()throws Exception{
         assertTrue(bookingRepository.findById(b3.getId()).isPresent());
 
-        mockMvc.perform(post("/booking/"+b3.getId()+"/cancel"))
+        mockMvc.perform(post("/bookings/"+b3.getId()+"/cancel"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/booking/"+b3.getId()))
                 .andExpect(flash().attributeExists("message"))

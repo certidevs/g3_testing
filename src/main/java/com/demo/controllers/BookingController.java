@@ -39,7 +39,7 @@ public class BookingController {
 
     }
 
-    @GetMapping("booking/{id}")
+    @GetMapping("bookings/{id}")
     public String bookingDetail(Model model, @PathVariable Long id) {
 
         model.addAttribute("booking", bookingRepository.findById(id).orElseThrow());
@@ -49,7 +49,7 @@ public class BookingController {
 
     }
 
-    @PostMapping("/booking/{id}/confirm")
+    @PostMapping("/bookings/{id}/confirm")
     public String confirmBooking(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         Booking booking = bookingRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Reserva no encontrada"));
 
@@ -65,7 +65,7 @@ public class BookingController {
     }
 
 
-    @PostMapping("/booking/{id}/cancel")
+    @PostMapping("/bookings/{id}/cancel")
     public String cancelBooking(@PathVariable Long id, RedirectAttributes redirectAttributes){
 
         Booking booking= bookingRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Reserva no encontrada"));
@@ -83,7 +83,7 @@ public class BookingController {
 
 
 
-    @PostMapping("/booking/{id}/delete")
+    @PostMapping("/bookings/{id}/delete")
     public String deleteBooking(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             // 1. Buscar y eliminar messages de la conversación asociada

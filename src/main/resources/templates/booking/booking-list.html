@@ -1,36 +1,98 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-    <head th:replace="layout/head :: head('Reservas')">
-    </head>
 
+<head th:replace="~{layout/head :: head('Reservas')}"></head>
 
-    <body>
-        <nav th:replace="layout/navbar :: navbar"></nav>
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="mb-0" th:text="${saludo}">Reservas</h1>
-            <span class="badge bg-secondary fs-6"
-                  th:text="|${#lists.size(bookings)} resultados|">0 resultados</span>
-        </div>
+<body class="d-flex flex-column min-vh-100">
 
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-            <div class="col" th:each="booking : ${bookings}">
-                <div class="card card-booking h100 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">
-                            <i class="fa-solid fa-store text-primary me-2"></i>
-                            <span th:text="${booking.listing.title}">Nombre</span>
-                        </h5>
-                        <p class="card-text">
-                            <span class="badge bg-success">
-                                <i class="fa-solid fa-euro-sign me-1">
-                                    <span th:text="${booking.totalPrice}">0</span>
-                                </i>
+<nav th:replace="~{layout/navbar :: navbar}"></nav>
+
+<main class="container flex-grow-1">
+
+    <!-- Título + contador -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0" th:text="${saludo}">Reservas</h1>
+        <span class="badge bg-secondary fs-6"
+              th:text="|${#lists.size(bookings)} resultados|">0 resultados</span>
+    </div>
+
+    <!-- Grid de tarjetas -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+
+        <div class="col" th:each="booking : ${bookings}">
+            <div class="card card-booking h-100 shadow-sm">
+
+                <div class="card-body">
+
+                    <!-- Título - Nombre del Listing -->
+                    <h5 class="card-title">
+                        <i class="fa-solid fa-house text-primary me-2"></i>
+                        <span th:text="${booking.listing.title}">Nombre de la propiedad</span>
+                    </h5>
+
+                    <!-- Estado de la reserva -->
+                    <p class="card-text">
+                            <span class="badge"
+                                  th:classappend="${booking.status == 'CONFIRMED' ? 'bg-success' : booking.status == 'PENDING' ? 'bg-warning text-dark' : 'bg-danger'}">
+                                <i class="fa-solid fa-calendar-check me-1"></i>
+                                <span th:text="${booking.status}">Estado</span>
                             </span>
-                        </p>
-                    </div>
+                    </p>
+
+                    <!-- Fechas de la reserva -->
+                    <p class="card-text small text-muted">
+                        <i class="fa-solid fa-calendar-days me-2 text-info"></i>
+                        <span>Check-in:</span>
+                        <span th:text="${#temporals.format(booking.checkIn, 'dd/MM/yyyy HH:mm')}">01/01/2026</span>
+                    </p>
+
+                    <p class="card-text small text-muted">
+                        <i class="fa-solid fa-calendar-days me-2 text-danger"></i>
+                        <span>Check-out:</span>
+                        <span th:text="${#temporals.format(booking.checkOut, 'dd/MM/yyyy HH:mm')}">05/01/2026</span>
+                    </p>
+
+                    <!-- Información de huéspedes -->
+                    <p class="card-text small text-muted" th:if="${booking.guest != null}">
+                        <i class="fa-solid fa-user me-1"></i>
+                        <span>Huésped:</span>
+                        <span th:text="${booking.guest.name}">Nombre del huésped</span>
+                    </p>
+
+                    <p class="card-text small text-muted" th:if="${booking.host != null}">
+                        <i class="fa-solid fa-user-tie me-1"></i>
+                        <span>Anfitrión:</span>
+                        <span th:text="${booking.host.name}">Nombre del anfitrión</span>
+                    </p>
+
+                    <!-- Precio total -->
+                    <p class="card-text">
+                            <span class="badge bg-success fs-6">
+                                <i class="fa-solid fa-euro-sign me-1"></i>
+                                <span th:text="${booking.totalPrice}">0</span>
+                            </span>
+                    </p>
+
                 </div>
+
+                <!-- Footer con botón -->
+                <div class="card-footer bg-transparent border-0 pt-0">
+                    <a th:href="@{/bookings/{id}(id=${booking.id})}"
+                       class="btn btn-primary btn-sm w-100">
+                        <i class="fa-regular fa-eye me-1"></i> Ver detalles
+                    </a>
+                </div>
+
             </div>
         </div>
 
-    </body>
+    </div>
+
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+<script th:replace="~{layout/footer :: scripts}"></script>
+
+</body>
+
 </html>
