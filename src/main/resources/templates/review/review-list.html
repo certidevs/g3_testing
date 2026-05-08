@@ -1,10 +1,75 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/head :: head('Reseñas')}"></head>
+<body class="d-flex flex-column min-vh-100">
+
+<nav th:replace="~{layout/navbar :: navbar}"></nav>
+
+<main class="container flex-grow-1">
+
+    <h1 class="mb-4">
+        <i class="fa-solid fa-star text-primary me-2"></i> Reseñas
+    </h1>
+
+    <div th:if="${reviews.isEmpty()}" class="alert alert-light border">
+        Aún no hay reseñas.
+    </div>
+    <div th:if="${message}" class="alert alert-success fade show alert-dismissible" role="alert">
+        <i class="fa-solid fa-check-circle"></i>
+        <span th:text="${message}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 g-3">
+        <div class="col" th:each="review : ${reviews}">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title mb-0">Reseña #<span th:text="${review.id}"></span></h5>
+                        <span class="badge bg-warning text-dark">
+                            <i class="fa-solid fa-star me-1"></i>
+                            <span th:text="${review.rating + ' / 5'}"></span>
+                        </span>
+                    </div>
+                    <p class="card-text" th:text="${review.comment}">Comentario de la reseña</p>
+                    <p class="text-muted small mb-0">
+                        <i class="fa-regular fa-calendar me-1"></i>
+                        <span th:text="${#temporals.format(review.creationDate, 'dd/MM/yyyy')}"></span>
+                        <span th:if="${review.verified}" class="badge bg-success ms-2">Verificada</span>
+                        <span th:unless="${review.verified}" class="badge bg-secondary ms-2">No verificada</span>
+                    </p>
+                </div>
+                <div class="card-footer bg-transparent small">
+                    <div th:if="${review.booking != null}">
+                        <i class="fa-solid fa-house text-primary me-1"></i>
+                        <a th:href="@{/listings/{id}(id=${review.booking.listing.id})}"
+                           th:text="${review.booking.listing.title}">Propiedad</a>
+                        <span class="text-muted">
+                            — Reserva #
+                            <a th:href="@{/bookings/{id}(id=${review.booking.id})}"
+                               th:text="${review.booking.id}">ID</a>
+                        </span>
+                    </div>
+                    <div class="my-3">
+                        <!-- Botón de ver -->
+                        <a class="btn btn-secondary me-2" th:href="@{/reviews/{id}(id=${review.id})}">
+                            <i class="fa-solid fa-eye me-2"></i> Ver
+                        </a>
+
+                        <a class="btn btn-danger" th:href="@{/reviews/delete/{id}(id=${review.id})}"
+                           onclick="return confirm('Esta acción borra, ¿quiere borrar esta reseña?')">
+                            <i class="fa-solid fa-trash me-2"></i> Borrar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+<script th:replace="~{layout/footer :: scripts}"></script>
 
 </body>
 </html>

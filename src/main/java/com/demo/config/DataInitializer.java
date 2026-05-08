@@ -79,8 +79,22 @@ public class DataInitializer implements CommandLineRunner {
                 .owner(owner)
                 .isActive(true)
                 .build();
+        Listing ap = Listing.builder()
+                .title("Apartamento con Vistas")
+                .shortDescription("Apartamento moderno con vistas al mar")
+                .longDescription("Ubicado en la zona turística, con balcón y piscina")
+                .pricePerNight(150.0)
+                .minNights(2)
+                .maxNights(15)
+                .maxGuests(4)
+                .imageUrl("https://images.com/apartment")
+                .registeredAt(LocalDateTime.now())
+                .owner(owner)
+                .isActive(true)
+                .build();
+        List<Listing> listings = List.of(loft, ap);
 
-        listingRepository.save(loft);
+        listingRepository.saveAll(listings);
 
         Amenity wifi = Amenity.builder()
                 .name("Fibra Optica")
@@ -108,7 +122,18 @@ public class DataInitializer implements CommandLineRunner {
                 .listing(loft)
                 .build();
 
-        bookingRepository.save(booking);
+        Booking booking2 = Booking.builder()
+                .checkIn(LocalDateTime.of(2026,4,20,15,30))
+                .checkOut(LocalDateTime.of(2026,4,25,15,30))
+                .totalPrice(750.0)
+                .status(BookingStatus.CONFIRMED)
+                .host(owner)
+                .guest(guest)
+                .listing(ap)
+                .build();
+
+        List<Booking> bookings = List.of(booking, booking2);
+        bookingRepository.saveAll(bookings);
 
         Conversation conv = Conversation.builder()
                 .booking(booking)
@@ -158,6 +183,15 @@ public class DataInitializer implements CommandLineRunner {
                 .booking(booking)
                 .build();
 
-        reviewRepository.save(review);
+        Review review2 = Review.builder()
+                .rating(4)
+                .comment("Muy buen alojamiento, aunque el wifi a veces fallaba")
+                .verified(true)
+                .creationDate(LocalDate.now())
+                .booking(booking2)
+                .build();
+        List<Review> reviews = List.of(review, review2);
+
+        reviewRepository.saveAll(reviews);
     }
 }

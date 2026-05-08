@@ -39,17 +39,18 @@ public class BookingController {
 
     }
 
-    @GetMapping("booking/{id}")
+    @GetMapping("bookings/{id}")
     public String bookingDetail(Model model, @PathVariable Long id) {
 
         model.addAttribute("booking", bookingRepository.findById(id).orElseThrow());
         model.addAttribute("listing", bookingRepository.findListingByBookingId(id));
+        model.addAttribute("review",bookingRepository.findReviewByBookingId(id).orElseThrow());
 
         return "booking/booking-detail";
 
     }
 
-    @PostMapping("/booking/{id}/confirm")
+    @PostMapping("/bookings/{id}/confirm")
     public String confirmBooking(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         Booking booking = bookingRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Reserva no encontrada"));
 
@@ -64,7 +65,26 @@ public class BookingController {
         return "redirect:/booking/" + id;
     }
 
-    @PostMapping("/booking/{id}/delete")
+
+    @PostMapping("/bookings/{id}/cancel")
+    public String cancelBooking(@PathVariable Long id, RedirectAttributes redirectAttributes){
+
+        Booking booking= bookingRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Reserva no encontrada"));
+        if(booking.getStatus()== BookingStatus.PENDING){
+            booking.setStatus(BookingStatus.CANCELED);
+            bookingRepository.save(booking);
+            redirectAttributes.addFlashAttribute("message", "Reserva cancelada exitosamente.");
+
+        } else{
+            redirectAttributes.addFlashAttribute("error", "La reserva no puede ser cancelada porque no está en estado pendiente.");
+        }
+
+        return "redirect:/booking/" + id;
+    }
+
+
+
+    @PostMapping("/bookings/{id}/delete")
     public String deleteBooking(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             // 1. Buscar y eliminar messages de la conversación asociada

@@ -42,7 +42,7 @@ class ReviewRepositoryTest {
         listingRepository.save(l1);
 
         b1 = Booking.builder().listing(l1).status(BookingStatus.CONFIRMED).checkIn(LocalDateTime.of(2026,4,25,19,14)).checkOut(LocalDateTime.now()).build();
-        b2 = Booking.builder().listing(l1).status(BookingStatus.CANCELLED).checkIn(LocalDateTime.of(2026,4,15,20,55)).checkOut(LocalDateTime.of(2026,4,18,20,55)).build();
+        b2 = Booking.builder().listing(l1).status(BookingStatus.CANCELED).checkIn(LocalDateTime.of(2026,4,15,20,55)).checkOut(LocalDateTime.of(2026,4,18,20,55)).build();
         List<Booking> bookings = List.of(b1,b2);
         bookingRepository.saveAll(bookings);
         rev1 = Review.builder().comment("Muy buen restaurante").rating(4).verified(true).creationDate(LocalDate.now()).booking(b1).build();
