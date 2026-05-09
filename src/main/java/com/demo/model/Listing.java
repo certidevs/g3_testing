@@ -1,5 +1,6 @@
 package com.demo.model;
 
+import com.demo.model.enums.ListingType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -42,8 +43,11 @@ public class Listing {
     @Builder.Default
     private Boolean isActive = true;
 
-    //@Column(nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime registeredAt;
+
+    @Enumerated(EnumType.STRING)
+    private ListingType type;
 
     @ToString.Exclude
     @ManyToOne
