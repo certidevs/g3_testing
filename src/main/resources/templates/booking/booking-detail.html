@@ -147,7 +147,7 @@
         </div>
 
         <!-- Anfitrión -->
-        <div class="col-md-6" th:if="${booking.host != null}">
+        <div class="col-md-6" th:if="${owner != null}">
             <div class="card border-success">
                 <div class="card-header bg-success text-white">
                     <i class="fa-solid fa-user-tie me-2"></i> Anfitrión
@@ -156,17 +156,17 @@
                     <p class="mb-2">
                         <strong>Nombre:</strong>
                         <br>
-                        <span th:text="${booking.host.name}">Nombre del anfitrión</span>
+                        <span th:text="${owner.name}">Nombre del anfitrión</span>
                     </p>
                     <p class="mb-2">
                         <strong>Email:</strong>
                         <br>
-                        <span th:text="${booking.host.email}">email@example.com</span>
+                        <span th:text="${owner.email}">email@example.com</span>
                     </p>
                     <p class="mb-0">
                         <strong>ID:</strong>
                         <br>
-                        <span th:text="${booking.host.id}">#000</span>
+                        <span th:text="${owner.id}">#000</span>
                     </p>
                 </div>
             </div>

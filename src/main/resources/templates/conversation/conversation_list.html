@@ -49,7 +49,7 @@
 
                         <!-- Avatar con la inicial del Host -->
                         <div class="avatar-circle me-3">
-                            <span th:text="${#strings.substring(conv.booking.host.name, 0, 1)}">U</span>
+                            <span th:text="${#strings.substring(conv.booking.listing.owner.name, 0, 1)}">U</span>
                         </div>
 
                         <div class="flex-grow-1">
@@ -64,7 +64,7 @@
 
                             <p class="text-muted mb-0 small">
                                 <i class="bi bi-person me-1"></i>
-                                Anfitrión: <span th:text="${conv.booking.host.name}">Nombre Host</span>
+                                Anfitrión: <span th:text="${conv.booking.listing.owner.name}">Nombre Host</span>
                             </p>
 
                             <div class="mt-2">

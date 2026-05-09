@@ -29,9 +29,9 @@ public class Booking {
 
     private BookingStatus status;
 
-    @ManyToOne
-    @ToString.Exclude
-    User host;
+    //@ManyToOne
+    //@ToString.Exclude
+    //User host;
 
     @ManyToOne
     @ToString.Exclude

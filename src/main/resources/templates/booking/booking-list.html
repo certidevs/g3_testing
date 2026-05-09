@@ -59,10 +59,10 @@
                         <span th:text="${booking.guest.name}">Nombre del huésped</span>
                     </p>
 
-                    <p class="card-text small text-muted" th:if="${booking.host != null}">
+                    <p class="card-text small text-muted" th:if="${booking.listing.owner != null}">
                         <i class="fa-solid fa-user-tie me-1"></i>
                         <span>Anfitrión:</span>
-                        <span th:text="${booking.host.name}">Nombre del anfitrión</span>
+                        <span th:text="${booking.listing.owner.name}">Nombre del anfitrión</span>
                     </p>
 
                     <!-- Precio total -->

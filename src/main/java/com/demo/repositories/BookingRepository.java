@@ -3,6 +3,7 @@ package com.demo.repositories;
 import com.demo.model.Booking;
 import com.demo.model.Listing;
 import com.demo.model.Review;
+import com.demo.model.User;
 import com.demo.model.enums.BookingStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -21,6 +22,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     Listing findListingByBookingId(@Param("bookingId") Long bookingId);
     @Query("SELECT r FROM Review r WHERE r.booking.id = :bookingId")
     Optional<Review> findReviewByBookingId(@Param("bookingId") Long bookingId);
+    @Query("SELECT b.listing.owner FROM Booking b WHERE b.id = :bookingId")
+    Optional<User> findOwnerByBookingId(@Param("bookingId") Long bookingId);
+
+
 
 
 
