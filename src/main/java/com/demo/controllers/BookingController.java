@@ -47,7 +47,7 @@ public class BookingController {
 
     }
 
-    @GetMapping("bookings/{id}")
+    @GetMapping("/bookings/{id}")
     public String bookingDetail(Model model, @PathVariable Long id) {
         Booking booking = bookingRepository.findById(id).orElseThrow();
 
@@ -78,7 +78,7 @@ public class BookingController {
             redirectAttributes.addFlashAttribute("error", "La reserva no puede ser confirmada porque no está en estado pendiente.");
         }
 
-        return "redirect:/booking/" + id;
+        return "redirect:/bookings/" + id;
     }
 
 
@@ -95,7 +95,7 @@ public class BookingController {
             redirectAttributes.addFlashAttribute("error", "La reserva no puede ser cancelada porque no está en estado pendiente.");
         }
 
-        return "redirect:/booking/" + id;
+        return "redirect:/bookings/" + id;
     }
 
 
