@@ -1,10 +1,7 @@
 package com.demo.controllers;
 
 
-import com.demo.model.Booking;
-import com.demo.model.Conversation;
-import com.demo.model.Message;
-import com.demo.model.Review;
+import com.demo.model.*;
 import com.demo.model.enums.BookingStatus;
 import com.demo.repositories.*;
 import lombok.AllArgsConstructor;
@@ -12,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -127,6 +125,123 @@ public class BookingController {
 
         return "redirect:/bookings";
     }
+
+// ============== NUEVOS MÉTODOS PARA FORMULARIO DE RESERVA ==============
+
+    @GetMapping("/bookings/new/{listingId}")
+    public String showBookingForm(@PathVariable Long listingId, Model model) {
+        Listing listing = listingRepository.findById(listingId)
+                .orElseThrow(() -> new IllegalArgumentException("Alojamiento no encontrado"));
+
+        // Crear un nuevo booking vacío
+        Booking booking = new Booking();
+        booking.setListing(listing);
+
+        model.addAttribute("booking", booking);
+        model.addAttribute("listing", listing);
+
+        return "booking/booking-form";
+    }
+
+    @PostMapping("/bookings")
+    public String createBooking(@ModelAttribute Booking booking,
+                                RedirectAttributes redirectAttributes) {
+        try {
+            // 1. Validar que existan el listing
+            if (booking.getListing() == null || booking.getListing().getId() == null) {
+                throw new IllegalArgumentException("Alojamiento no especificado");
+            }
+
+            Listing listing = listingRepository.findById(booking.getListing().getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Alojamiento no encontrado"));
+
+            booking.setListing(listing);
+
+            // 2. Validar que checkIn < checkOut
+            if (booking.getCheckIn() == null || booking.getCheckOut() == null) {
+                throw new IllegalArgumentException("Las fechas de entrada y salida son requeridas");
+            }
+
+            if (booking.getCheckIn().isAfter(booking.getCheckOut()) ||
+                    booking.getCheckIn().isEqual(booking.getCheckOut())) {
+                throw new IllegalArgumentException("La fecha de salida debe ser posterior a la de entrada");
+            }
+
+            // 3. Validar mínimas y máximas noches
+            long nights = ChronoUnit.DAYS.between(
+                    booking.getCheckIn().toLocalDate(),
+                    booking.getCheckOut().toLocalDate()
+            );
+
+            if (nights < listing.getMinNights()) {
+                throw new IllegalArgumentException(
+                        String.format("Mínimo %d noches requeridas. Seleccionaste %d",
+                                listing.getMinNights(), nights)
+                );
+            }
+
+            if (nights > listing.getMaxNights()) {
+                throw new IllegalArgumentException(
+                        String.format("Máximo %d noches permitidas. Seleccionaste %d",
+                                listing.getMaxNights(), nights)
+                );
+            }
+
+            // 4. Validar disponibilidad (sin conflictos con otras reservas CONFIRMED)
+            List<Booking> conflicts = bookingRepository.findByListingId(listing.getId());
+            for (Booking existing : conflicts) {
+                // Solo validar con reservas CONFIRMED o PENDING
+                if (existing.getStatus() == BookingStatus.CONFIRMED ||
+                        existing.getStatus() == BookingStatus.PENDING) {
+
+                    // Verificar si hay solapamiento de fechas
+                    if (!booking.getCheckOut().isBefore(existing.getCheckIn()) &&
+                            !booking.getCheckIn().isAfter(existing.getCheckOut())) {
+                        throw new IllegalArgumentException(
+                                "Esas fechas no están disponibles. El alojamiento ya tiene una reserva en ese período."
+                        );
+                    }
+                }
+            }
+
+            booking.setCheckIn(booking.getCheckIn().withHour(15).withMinute(0)); // Check-in a las 15:00
+            booking.setCheckOut(booking.getCheckOut().withHour(15).withMinute(0));
+
+            // 5. Asignar guest (usuario actual)
+            // NOTA: Aquí usamos el primer usuario como guest (en producción usarías autenticación)
+            User guest = userRepository.findAll().stream().findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+            booking.setGuest(guest);
+
+            // 6. Calcular totalPrice
+            booking.setTotalPrice(nights * listing.getPricePerNight());
+
+            // 7. Establecer estado inicial
+            booking.setStatus(BookingStatus.PENDING);
+
+            // 8. Guardar la reserva
+            bookingRepository.save(booking);
+
+            redirectAttributes.addFlashAttribute("message",
+                    "Reserva creada exitosamente. Tu reserva está en estado pendiente.");
+
+            return "redirect:/bookings/" + booking.getId();
+
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            // Redirigir de vuelta al formulario con el listingId
+            Long listingId = booking.getListing() != null ? booking.getListing().getId() : null;
+            if (listingId != null) {
+                return "redirect:/bookings/new/" + listingId;
+            }
+            return "redirect:/listings";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error",
+                    "Error al crear la reserva: " + e.getMessage());
+            return "redirect:/listings";
+        }
+    }
+
 
 
 

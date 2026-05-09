@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{layout/head :: head('Nueva Reserva')}"></head>
+
+<body class="d-flex flex-column min-vh-100">
+
+<nav th:replace="~{layout/navbar :: navbar}"></nav>
+
+<main class="container flex-grow-1">
+    <h1 class="mb-4">
+        <i class="fa-solid fa-calendar-check me-2"></i>
+        Nueva Reserva - <span th:text="${listing.title}"></span>
+    </h1>
+
+    <!-- Información del alojamiento -->
+    <div class="alert alert-info mb-4">
+        <div class="row">
+            <div class="col-md-6">
+                <strong>Precio por noche:</strong>
+                <span th:text="${listing.pricePerNight}">0</span> €
+            </div>
+            <div class="col-md-6">
+                <strong>Mínimo de noches:</strong>
+                <span th:text="${listing.minNights}">0</span> |
+                <strong>Máximo:</strong>
+                <span th:text="${listing.maxNights}">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario de reserva -->
+    <form th:action="@{/bookings}" method="post" th:object="${booking}">
+
+        <!-- Campo oculto para listing_id -->
+        <input type="hidden" th:field="*{listing.id}">
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="checkIn" class="form-label">
+                    <i class="fa-solid fa-calendar me-2"></i>Fecha de Entrada
+                </label>
+                <input type="date"
+                       class="form-control"
+                       id="checkIn"
+                       th:field="*{checkIn}"
+                       required
+                       min="">
+                <small class="text-muted">Selecciona el día de entrada</small>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="checkOut" class="form-label">
+                    <i class="fa-solid fa-calendar me-2"></i>Fecha de Salida
+                </label>
+                <input type="date"
+                       class="form-control"
+                       id="checkOut"
+                       th:field="*{checkOut}"
+                       required>
+                <small class="text-muted">Selecciona el día de salida</small>
+            </div>
+        </div>
+
+        <!-- Resumen de precio -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Resumen de Precio</h5>
+                <div class="row">
+                    <div class="col-md-4">
+                        <p class="mb-0">
+                            <strong>Noches:</strong>
+                            <span id="nights">0</span>
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="mb-0">
+                            <strong>Precio/noche:</strong>
+                            <span th:text="${listing.pricePerNight}">0</span> €
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="mb-2">
+                            <strong>Total:</strong>
+                            <span id="totalPrice" class="fs-5 text-success">0</span> €
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="mb-3">
+            <button type="submit" class="btn btn-lg btn-success">
+                <i class="fa-solid fa-check me-2"></i>Confirmar Reserva
+            </button>
+            <a th:href="@{/listings/{id}(id=${listing.id})}" class="btn btn-lg btn-outline-secondary">
+                <i class="fa-solid fa-arrow-left me-2"></i>Cancelar
+            </a>
+        </div>
+
+    </form>
+
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+<script th:replace="~{layout/footer :: scripts}"></script>
+
+<!-- Script para cálculo dinámico de precio -->
+<script>
+    const pricePerNight = [[${listing.pricePerNight}]];
+    const minNights = [[${listing.minNights}]];
+    const maxNights = [[${listing.maxNights}]];
+
+    const checkInInput = document.getElementById('checkIn');
+    const checkOutInput = document.getElementById('checkOut');
+    const nightsSpan = document.getElementById('nights');
+    const totalPriceSpan = document.getElementById('totalPrice');
+
+    function calculatePrice() {
+        const checkIn = new Date(checkInInput.value);
+        const checkOut = new Date(checkOutInput.value);
+
+        if (checkIn && checkOut && checkIn < checkOut) {
+            const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+            const totalPrice = nights * pricePerNight;
+
+            nightsSpan.textContent = nights;
+            totalPriceSpan.textContent = totalPrice.toFixed(2);
+
+            // Validar límites
+            if (nights < minNights) {
+                checkOutInput.classList.add('is-invalid');
+                checkOutInput.parentElement.innerHTML +=
+                    '<div class="invalid-feedback">Mínimo ' + minNights + ' noches</div>';
+            } else if (nights > maxNights) {
+                checkOutInput.classList.add('is-invalid');
+            } else {
+                checkOutInput.classList.remove('is-invalid');
+            }
+        }
+    }
+
+    checkInInput.addEventListener('change', () => {
+        // Establecer min de checkOut como checkIn + 1 día
+        const minCheckOut = new Date(checkInInput.value);
+        minCheckOut.setDate(minCheckOut.getDate() + 1);
+        checkOutInput.min = minCheckOut.toISOString().split('T')[0];
+        calculatePrice();
+    });
+
+    checkOutInput.addEventListener('change', calculatePrice);
+</script>
+
+</body>
+</html>

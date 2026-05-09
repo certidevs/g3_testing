@@ -3,6 +3,7 @@ package com.demo.model;
 import com.demo.model.enums.BookingStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,7 +23,9 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime checkIn;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime checkOut;
 
     private Double totalPrice;
