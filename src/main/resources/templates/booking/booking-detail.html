@@ -27,7 +27,7 @@
             </h1>
 
             <!-- Nombre de la propiedad -->
-            <p class="mb-3 fs-5 text-muted">
+            <p class="mb-3 fs-5 text-muted" th:if="${booking.listing != null}">
                 <i class="fa-solid fa-house me-2"></i>
                 <span th:text="${booking.listing.title}">Nombre de la propiedad</span>
             </p>
@@ -71,14 +71,14 @@
                         <strong><i class="fa-solid fa-arrow-right-to-bracket text-success me-2"></i> Check-in:</strong>
                         <br>
                         <span class="fs-6" th:text="${#temporals.format(booking.checkIn, 'EEEE, dd MMMM yyyy - HH:mm')}">
-                            Viernes, 20 Abril 2026 - 14:00
+                            Viernes, 20 Abril 2026 - 15:00
                         </span>
                     </p>
                     <p class="mb-0">
                         <strong><i class="fa-solid fa-arrow-right-from-bracket text-danger me-2"></i> Check-out:</strong>
                         <br>
                         <span class="fs-6" th:text="${#temporals.format(booking.checkOut, 'EEEE, dd MMMM yyyy - HH:mm')}">
-                            Martes, 24 Abril 2026 - 11:00
+                            Martes, 24 Abril 2026 - 15:00
                         </span>
                     </p>
                 </div>
@@ -90,7 +90,7 @@
                 <i class="fa-solid fa-circle-info text-primary me-2"></i> Resumen de precios
             </h3>
             <div class="card bg-light border-0">
-                <div class="card-body">
+                <div class="card-body" th:if="${booking.listing != null}">
                     <p class="mb-2">
                         <strong>Precio por noche:</strong>
                         <br>
@@ -171,6 +171,15 @@
                 </div>
             </div>
         </div>
+
+        <!-- Mensaje si falta información de usuarios -->
+        <div class="col-12" th:if="${booking.guest == null || owner == null}">
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                <strong>Información incompleta</strong> - Faltan algunos datos de usuarios para esta reserva.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
     </div>
 
     <hr>
@@ -180,7 +189,7 @@
         <i class="fa-solid fa-home text-primary me-2"></i> Información de la propiedad
     </h2>
 
-    <div class="card bg-light border-0 mb-4">
+    <div class="card bg-light border-0 mb-4" th:if="${booking.listing != null}">
         <div class="card-body">
             <p class="mb-2">
                 <strong>Título:</strong>
@@ -266,7 +275,7 @@
     </div>
 
     <!-- Si no hay reseñas -->
-    <div th:unless="${review != null}" class="alert alert-info alert-dismissible fade show mb-4" role="alert">
+    <div th:if="${review == null}" class="alert alert-info alert-dismissible fade show mb-4" role="alert">
         <i class="fa-solid fa-circle-info me-2"></i>
         <strong>Sin reseñas</strong> - Esta reserva no tiene ninguna reseña asignada aún.
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -284,7 +293,7 @@
             <strong>ID de Reserva:</strong>
             <span th:text="${booking.id}"></span>
         </li>
-        <li class="list-group-item">
+        <li class="list-group-item" th:if="${booking.listing != null}">
             <strong>ID de Propiedad:</strong>
             <span th:text="${booking.listing.id}"></span>
         </li>
@@ -305,9 +314,7 @@
     </div>
 
 </main>
-<!--
-En algún momento tendre que sacar las reservas por usuario
--->
+
 <footer th:replace="~{layout/footer :: footer}"></footer>
 <script th:replace="~{layout/footer :: scripts}"></script>
 

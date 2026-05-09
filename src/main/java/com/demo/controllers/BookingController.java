@@ -76,10 +76,10 @@ public class BookingController {
             booking.setTotalPrice(days * booking.getListing().getPricePerNight());
         }
 
-        model.addAttribute("booking", bookingRepository.findById(id).orElseThrow());
+        model.addAttribute("booking", bookingRepository.findById(id).orElse(null));
         model.addAttribute("listing", bookingRepository.findListingByBookingId(id));
-        model.addAttribute("owner", bookingRepository.findOwnerByBookingId(id).orElseThrow());
-        model.addAttribute("review",bookingRepository.findReviewByBookingId(id).orElseThrow());
+        model.addAttribute("owner", bookingRepository.findOwnerByBookingId(id).orElse(null));
+        model.addAttribute("review",bookingRepository.findReviewByBookingId(id).orElse(null));
 
         return "booking/booking-detail";
 
