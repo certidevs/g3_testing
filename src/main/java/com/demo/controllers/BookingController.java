@@ -8,12 +8,18 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.beans.PropertyEditorSupport;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -27,6 +33,19 @@ public class BookingController {
     private final ReviewRepository reviewRepository;
     private final MessageRepository messageRepository;
     private final ConversationRepository conversationRepository;
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.registerCustomEditor(LocalDateTime.class, new PropertyEditorSupport() {
+            @Override
+            public void setAsText(String text) throws IllegalArgumentException {
+                if (text != null && !text.isEmpty()) {
+                    LocalDate date = LocalDate.parse(text);
+                    setValue(LocalDateTime.of(date, LocalTime.of(15, 0)));  // Fija la hora a 15:00
+                }
+            }
+        });
+    }
 
     @GetMapping("/bookings")
     public String bookings(Model model) {
@@ -203,9 +222,6 @@ public class BookingController {
                     }
                 }
             }
-
-            booking.setCheckIn(booking.getCheckIn().withHour(15).withMinute(0)); // Check-in a las 15:00
-            booking.setCheckOut(booking.getCheckOut().withHour(15).withMinute(0));
 
             // 5. Asignar guest (usuario actual)
             // NOTA: Aquí usamos el primer usuario como guest (en producción usarías autenticación)

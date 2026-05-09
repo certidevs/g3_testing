@@ -23,9 +23,9 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+
     private LocalDateTime checkIn;
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+
     private LocalDateTime checkOut;
 
     private Double totalPrice;
