@@ -16,6 +16,124 @@
               th:text="|${#lists.size(listings)} resultados|">0 resultados</span>
     </div>
 
+    <!-- 🔽 FORMULARIO DE FILTROS 🔽 -->
+    <form method="get" action="/listings" class="row g-3 mb-4">
+
+        <div class="col-md-2">
+            <div class="input-group">
+        <span class="input-group-text rounded-pill-start">
+            <i class="fa-solid fa-list"></i>
+        </span>
+                <select name="type" class="form-select rounded-pill-end">
+                    <option value="">Tipo</option>
+                    <option th:each="t : ${types}"
+                            th:value="${t}"
+                            th:text="${t}"
+                            th:selected="${selectedType == t}">
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="input-group">
+        <span class="input-group-text rounded-pill-start">
+            <i class="fa-solid fa-euro-sign"></i>
+        </span>
+                <input type="number" name="minPrice" class="form-control rounded-pill-end"
+                       placeholder="Mínimo"
+                       th:value="${selectedMinPrice}">
+            </div>
+        </div>
+
+
+        <div class="col-md-2">
+            <div class="input-group">
+        <span class="input-group-text rounded-pill-start">
+            <i class="fa-solid fa-euro-sign"></i>
+        </span>
+                <input type="number" name="maxPrice" class="form-control rounded-pill-end"
+                       placeholder="Máximo"
+                       th:value="${selectedMaxPrice}">
+            </div>
+        </div>
+
+
+        <div class="col-md-2">
+            <div class="input-group">
+        <span class="input-group-text rounded-pill-start">
+            <i class="fa-solid fa-users"></i>
+        </span>
+                <input type="number" name="guests" class="form-control rounded-pill-end"
+                       placeholder="Huéspedes"
+                       th:value="${selectedGuests}">
+            </div>
+        </div>
+
+
+        <div class="col-md-2">
+            <div class="input-group">
+        <span class="input-group-text rounded-pill-start">
+            <i class="fa-solid fa-moon"></i>
+        </span>
+                <input type="number" name="nights" class="form-control rounded-pill-end"
+                       placeholder="Noches"
+                       th:value="${selectedNights}">
+            </div>
+        </div>
+
+
+        <div class="col-md-1">
+            <button type="submit" class="btn btn-primary w-100 rounded-pill">Filtrar</button>
+        </div>
+
+        <div class="col-md-1">
+            <a href="/listings" class="btn btn-outline-secondary w-100 rounded-pill">Limpiar</a>
+        </div>
+
+
+    </form>
+    <!-- 🔼 FIN FORMULARIO 🔼 -->
+
+    <div class="mb-3">
+
+    <span th:if="${selectedType != null}" class="badge bg-light text-dark border rounded-pill px-3 py-2 me-2">
+        <i class="fa-solid fa-list me-1"></i>
+        <span th:text="${selectedType}"></span>
+        <a th:href="@{/listings(type=,minPrice=${selectedMinPrice},maxPrice=${selectedMaxPrice},guests=${selectedGuests},nights=${selectedNights})}"
+           class="ms-2 text-danger text-decoration-none">×</a>
+    </span>
+
+        <span th:if="${selectedMinPrice != null}" class="badge bg-light text-dark border rounded-pill px-3 py-2 me-2">
+        <i class="fa-solid fa-euro-sign me-1"></i>
+        Mín: <span th:text="${selectedMinPrice}"></span>
+        <a th:href="@{/listings(type=${selectedType},maxPrice=${selectedMaxPrice},guests=${selectedGuests},nights=${selectedNights})}"
+           class="ms-2 text-danger text-decoration-none">×</a>
+    </span>
+
+        <span th:if="${selectedMaxPrice != null}" class="badge bg-light text-dark border rounded-pill px-3 py-2 me-2">
+        <i class="fa-solid fa-euro-sign me-1"></i>
+        Máx: <span th:text="${selectedMaxPrice}"></span>
+        <a th:href="@{/listings(type=${selectedType},minPrice=${selectedMinPrice},guests=${selectedGuests},nights=${selectedNights})}"
+           class="ms-2 text-danger text-decoration-none">×</a>
+    </span>
+
+        <span th:if="${selectedGuests != null}" class="badge bg-light text-dark border rounded-pill px-3 py-2 me-2">
+        <i class="fa-solid fa-users me-1"></i>
+        <span th:text="${selectedGuests}"></span> huéspedes
+        <a th:href="@{/listings(type=${selectedType},minPrice=${selectedMinPrice},maxPrice=${selectedMaxPrice},nights=${selectedNights})}"
+           class="ms-2 text-danger text-decoration-none">×</a>
+    </span>
+
+        <span th:if="${selectedNights != null}" class="badge bg-light text-dark border rounded-pill px-3 py-2 me-2">
+        <i class="fa-solid fa-moon me-1"></i>
+        <span th:text="${selectedNights}"></span> noches
+        <a th:href="@{/listings(type=${selectedType},minPrice=${selectedMinPrice},maxPrice=${selectedMaxPrice},guests=${selectedGuests})}"
+           class="ms-2 text-danger text-decoration-none">×</a>
+    </span>
+
+    </div>
+
     <!-- Grid de tarjetas -->
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
 

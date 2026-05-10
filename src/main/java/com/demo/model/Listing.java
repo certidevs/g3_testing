@@ -3,6 +3,7 @@ package com.demo.model;
 import com.demo.model.enums.ListingType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
 
