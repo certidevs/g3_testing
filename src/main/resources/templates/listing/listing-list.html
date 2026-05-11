@@ -152,6 +152,7 @@
                     <h5 class="card-title">
                         <i class="fa-solid fa-house text-primary me-2"></i>
                         <span th:text="${listing.title}">Título</span>
+                        <span th:if="${!listing.isActive}" class="badge bg-danger ms-2">Inactivo</span>
                     </h5>
 
                     <!-- Descripción corta -->
@@ -178,10 +179,29 @@
 
                 <!-- Footer con botón -->
                 <div class="card-footer bg-transparent border-0 pt-0">
-                    <a class="btn btn-primary btn-sm"
-                       th:href="@{/listings/{id}(id=${listing.id})}">
-                        Ver detalle
-                    </a>
+                    <div class="d-flex justify-content-between gap-2">
+
+                        <!-- Ver detalle -->
+                        <a class="btn btn-primary btn-sm flex-fill"
+                           th:href="@{/listings/{id}(id=${listing.id})}">
+                            Ver detalle
+                        </a>
+
+                        <!-- Editar -->
+                        <a class="btn btn-warning btn-sm flex-fill"
+                           th:href="@{/listings/edit/{id}(id=${listing.id})}">
+                            Editar
+                        </a>
+
+                        <!-- Activar / Desactivar -->
+                        <form th:action="@{/listings/toggle/{id}(id=${listing.id})}" method="post" class="flex-fill">
+                            <button type="submit"
+                                    th:class="${listing.isActive} ? 'btn btn-outline-danger btn-sm w-100' : 'btn btn-success btn-sm w-100'">
+                                <span th:text="${listing.isActive} ? 'Desactivar' : 'Activar'"></span>
+                            </button>
+                        </form>
+
+                    </div>
                 </div>
 
             </div>

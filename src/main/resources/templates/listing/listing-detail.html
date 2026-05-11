@@ -86,7 +86,8 @@
         </li>
         <li class="list-group-item">
             <strong>Propietario ID:</strong>
-            <span th:text="${listing.owner.name}"></span>
+<!--            <span th:text="${listing.owner.name}"></span>-->
+            <span th:text="${listing.owner != null ? listing.owner.name : 'Sin propietario'}"></span>
         </li>
     </ul>
     <hr>
