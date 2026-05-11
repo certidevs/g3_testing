@@ -121,6 +121,24 @@ class BookingControllerTest {
 
     }
 
+    @Test
+    void crearBooking() throws Exception {
+        mockMvc.perform(post("/bookings/create")
+                .param("listingId", apartamento.getId().toString())
+                .param("checkIn", "2026-05-01T15:00")
+                .param("checkOut", "2026-05-05T15:00"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("/bookings/*"))
+                .andExpect(flash().attributeExists("message"))
+                .andExpect(flash().attribute("message", "Reserva creada exitosamente."));
+
+        List<Booking> bookings = bookingRepository.findAll();
+        assertEquals(4, bookings.size());
+        Booking nuevaReserva = bookings.get(bookings.size() - 1);
+        assertEquals(apartamento.getId(), nuevaReserva.getListing().getId());
+        assertEquals(BookingStatus.PENDING, nuevaReserva.getStatus());
+    }
+
 
 
 }
