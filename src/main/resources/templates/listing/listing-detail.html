@@ -101,7 +101,9 @@
                 </h4>
                 <p class="mb-0">Realiza una reserva y disfruta de esta increíble propiedad.</p>
             </div>
-            <a th:href="@{/bookings/new/{id}(id=${listing.id})}"
+
+            <a th:if="${listing.isActive}"
+               th:href="@{/bookings/new/{id}(id=${listing.id})}"
                class="btn btn-lg btn-success">
                 <i class="fa-solid fa-calendar-days me-2"></i> Hacer una reserva
             </a>
