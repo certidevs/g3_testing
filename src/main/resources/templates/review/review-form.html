@@ -1,10 +1,178 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{layout/head :: head('Nueva Reseña')}"></head>
+
+<body class="d-flex flex-column min-vh-100 bg-light">
+
+<nav th:replace="~{layout/navbar :: navbar}"></nav>
+
+<main class="container flex-grow-1 my-4">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a th:href="@{/reviews}" class="text-decoration-none">
+                    <i class="fa-solid fa-star me-1"></i>Reseñas
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">Nueva Reseña</li>
+        </ol>
+    </nav>
+
+    <h1 class="mb-4">
+        <i class="fa-solid fa-star me-2"></i>
+        Nueva Reseña
+    </h1>
+
+    <!-- Info de la reserva -->
+    <div class="alert alert-info mb-4" th:if="${review.booking != null}">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                    <i class="fa-solid fa-house fa-lg text-primary me-3"></i>
+                    <div>
+                        <div class="text-muted small">Propiedad</div>
+                        <span class="fw-semibold" th:text="${review.booking.listing.title}">Nombre propiedad</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                    <i class="fa-solid fa-calendar-check fa-lg text-success me-3"></i>
+                    <div>
+                        <div class="text-muted small">Fechas de estancia</div>
+                        <span class="fw-semibold">
+                            <span th:text="${#temporals.format(review.booking.checkIn, 'dd/MM/yyyy')}"></span>
+                            al
+                            <span th:text="${#temporals.format(review.booking.checkOut, 'dd/MM/yyyy')}"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario -->
+    <form th:action="@{/reviews}" method="post" th:object="${review}">
+
+        <!-- Campo oculto para booking_id -->
+        <input type="hidden" th:field="*{booking.id}">
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+
+                <!-- Rating con estrellas -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">
+                        <i class="fa-solid fa-star me-1 text-warning"></i>
+                        Puntuación <span class="text-danger">*</span>
+                    </label>
+                    <div id="star-container" class="d-flex gap-2 mb-1">
+                        <i class="fa-regular fa-star fs-2 star-btn text-warning"
+                           style="cursor: pointer;"
+                           data-val="1"></i>
+                        <i class="fa-regular fa-star fs-2 star-btn text-warning"
+                           style="cursor: pointer;"
+                           data-val="2"></i>
+                        <i class="fa-regular fa-star fs-2 star-btn text-warning"
+                           style="cursor: pointer;"
+                           data-val="3"></i>
+                        <i class="fa-regular fa-star fs-2 star-btn text-warning"
+                           style="cursor: pointer;"
+                           data-val="4"></i>
+                        <i class="fa-regular fa-star fs-2 star-btn text-warning"
+                           style="cursor: pointer;"
+                           data-val="5"></i>
+                    </div>
+                    <input type="hidden"
+                           id="ratingValue"
+                           th:field="*{rating}"
+                           required>
+                    <small id="ratingLabel" class="text-muted">Selecciona una puntuación del 1 al 5</small>
+                </div>
+
+                <!-- Comentario -->
+                <div class="mb-3">
+                    <label for="comment" class="form-label fw-semibold">
+                        <i class="fa-solid fa-comment me-1"></i>
+                        Comentario <span class="text-danger">*</span>
+                    </label>
+                    <textarea class="form-control"
+                              id="comment"
+                              th:field="*{comment}"
+                              rows="5"
+                              placeholder="Cuéntanos tu experiencia en el alojamiento..."
+                              required></textarea>
+                    <small class="text-muted">El comentario es obligatorio</small>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Mensajes de error / éxito -->
+        <div th:if="${error}" class="alert alert-danger mb-3">
+            <i class="fa-solid fa-circle-exclamation me-1"></i>
+            <span th:text="${error}"></span>
+        </div>
+
+        <!-- Botones -->
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <button type="submit" class="btn btn-lg btn-success">
+                <i class="fa-solid fa-check me-2"></i>Enviar Reseña
+            </button>
+            <a th:href="@{/bookings/{id}(id=${review.booking.id})}" class="btn btn-lg btn-outline-secondary">
+                <i class="fa-solid fa-arrow-left me-2"></i>Cancelar
+            </a>
+        </div>
+
+    </form>
+
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+<script th:replace="~{layout/footer :: scripts}"></script>
+
+<!-- Script de estrellas -->
+<script>
+    const ratingLabels = ['', 'Muy malo', 'Malo', 'Regular', 'Bueno', 'Excelente'];
+    const stars = document.querySelectorAll('.star-btn');
+    const ratingInput = document.getElementById('ratingValue');
+    const ratingLabel = document.getElementById('ratingLabel');
+    let selectedRating = 0;
+
+    function paintStars(upTo) {
+        stars.forEach((star, i) => {
+            if (i < upTo) {
+                star.classList.remove('fa-regular');
+                star.classList.add('fa-solid');
+            } else {
+                star.classList.remove('fa-solid');
+                star.classList.add('fa-regular');
+            }
+        });
+    }
+
+    stars.forEach(star => {
+        star.addEventListener('mouseover', () => paintStars(+star.dataset.val));
+        star.addEventListener('mouseout', () => paintStars(selectedRating));
+        star.addEventListener('click', () => {
+            selectedRating = +star.dataset.val;
+            ratingInput.value = selectedRating;
+            ratingLabel.textContent = ratingLabels[selectedRating];
+            paintStars(selectedRating);
+        });
+    });
+
+    // Si hay un valor previo (error de validación y se vuelve al form)
+    const initialRating = parseInt(ratingInput.value);
+    if (initialRating >= 1 && initialRating <= 5) {
+        selectedRating = initialRating;
+        ratingLabel.textContent = ratingLabels[selectedRating];
+        paintStars(selectedRating);
+    }
+</script>
 
 </body>
 </html>
