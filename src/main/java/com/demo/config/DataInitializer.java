@@ -2,6 +2,7 @@ package com.demo.config;
 
 import com.demo.model.*;
 import com.demo.model.enums.BookingStatus;
+import com.demo.model.enums.ListingType;
 import com.demo.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -58,13 +59,25 @@ public class DataInitializer implements CommandLineRunner {
                 .name("Alex Pro")
                 .email("alex@pro.com")
                 .build();
+        User owner1 = User.builder()
+                .name("Maria Lopez")
+                .email("maria@pro.com")
+                .build();
+        User owner2 = User.builder()
+                .name("Juan Perez")
+                .email("juan@pro.com")
+                .build();
+        User admin = User.builder()
+                .name("Admin")
+                .email("admin@openhouse.com")
+                .build();
 
         User guest = User.builder()
                 .name("Sonia Lopez")
                 .email("sonia@mail.com")
                 .build();
 
-        userRepository.saveAll(List.of(owner, guest));
+        userRepository.saveAll(List.of(owner,owner1, owner2,admin,guest));
 
         Listing loft = Listing.builder()
                 .title("Loft Industrial")
@@ -78,6 +91,7 @@ public class DataInitializer implements CommandLineRunner {
                 .registeredAt(LocalDateTime.now())
                 .owner(owner)
                 .isActive(true)
+                .type(ListingType.LOFT)
                 .build();
         Listing ap = Listing.builder()
                 .title("Apartamento con Vistas")
@@ -87,12 +101,83 @@ public class DataInitializer implements CommandLineRunner {
                 .minNights(2)
                 .maxNights(15)
                 .maxGuests(4)
-                .imageUrl("https://images.com/apartment")
+                .imageUrl("https://images.com/apartment1")
                 .registeredAt(LocalDateTime.now())
                 .owner(owner)
                 .isActive(true)
+                .type(ListingType.APARTAMENTO)
                 .build();
-        List<Listing> listings = List.of(loft, ap);
+        Listing ap2 = Listing.builder()
+                .title("Apartamento en el Centro")
+                .shortDescription("Perfecto para turistas")
+                .longDescription("A 5 minutos de la plaza principal, totalmente equipado")
+                .pricePerNight(85.0)
+                .minNights(1)
+                .maxNights(15)
+                .maxGuests(2)
+                .imageUrl("https://images.com/apartment2")
+                .registeredAt(LocalDateTime.now())
+                .owner(owner2)
+                .isActive(true)
+                .type(ListingType.APARTAMENTO)
+                .build();
+        Listing cf = Listing.builder()
+                .title("Casa Familiar con Jardín")
+                .shortDescription("Ideal para familias")
+                .longDescription("Amplio jardín, zona tranquila, perfecta para vacaciones largas")
+                .pricePerNight(150.0)
+                .minNights(2)
+                .maxNights(30)
+                .maxGuests(6)
+                .imageUrl("https://images.com/casa")
+                .registeredAt(LocalDateTime.now())
+                .owner(owner1)
+                .isActive(true)
+                .type(ListingType.CASA)
+                .build();
+        Listing hp = Listing.builder()
+                .title("Habitación Privada en Piso Compartido")
+                .shortDescription("Buena ubicación")
+                .longDescription("Habitación luminosa, acceso a cocina y salón")
+                .pricePerNight(30.0)
+                .minNights(1)
+                .maxNights(10)
+                .maxGuests(1)
+                .imageUrl("https://images.com/room")
+                .registeredAt(LocalDateTime.now())
+                .owner(owner1)
+                .isActive(true)
+                .type(ListingType.HABITACION_PRIVADA)
+                .build();
+        Listing vi = Listing.builder()
+                .title("Villa de Lujo con Piscina")
+                .shortDescription("Privacidad y Confort")
+                .longDescription("Piscina privada, vistas al mar, acabados premium")
+                .pricePerNight(350.0)
+                .minNights(3)
+                .maxNights(30)
+                .maxGuests(8)
+                .imageUrl("https://images.com/room")
+                .registeredAt(LocalDateTime.now())
+                .owner(owner2)
+                .isActive(true)
+                .type(ListingType.VILLA)
+                .build();
+        Listing cha = Listing.builder()
+                .title("Chalet en el Bosque")
+                .shortDescription("Desconexión total")
+                .longDescription("Rodeada de naturaleza, perfecta para escapadas")
+                .pricePerNight(95.0)
+                .minNights(2)
+                .maxNights(15)
+                .maxGuests(4)
+                .imageUrl("https://images.com/villa")
+                .registeredAt(LocalDateTime.now())
+                .owner(owner2)
+                .isActive(false)
+                .type(ListingType.CHALET)
+                .build();
+        List<Listing> listings = List.of(loft,ap,ap2,cf,hp,vi,cha);
 
         listingRepository.saveAll(listings);
 
