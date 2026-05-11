@@ -54,6 +54,13 @@ public class Listing {
     @ManyToOne
     private User owner;
 
+    @PrePersist //Permite que campo no sea nulo al crear un Listing
+    public void prePersist() {
+        if (registeredAt == null) {
+            registeredAt = LocalDateTime.now();
+        }
+    }
+
 
 
 }

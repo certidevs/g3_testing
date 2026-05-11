@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{layout/head :: head('Listing Form')}"></head>
+
+<body class="d-flex flex-column min-vh-100">
+
+<nav th:replace="~{layout/navbar :: navbar}"></nav>
+
+<main class="container mt-4">
+
+    <h1 th:text="${listing.id == null} ? 'Crear Listing' : 'Editar Listing'"></h1>
+
+    <form th:action="@{/listings}" th:object="${listing}" method="post" class="row g-3">
+
+        <!-- ID oculto para edición -->
+        <input type="hidden" th:field="*{id}"/>
+
+        <div class="col-md-6">
+            <label class="form-label">Título</label>
+            <input type="text" class="form-control" th:field="*{title}" required>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Tipo</label>
+            <select class="form-select" th:field="*{type}">
+                <option value="">Seleccione tipo...</option>
+                <option th:each="t : ${types}"
+                        th:value="${t}"
+                        th:text="${t}">
+                </option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Precio por noche</label>
+            <input type="number" class="form-control" th:field="*{pricePerNight}" required>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Máx. huéspedes</label>
+            <input type="number" class="form-control" th:field="*{maxGuests}" required>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Imagen (URL)</label>
+            <input type="text" class="form-control" th:field="*{imageUrl}">
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Descripción corta</label>
+            <textarea class="form-control" th:field="*{shortDescription}" rows="2"></textarea>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Descripción larga</label>
+            <textarea class="form-control" th:field="*{longDescription}" rows="4"></textarea>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">Mín. noches</label>
+            <input type="number" class="form-control" th:field="*{minNights}">
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">Máx. noches</label>
+            <input type="number" class="form-control" th:field="*{maxNights}">
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">Activo</label>
+            <input type="checkbox" class="form-check-input ms-2" th:field="*{isActive}">
+        </div>
+
+        <div class="col-12 mt-3">
+            <button class="btn btn-primary">Guardar</button>
+            <a href="/listings" class="btn btn-secondary ms-2">Cancelar</a>
+        </div>
+
+    </form>
+
+</main>
+
+</body>
+</html>
