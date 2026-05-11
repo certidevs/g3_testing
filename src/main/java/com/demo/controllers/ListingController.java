@@ -7,10 +7,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -56,6 +53,45 @@ class ListingController {
         model.addAttribute("listing", listing);
         return "listing/listing-detail";
     }
+
+    @GetMapping("/new")
+    public String CreateListing(Model model) {
+        model.addAttribute("listing", new Listing());
+        model.addAttribute("types", ListingType.values());
+        return "listing/listing-form";
+    }
+
+    @GetMapping("/edit/{id}")
+    public String editListing(@PathVariable Long id, Model model) {
+        Listing listing = listingRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        model.addAttribute("listing", listing);
+        model.addAttribute("types", ListingType.values());
+        return "listing/listing-form";
+    }
+    @PostMapping
+    public String saveListing(@ModelAttribute Listing listing) {
+
+        // TODO: validaciones (precio, noches, etc.)
+        listingRepository.save(listing);
+
+        return "redirect:/listings";
+    }
+
+    @PostMapping("/toggle/{id}")
+    public String toggleListing(@PathVariable Long id) {
+
+        Listing listing = listingRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        listing.setIsActive(!listing.getIsActive());
+        listingRepository.save(listing);
+
+        return "redirect:/listings/" + id;
+    }
+
+
 
 
 

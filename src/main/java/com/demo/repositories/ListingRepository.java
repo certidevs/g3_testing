@@ -22,7 +22,6 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
       AND (:guests IS NULL OR l.maxGuests >= :guests)
       AND (:nights IS NULL OR l.minNights >= :nights)
       AND (:nights IS NULL OR l.maxNights >= :nights)
-      AND l.isActive = true
 """)
     List<Listing> search(
             @Param("type") ListingType type,
