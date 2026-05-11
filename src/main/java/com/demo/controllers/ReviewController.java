@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @AllArgsConstructor
@@ -43,6 +44,19 @@ public class ReviewController {
         model.addAttribute("review", review);
         model.addAttribute("booking", review.getBooking());  // Obtiene la booking desde la review
         return "review/review-detail";
+    }
+    @GetMapping("/listing/{listingId}/reviews")
+    public String allListingReviews(@PathVariable Long listingId, Model model){
+        List<Review> reviews = reviewRepository.findByBooking_ListingId(listingId);
+        if(reviews.isEmpty()){
+            model.addAttribute("message", "No hay reseñas para este listing");
+            return "redirect:/listings/"+listingId;
+        } else {
+            model.addAttribute("reviews", reviews);
+            return "review/review-list";
+        }
+
+
     }
 
 
@@ -100,6 +114,8 @@ public class ReviewController {
         }
 
     }
+
+
 
 
 
