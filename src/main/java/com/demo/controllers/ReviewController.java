@@ -1,6 +1,7 @@
 package com.demo.controllers;
 
 
+import com.demo.model.Booking;
 import com.demo.model.Review;
 import com.demo.repositories.BookingRepository;
 import com.demo.repositories.ReviewRepository;
@@ -8,9 +9,13 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @AllArgsConstructor
@@ -40,6 +45,19 @@ public class ReviewController {
         model.addAttribute("booking", review.getBooking());  // Obtiene la booking desde la review
         return "review/review-detail";
     }
+    @GetMapping("/listing/{listingId}/reviews")
+    public String allListingReviews(@PathVariable Long listingId, Model model){
+        List<Review> reviews = reviewRepository.findByBooking_ListingId(listingId);
+        if(reviews.isEmpty()){
+            model.addAttribute("message", "No hay reseñas para este listing");
+            return "redirect:/listings/"+listingId;
+        } else {
+            model.addAttribute("reviews", reviews);
+            return "review/review-list";
+        }
+
+
+    }
 
 
     @GetMapping("reviews/delete/{id}")
@@ -48,6 +66,56 @@ public class ReviewController {
         redirectAttributes.addFlashAttribute("message", "Borrado exitosamente");
         return "redirect:/reviews";
     }
+
+    @GetMapping("/reviews/new/{bookingId}")
+    public String navigateToForm(@PathVariable Long bookingId, Model model){
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new IllegalArgumentException("Booking no encontrado"));
+        Review review = new Review();
+        review.setBooking(booking); // Asocia la review con la booking
+        model.addAttribute("review", review);
+        return "review/review-form";
+    }
+
+    @PostMapping("/reviews")
+    public String createReview(@ModelAttribute Review review,RedirectAttributes redirectAttributes){
+        try{
+            if (review.getBooking() == null || review.getBooking().getId() == null) {
+                throw new IllegalArgumentException("Reserva no especificada");
+            }
+            Booking booking = bookingRepository.findById(review.getBooking().getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Reserva no encontrada"));
+
+            review.setBooking(booking);
+            // Validación: rating obligatorio
+            if (review.getRating() == null || review.getRating() < 1 || review.getRating() > 5) {
+                throw new IllegalArgumentException("La puntuación debe estar entre 1 y 5");
+            }
+            // Validación: comentario obligatorio
+            if (review.getComment() == null || review.getComment().trim().isEmpty()) {
+                throw new IllegalArgumentException("El comentario no puede estar vacío");
+            }
+            // verified por defecto
+            if (review.getVerified() == null) {
+                review.setVerified(true);
+            }
+
+            // Fecha de creación
+            review.setCreationDate(LocalDate.now());
+
+            reviewRepository.save(review);
+            redirectAttributes.addFlashAttribute("message", "Reseña creada exitosamente");
+            return "redirect:/reviews/"+review.getId();
+
+        }catch (Exception e){
+            redirectAttributes.addFlashAttribute("error",
+                    "Error al crear la reseña: " + e.getMessage());
+            return "redirect:/bookings";
+
+        }
+
+    }
+
+
 
 
 

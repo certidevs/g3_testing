@@ -101,7 +101,9 @@
                 </h4>
                 <p class="mb-0">Realiza una reserva y disfruta de esta increíble propiedad.</p>
             </div>
-            <a th:href="@{/bookings/new/{id}(id=${listing.id})}"
+
+            <a th:if="${listing.isActive}"
+               th:href="@{/bookings/new/{id}(id=${listing.id})}"
                class="btn btn-lg btn-success">
                 <i class="fa-solid fa-calendar-days me-2"></i> Hacer una reserva
             </a>
@@ -110,6 +112,26 @@
             </a>
         </div>
     </div>
+
+    <hr>
+
+    <!-- Sección de reseñas -->
+    <div class="row mt-4 mb-5">
+        <div class="col-lg-8">
+            <div class="alert alert-primary" role="alert">
+                <h4 class="alert-heading">
+                    <i class="fa-solid fa-star me-2"></i> Opiniones de huéspedes
+                </h4>
+                <p class="mb-0">Consulta todas las reseñas que otros viajeros han dejado sobre este alojamiento.</p>
+            </div>
+
+            <a th:href="@{/listing/{id}/reviews(id=${listing.id})}"
+               class="btn btn-lg btn-primary">
+                <i class="fa-solid fa-comments me-2"></i> Ver reseñas del alojamiento
+            </a>
+        </div>
+    </div>
+
 
 
 </main>
