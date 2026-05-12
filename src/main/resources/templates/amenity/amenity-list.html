@@ -19,6 +19,12 @@
         </span>
     </div>
 
+    <div class="mb-4">
+        <a th:href="@{/amenity/new}" class="btn btn-success shadow-sm">
+            <i class="fa-solid fa-plus me-1"></i>Agregar Nuevo Amenity
+        </a>
+    </div>
+
     <div th:if="${amenities == null or #lists.isEmpty(amenities)}" class="alert alert-light border text-center py-5">
         <i class="fa-regular fa-folder-open fa-2x mb-2 d-block text-muted"></i>
         <p class="mb-0 text-muted">Todavía no hay Amenities registrados</p>
