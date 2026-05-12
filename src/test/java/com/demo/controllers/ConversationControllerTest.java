@@ -66,7 +66,6 @@ public class ConversationControllerTest {
                 .checkOut(LocalDateTime.now().plusDays(5))
                 .totalPrice(200.0)
                 .status(BookingStatus.CONFIRMED)
-                .host(owner)
                 .guest(guest)
                 .listing(null)
                 .build();

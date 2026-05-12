@@ -228,7 +228,7 @@ public class DataInitializer implements CommandLineRunner {
                 .content("¿Tengo acceso al código de la puerta?")
                 .sender(guest)
                 .conversation(conv)
-                .sentAt(LocalDateTime.now())
+                .sentAt(LocalDateTime.now().minusMinutes(10))
                 .isRead(true)
                 .build();
 
@@ -236,7 +236,7 @@ public class DataInitializer implements CommandLineRunner {
                 .content("Sí, se te enviará 2 horas antes de tu llegada.")
                 .sender(owner)
                 .conversation(conv)
-                .sentAt(LocalDateTime.now().plusMinutes(5))
+                .sentAt(LocalDateTime.now().minusMinutes(7))
                 .isRead(false)
                 .build();
 
@@ -244,7 +244,7 @@ public class DataInitializer implements CommandLineRunner {
                 .content("Te esperamos con muchas ganas.")
                 .sender(owner)
                 .conversation(conv)
-                .sentAt(LocalDateTime.now().plusMinutes(6))
+                .sentAt(LocalDateTime.now().minusMinutes(6))
                 .isRead(false)
                 .build();
 
@@ -252,7 +252,7 @@ public class DataInitializer implements CommandLineRunner {
                 .content("Muchas Gracias !!")
                 .sender(guest)
                 .conversation(conv)
-                .sentAt(LocalDateTime.now().plusMinutes(8))
+                .sentAt(LocalDateTime.now().minusMinutes(2))
                 .isRead(false)
                 .build();
 
