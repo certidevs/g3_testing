@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/head :: head('Crear Amenity')}"></head>
+<body class="d-flex flex-column min-vh-100 bg-light">
+
+<nav th:replace="~{layout/navbar :: navbar}"></nav>
+
+<main class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-0">
+                <div class="card-header bg-dark text-white py-3">
+                    <h5 class="mb-0"><i class="fa-solid fa-plus me-2"></i>Nuevo Amenity</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form th:action="@{/amenity}" th:object="${amenity}" method="post">
+
+                        <div class="mb-3">
+                            <label for="name" class="form-label font-weight-bold">Nombre del Servicio</label>
+                            <input type="text" th:field="*{name}" class="form-control" id="name" placeholder="Ej: WiFi, Piscina, Calefacción" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="icon" class="form-label">Icono (Clase FontAwesome)</label>
+                            <input type="text" th:field="*{icon}" class="form-control" id="icon" placeholder="fa-solid fa-wifi">
+                            <div class="form-text">Introduce la clase de FontAwesome.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="listing" class="form-label">Asignar a Propiedad</label>
+                            <select th:field="*{listing}" class="form-select" id="listing" required>
+                                <option value="" selected disabled>Selecciona una propiedad...</option>
+                                <option th:each="list : ${listings}"
+                                        th:value="${list.id}"
+                                        th:text="${list.title}">Propiedad</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="description" class="form-label">Descripción Detallada</label>
+                            <textarea th:field="*{description}" class="form-control" id="description" rows="4" placeholder="Describe brevemente el servicio..."></textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a th:href="@{/amenity}" class="btn btn-outline-secondary">
+                                <i class="fa-solid fa-arrow-left me-1"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="fa-solid fa-floppy-disk me-1"></i> Guardar Amenity
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+</body>
+</html>

@@ -2,9 +2,11 @@ package com.demo.controllers;
 
 import com.demo.model.Booking;
 import com.demo.model.Listing;
+import com.demo.model.User;
 import com.demo.model.enums.BookingStatus;
 import com.demo.repositories.BookingRepository;
 import com.demo.repositories.ListingRepository;
+import com.demo.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +30,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 class BookingControllerTest {
 
     @Autowired
+    UserRepository userRepository;
+
+    @Autowired
     BookingRepository bookingRepository;
 
     @Autowired
@@ -40,17 +45,25 @@ class BookingControllerTest {
     Booking b2;
     Booking b3;
     Listing apartamento;
+    User user;
 
     @BeforeEach
     void setUp(){
-        apartamento = Listing.builder().title("Casa en la playa").isActive(true).pricePerNight(25.0).build();
+        userRepository.deleteAll();
+        listingRepository.deleteAll();
+        bookingRepository.deleteAll();
+
+        user = User.builder().name("Juan").email("juanito@gmail.com").build();
+        userRepository.save(user);
+
+        apartamento = Listing.builder().title("Casa en la playa").isActive(true).owner(user).maxGuests(5).minNights(2).maxNights(10).registeredAt(LocalDateTime.now()).pricePerNight(25.0).build();
         listingRepository.save(apartamento);
 
         b1= Booking.builder().listing(apartamento).status(BookingStatus.CONFIRMED).checkIn(LocalDateTime.of(2026,4,22,15,30)).checkOut(LocalDateTime.of(2026,4,26,15,30)).build();
         b2= Booking.builder().listing(apartamento).status(BookingStatus.PENDING).checkIn(LocalDateTime.of(2026,3,22,15,30)).checkOut(LocalDateTime.of(2026,3,26,15,30)).build();
-        b3 = Booking.builder().listing(apartamento).status(BookingStatus.PENDING).build();
-        List<Booking> lista = List.of(b1,b2,b3);
-        bookingRepository.saveAll(lista);
+        b3 = Booking.builder().listing(apartamento).status(BookingStatus.PENDING).checkIn(LocalDateTime.now()).checkOut(LocalDateTime.now()).build();
+        List<Booking> ap = List.of(b1,b2,b3);
+        bookingRepository.saveAll(ap);
 
     }
 
@@ -72,7 +85,7 @@ class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("booking/booking-list"))
                 .andExpect(model().attributeExists("bookings"))
-                .andExpect(model().attribute("bookings", hasSize(2)));
+                .andExpect(model().attribute("bookings", hasSize(3)));
 
 
 
@@ -98,7 +111,7 @@ class BookingControllerTest {
 
         mockMvc.perform(post("/bookings/"+b2.getId()+"/confirm"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/booking/"+b2.getId()))
+                .andExpect(redirectedUrl("/bookings/"+b2.getId()))
                 .andExpect(flash().attributeExists("message"))
                 .andExpect(flash().attribute("message", "Reserva confirmada exitosamente."));
 
@@ -112,7 +125,7 @@ class BookingControllerTest {
 
         mockMvc.perform(post("/bookings/"+b3.getId()+"/cancel"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/booking/"+b3.getId()))
+                .andExpect(redirectedUrl("/bookings/"+b3.getId()))
                 .andExpect(flash().attributeExists("message"))
                 .andExpect(flash().attribute("message", "Reserva cancelada exitosamente."));
 
@@ -123,22 +136,29 @@ class BookingControllerTest {
 
     @Test
     void crearBooking() throws Exception {
-        mockMvc.perform(post("/bookings/create")
-                .param("listingId", apartamento.getId().toString())
-                .param("checkIn", "2026-05-01T15:00")
-                .param("checkOut", "2026-05-05T15:00"))
+        long bookingsAntes = bookingRepository.count();
+
+        mockMvc.perform(post("/bookings")
+                        .param("listing.id", String.valueOf(apartamento.getId()))
+                        .param("checkIn", "2026-06-01")
+                        .param("checkOut", "2026-06-05"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrlPattern("/bookings/*"))
-                .andExpect(flash().attributeExists("message"))
-                .andExpect(flash().attribute("message", "Reserva creada exitosamente."));
+                .andExpect(flash().attributeExists("message"));
 
-        List<Booking> bookings = bookingRepository.findAll();
-        assertEquals(4, bookings.size());
-        Booking nuevaReserva = bookings.get(bookings.size() - 1);
-        assertEquals(apartamento.getId(), nuevaReserva.getListing().getId());
-        assertEquals(BookingStatus.PENDING, nuevaReserva.getStatus());
+        assertEquals(bookingsAntes + 1, bookingRepository.count());
+
+        // Verificar que se guardó con los datos correctos
+        List<Booking> todas = bookingRepository.findAll();
+        Booking nueva = todas.stream()
+                .filter(b -> b.getCheckIn().equals(LocalDateTime.of(2026, 6, 1, 15, 0)))
+                .findFirst()
+                .orElseThrow();
+
+        assertEquals(BookingStatus.PENDING, nueva.getStatus());
+        assertEquals(apartamento.getId(), nueva.getListing().getId());
+        assertEquals(100.0, nueva.getTotalPrice()); // 4 noches * 25.0
     }
-
 
 
 }

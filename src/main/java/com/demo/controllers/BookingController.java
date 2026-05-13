@@ -166,10 +166,6 @@ public class BookingController {
     public String createBooking(@ModelAttribute Booking booking,
                                 RedirectAttributes redirectAttributes) {
         try {
-            // 1. Validar que existan el listing
-            if (booking.getListing() == null || booking.getListing().getId() == null) {
-                throw new IllegalArgumentException("Alojamiento no especificado");
-            }
 
             Listing listing = listingRepository.findById(booking.getListing().getId())
                     .orElseThrow(() -> new IllegalArgumentException("Alojamiento no encontrado"));

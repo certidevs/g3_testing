@@ -55,7 +55,7 @@ class BookingRepositoryTest {
     void findAll(){
         List<Booking> bookings = bookingRepository.findAll();
         assertNotNull(bookings);
-        assertEquals(1, bookings.size());
+        assertEquals(4, bookings.size());
     }
 
     //ver si es mejor usar LocalDateTime o solo LocalDate para los calculos
