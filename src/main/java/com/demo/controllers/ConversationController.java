@@ -26,7 +26,7 @@ public class ConversationController {
     private UserRepository userRepository;
 
     @GetMapping("/conversation/{id}")
-    String getConversationById(@PathVariable("id") Long id, Model model){
+    String getConversationById(@PathVariable Long id, Model model){
         Conversation conversation = conversationRepository.findByBookingId(id);
 
         if(conversation != null) {

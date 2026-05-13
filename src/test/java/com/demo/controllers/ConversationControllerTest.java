@@ -44,10 +44,10 @@ public class ConversationControllerTest {
     @Autowired
     private ListingRepository listingRepository;
 
-    private User owner;
-    private User guest;
-    private Booking booking;
-    private Conversation conversation;
+    User owner;
+    User guest;
+    Booking booking;
+    Conversation conversation;
 
     @BeforeEach
     void setUp() {

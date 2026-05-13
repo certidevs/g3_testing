@@ -55,6 +55,7 @@ class ListingController {
         return "listing/listing-detail";
     }
 
+    // TODO bajar a minusculas createListing
     @GetMapping("/new")
     public String CreateListing(Model model) {
         model.addAttribute("listing", new Listing());
