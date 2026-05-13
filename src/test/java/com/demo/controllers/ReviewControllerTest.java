@@ -50,9 +50,10 @@ class ReviewControllerTest {
 
     @BeforeEach
     void setUp(){
-        listingRepository.deleteAll();
-        bookingRepository.deleteAll();
         reviewRepository.deleteAll();
+        bookingRepository.deleteAll();
+        listingRepository.deleteAll();
+
 
         ap = Listing.builder().title("Casa en la Playa").maxNights(7).minNights(2).maxGuests(4).pricePerNight(40.0).longDescription("Bien ubicado en la ciudad de Barcelona").shortDescription("Buen sitio").build();
         listingRepository.save(ap);
