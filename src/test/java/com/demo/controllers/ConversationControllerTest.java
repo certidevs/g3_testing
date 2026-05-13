@@ -201,4 +201,36 @@ public class ConversationControllerTest {
         Message unchangedMsg = messageRepository.findById(msg.getId()).orElseThrow();
         assertEquals("Texto inicial", unchangedMsg.getContent());
     }
+
+    @Test
+    void editMessageIncorrectUser() throws Exception{
+        User sender = userRepository.findAll().get(1);
+        Message msg = Message.builder()
+                .content("Prueba Usuario Incorrecto")
+                .sender(sender)
+                .conversation(conversation)
+                .build();
+        messageRepository.save(msg);
+
+        mockMvc.perform(post("/conversation/" + conversation.getId() + "/message/" + msg.getId() + "/edit")
+                        .param("content", ""))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/conversation/" + conversation.getId()));
+    }
+
+    @Test
+    void deleteMessageIncorrectUser() throws Exception{
+        User sender = userRepository.findAll().get(1);
+        Message msg = Message.builder()
+                .content("Prueba Usuario Incorrecto")
+                .sender(sender)
+                .conversation(conversation)
+                .build();
+        messageRepository.save(msg);
+
+        mockMvc.perform(post("/conversation/" + conversation.getId() + "/message/" + msg.getId() + "/delete")
+                        .param("content", ""))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/conversation/" + conversation.getId()));
+    }
 }
