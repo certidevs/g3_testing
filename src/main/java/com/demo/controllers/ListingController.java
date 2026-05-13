@@ -28,6 +28,7 @@ class ListingController {
             @RequestParam(required = false) Integer nights,
             Model model
     ) {
+
         if (guests != null && guests == 0) guests = null;
         if (nights != null && nights == 0) nights = null;
 
