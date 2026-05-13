@@ -28,6 +28,7 @@ class ListingController {
             @RequestParam(required = false) Integer nights,
             Model model
     ) {
+
         if (guests != null && guests == 0) guests = null;
         if (nights != null && nights == 0) nights = null;
 
@@ -54,6 +55,7 @@ class ListingController {
         return "listing/listing-detail";
     }
 
+    // TODO bajar a minusculas createListing
     @GetMapping("/new")
     public String CreateListing(Model model) {
         model.addAttribute("listing", new Listing());
