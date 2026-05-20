@@ -1,7 +1,9 @@
 package com.demo.controllers;
 
+import com.demo.model.Amenity;
 import com.demo.model.Listing;
 import com.demo.model.enums.ListingType;
+import com.demo.repositories.AmenityRepository;
 import com.demo.repositories.ListingRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,7 @@ import java.util.List;
 class ListingController {
 
     private final ListingRepository listingRepository;
+    private final AmenityRepository amenityRepository;
 
     @GetMapping
     public String list(
@@ -48,10 +51,12 @@ class ListingController {
 
     @GetMapping("/{id}")
     public String detail(@PathVariable Long id, Model model) {
+        List<Amenity> amenities = amenityRepository.findByListing_Id(id);
         Listing listing = listingRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         model.addAttribute("listing", listing);
+        model.addAttribute("amenities", amenities);
         return "listing/listing-detail";
     }
 
