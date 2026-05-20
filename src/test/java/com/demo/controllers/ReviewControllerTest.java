@@ -128,6 +128,12 @@ class ReviewControllerTest {
         assertEquals(LocalDate.now(), guardada.getCreationDate());
     }
 
+    @Test
+    void searchReviewsByListingId() throws Exception{
+
+    }
+
+
 
 
 
