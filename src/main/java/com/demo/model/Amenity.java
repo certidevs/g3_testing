@@ -1,5 +1,6 @@
 package com.demo.model;
 
+import com.demo.model.enums.AmenityType;
 import jakarta.persistence.*;
 import lombok.*;
 //import org.apache.catalina.User;
@@ -32,7 +33,13 @@ public class Amenity {
     @Column(columnDefinition="TEXT") //permite almacenar textos largos sin límite de caracteres, ideal para descripciones detalladas
     private String icon;
 
+    @Enumerated(EnumType.STRING)
+    private AmenityType type;
+
+
+    @ToString.Exclude
     @ManyToOne
+    @JoinColumn(name="listing_id")
     private Listing listing;
 
     //@ManyToOne
