@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 //inyectar repositorios
 @Controller
 @AllArgsConstructor
-
 public class AmenityController {
     private final AmenityRepository amenityRepository;
     private final ListingRepository listingRepository;

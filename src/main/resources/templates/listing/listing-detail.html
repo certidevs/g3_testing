@@ -9,7 +9,6 @@
 
 <main class="container flex-grow-1">
 
-    <!-- Cabecera del listing -->
     <div class="d-flex justify-content-between align-items-start mb-3">
 
         <div>
@@ -49,7 +48,6 @@
 
     </div>
 
-    <!-- Imagen principal -->
     <div class="mb-4">
         <img th:if="${listing.imageUrl != null}"
              th:src="${listing.imageUrl}"
@@ -60,7 +58,6 @@
 
     <hr>
 
-    <!-- Descripción larga -->
     <h2 class="mt-4">
         <i class="fa-solid fa-align-left text-primary me-2"></i> Descripción completa
     </h2>
@@ -69,9 +66,30 @@
         Aquí va la descripción larga del listing.
     </p>
 
+    <div th:if="${amenities != null and !amenities.isEmpty()}" class="mt-4">
+        <h3 class="h4 mb-3">
+            <i class="fa-solid fa-square-poll-horizontal text-primary me-2"></i> Comodidades y Servicios
+        </h3>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+            <div class="col" th:each="amenity : ${amenities}">
+                <div class="card h-100 border-0 shadow-sm bg-light">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="me-3 fs-4 text-primary d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                            <i th:if="${amenity.icon != null and !amenity.icon.isEmpty()}" th:class="${amenity.icon}"></i>
+                            <i th:unless="${amenity.icon != null and !amenity.icon.isEmpty()}" class="fa-solid fa-circle-check"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-1 fs-6 fw-bold" th:text="${amenity.name}">Nombre del servicio</h5>
+                            <p class="card-text small text-muted mb-0" th:if="${amenity.description != null}" th:text="${amenity.description}">Descripción del servicio</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <hr>
 
-    <!-- Información adicional -->
     <h2 class="mt-4">
         <i class="fa-solid fa-circle-info text-primary me-2"></i> Información adicional
     </h2>
@@ -86,13 +104,11 @@
         </li>
         <li class="list-group-item">
             <strong>Propietario ID:</strong>
-<!--            <span th:text="${listing.owner.name}"></span>-->
             <span th:text="${listing.owner != null ? listing.owner.name : 'Sin propietario'}"></span>
         </li>
     </ul>
     <hr>
 
-    <!-- Sección de reserva -->
     <div class="row mt-5 mb-4">
         <div class="col-lg-8">
             <div class="alert alert-success" role="alert">
@@ -115,7 +131,6 @@
 
     <hr>
 
-    <!-- Sección de reseñas -->
     <div class="row mt-4 mb-5">
         <div class="col-lg-8">
             <div class="alert alert-primary" role="alert">
@@ -131,8 +146,6 @@
             </a>
         </div>
     </div>
-
-
 
 </main>
 
