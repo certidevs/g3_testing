@@ -24,8 +24,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     Optional<Review> findReviewByBookingId(@Param("bookingId") Long bookingId);
     @Query("SELECT b.listing.owner FROM Booking b WHERE b.id = :bookingId")
     Optional<User> findOwnerByBookingId(@Param("bookingId") Long bookingId);
-    List<Booking> findByGuest(User guest);
-    List<Booking> findByListingOwner(User owner);
+    List<Booking>findByGuestId(Long Id);
 
 
 

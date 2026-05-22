@@ -3,9 +3,12 @@ package com.demo.controllers;
 
 import com.demo.model.*;
 import com.demo.model.enums.BookingStatus;
+import com.demo.model.enums.Role;
 import com.demo.repositories.*;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -49,8 +52,42 @@ public class BookingController {
 
     @GetMapping("/bookings")
     public String bookings(Model model) {
-        List<Booking> bookings = bookingRepository.findAll();
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
 
+        String email = authentication.getName();
+
+        User currentUser = userRepository.findByEmail(email)
+                .orElseThrow();
+
+        List<Booking> bookings = List.of();
+
+        // ADMIN
+        if (currentUser.getRole().equals(Role.ROLE_ADMIN)) {
+
+            bookings = bookingRepository.findAll();
+
+
+        }
+        // HOST
+        else if (currentUser.getRole().equals(Role.ROLE_HOST)) {
+
+
+            bookings= bookingRepository.findByGuestId(currentUser.getId());
+
+
+
+
+
+        }
+        // USER NORMAL
+        else if  (currentUser.getRole().equals(Role.ROLE_USER)) {
+
+            bookings = bookingRepository.findByGuestId(currentUser.getId());
+
+
+
+        }
         // Calcular totalPrice para cada reserva si no está establecido
         for (Booking booking : bookings) {
             if (booking.getTotalPrice() == null || booking.getTotalPrice() == 0) {
@@ -59,10 +96,23 @@ public class BookingController {
             }
         }
 
-        model.addAttribute("bookings", bookingRepository.findAll());
-        model.addAttribute("listings", listingRepository.findAll());
+
+
+        model.addAttribute("bookings", bookings);
+        System.out.println("USUARIO ACTUAL: " + currentUser.getId());
+
+        for (Booking booking : bookings) {
+            System.out.println(
+                    "BOOKING " + booking.getId()
+                            + " GUEST ID: "
+                            + booking.getGuest().getId()
+            );
+        }
 
         return "booking/booking-list";
+
+
+
 
     }
 
@@ -220,9 +270,14 @@ public class BookingController {
             }
 
             // 5. Asignar guest (usuario actual)
-            // NOTA: Aquí usamos el primer usuario como guest (en producción usarías autenticación)
-            User guest = userRepository.findAll().stream().findFirst()
+            Authentication authentication =
+                    SecurityContextHolder.getContext().getAuthentication();
+
+            String email = authentication.getName();
+
+            User guest = userRepository.findByEmail(email)
                     .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
             booking.setGuest(guest);
 
             // 6. Calcular totalPrice
@@ -230,6 +285,7 @@ public class BookingController {
 
             // 7. Establecer estado inicial
             booking.setStatus(BookingStatus.PENDING);
+
 
             // 8. Guardar la reserva
             bookingRepository.save(booking);
