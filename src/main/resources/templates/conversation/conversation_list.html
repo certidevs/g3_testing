@@ -2,81 +2,66 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <head th:replace="~{layout/head :: head('Mis Mensajes')}"></head>
-    <style>
-        body { background-color: #f8f9fa; }
-        .card-conversation {
-            transition: transform 0.2s, box-shadow 0.2s;
-            border-left: 5px solid #0d6efd;
-        }
-        .card-conversation:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            cursor: pointer;
-        }
-        .avatar-circle {
-            width: 50px;
-            height: 50px;
-            background-color: #e9ecef;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: #495057;
-        }
-    </style>
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100" style="background-color: #ffffff;">
 
 <nav th:replace="~{layout/navbar :: navbar}"></nav>
 
-<main class="container flex-grow-1 my-4">
+<main class="container flex-grow-1 my-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <h4 class="mb-4 text-secondary"><i class="bi bi-chat-dots-fill me-2"></i>Tus Conversaciones</h4>
-
-            <!-- Estado vacío -->
-            <div th:if="${conversations == null || conversations.isEmpty()}" class="text-center py-5">
-                <i class="bi bi-chat-left-text text-muted" style="font-size: 3rem;"></i>
-                <p class="mt-3 text-muted">No tienes mensajes todavía.</p>
-                <a href="/" class="btn btn-outline-primary btn-sm">Explorar alojamientos</a>
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
+                <h1 class="h3 mb-0 text-dark fw-bold" style="letter-spacing: -0.5px;">Bandeja de entrada</h1>
+                <form th:action="@{/conversation}" method="get" class="w-100 w-sm-auto" style="max-width: 320px;">
+                    <div class="input-group" style="border: 1px solid #DDDDDD; border-radius: 24px; padding: 2px 4px; background-color: #F7F7F7;">
+                        <input type="text" name="search" class="form-control border-0 bg-transparent shadow-none ps-3" th:value="${param.search}" placeholder="Buscar conversación..." style="font-size: 0.9rem;">
+                        <button class="btn btn-airbnb d-flex align-items-center justify-content-center p-0" type="submit" style="width: 32px; height: 32px; border-radius: 50% !important;">
+                            <i class="fa-solid fa-magnifying-glass" style="font-size: 0.8rem;"></i>
+                        </button>
+                    </div>
+                </form>
             </div>
 
-            <div th:each="conv : ${conversations}" class="card card-conversation mb-3 shadow-sm"
+            <div th:if="${conversations == null || conversations.isEmpty()}" class="text-center py-5 border rounded-4 my-4" style="border-color: #EBEBEB !important; background-color: #F7F7F7;">
+                <i class="fa-regular fa-comments text-muted mb-3" style="font-size: 2.5rem;"></i>
+                <p class="mt-2 text-dark fw-medium mb-1">No tienes mensajes todavía.</p>
+                <p class="text-muted small mb-4">Cuando te comuniques con un anfitrión, tus mensajes aparecerán aquí.</p>
+                <a href="/listings" class="btn btn-airbnb-outline px-4">Explorar alojamientos</a>
+            </div>
+
+            <div th:each="conv : ${conversations}" class="card card-conversation mb-3 border" style="border-color: #EBEBEB !important; background-color: #ffffff;"
                  th:onclick="|window.location.href='/conversation/' + ${conv.id}|">
-                <div class="card-body">
+                <div class="card-body p-4">
                     <div class="d-flex align-items-center">
 
-                        <!-- Avatar con la inicial del Host -->
-                        <div class="avatar-circle me-3">
+                        <div class="avatar-circle me-3" style="width: 48px; height: 48px; background-color: #FF385C; color: #ffffff;">
                             <span th:text="${#strings.substring(conv.booking.listing.owner.name, 0, 1)}">U</span>
                         </div>
 
                         <div class="flex-grow-1">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h6 class="mb-0 text-dark" th:text="${conv.booking.listing != null ? conv.booking.listing.title : 'Reserva sin título'}">
+                            <div class="d-flex justify-content-between align-items-baseline mb-1">
+                                <h2 class="h6 mb-0 text-dark fw-bold" th:text="${conv.booking.listing != null ? conv.booking.listing.title : 'Reserva sin título'}" style="font-size: 1rem;">
                                     Título del Alojamiento
-                                </h6>
-                                <small class="text-muted" th:text="${#temporals.format(conv.booking.checkIn, 'dd MMM')}">
+                                </h2>
+                                <small class="text-muted fw-normal" th:text="${#temporals.format(conv.booking.checkIn, 'dd MMM')}" style="font-size: 0.85rem;">
                                     15 May
                                 </small>
                             </div>
 
-                            <p class="text-muted mb-0 small">
-                                <i class="bi bi-person me-1"></i>
-                                Anfitrión: <span th:text="${conv.booking.listing.owner.name}">Nombre Host</span>
+                            <p class="text-muted mb-2 small" style="font-size: 0.85rem;">
+                                Anfitrión: <span class="text-dark fw-medium" th:text="${conv.booking.listing.owner.name}">Nombre Host</span>
                             </p>
 
-                            <div class="mt-2">
-                                <span class="badge bg-light text-primary border border-primary-subtle">
+                            <div class="d-flex gap-2 align-items-center">
+                                <span class="badge bg-light text-dark border px-2 py-1" style="border-color: #DDDDDD !important; font-weight: 500; font-size: 0.75rem; border-radius: 4px;">
                                     Reserva #<span th:text="${conv.booking.id}">001</span>
                                 </span>
-                                <span th:if="${conv.booking.status.name() == 'CONFIRMED'}" class="badge bg-success-subtle text-success">Confirmada</span>
+                                <span th:if="${conv.booking.status.name() == 'CONFIRMED'}" class="badge px-2 py-1" style="background-color: #E6F7ED; color: #117B34; font-weight: 600; font-size: 0.75rem; border-radius: 4px;">Confirmada</span>
                             </div>
                         </div>
 
-                        <div class="ms-3 text-primary">
-                            <i class="bi bi-chevron-right"></i>
+                        <div class="ms-3 text-muted opacity-50">
+                            <i class="fa-solid fa-chevron-right" style="font-size: 0.9rem;"></i>
                         </div>
                     </div>
                 </div>
@@ -89,7 +74,6 @@
 <footer th:replace="~{layout/footer :: footer}"></footer>
 
 <script th:replace="~{layout/footer :: scripts}"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

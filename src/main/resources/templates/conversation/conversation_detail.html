@@ -1,112 +1,31 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historial de Mensajes</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <style>
-        body { background-color: #f0f2f5; }
-        #chat-container {
-            height: 60vh;
-            overflow-y: auto;
-            padding: 25px;
-            background: #ffffff;
-            display: flex;
-            flex-direction: column;
-        }
-        .message-row {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 1.5rem;
-            position: relative;
-        }
-        .mw-75 {
-            max-width: 75%;
-            min-width: 150px;
-        }
-        .bubble {
-            padding: 12px 16px;
-            border-radius: 18px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            position: relative;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            word-break: break-word;
-        }
-        .owner-style .bubble {
-            background-color: #e9ecef;
-            color: #212529;
-            border-bottom-left-radius: 4px;
-        }
-        .guest-style .bubble {
-            background-color: #0d6efd;
-            color: white;
-            border-bottom-right-radius: 4px;
-        }
-        .message-options {
-            display: none;
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            gap: 5px;
-            padding: 0 10px;
-        }
-        .owner-style .message-options { left: 100%; flex-direction: row; }
-        .guest-style .message-options { right: 100%; flex-direction: row-reverse; }
-        .message-row:hover .message-options {
-            display: flex;
-        }
-        .btn-option {
-            background: white;
-            border: 1px solid #dee2e6;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            color: #6c757d;
-            cursor: pointer;
-            transition: all 0.2s;
-            padding: 0;
-        }
-        .btn-option:hover { background: #f8f9fa; color: #0d6efd; }
-        .btn-option.delete:hover { color: #dc3545; }
-        .user-label {
-            font-size: 0.75rem;
-            font-weight: 700;
-            margin-bottom: 4px;
-            display: block;
-        }
-        .time-label {
-            font-size: 0.65rem;
-            margin-top: 6px;
-            display: block;
-            opacity: 0.8;
-        }
-    </style>
+    <head th:replace="~{layout/head :: head('Conversación - openHouse')}"></head>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100" style="background-color: #ffffff;">
 
-<div class="container py-5">
+<nav th:replace="~{layout/navbar :: navbar}"></nav>
+
+<main class="container flex-grow-1 my-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card shadow-lg border-0">
-                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
-                    <h5 class="mb-0">
-                        <i class="bi bi-chat-fill me-2 text-primary"></i>
-                        Reserva #<span th:text="${conversation.booking.id}">0</span>
-                    </h5>
-                    <span class="badge rounded-pill bg-primary" th:text="${#lists.size(messages)} + ' mensajes'">0</span>
+            <div class="card border rounded-4 shadow-sm" style="border-color: #EBEBEB !important; overflow: hidden;">
+
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3 px-4" style="border-color: #EBEBEB !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-door-open text-airbnb fs-5"></i>
+                        <h1 class="h6 mb-0 text-dark fw-bold" style="font-size: 1.05rem;">
+                            Reserva #<span th:text="${conversation.booking.id}">0</span>
+                        </h1>
+                    </div>
+                    <span class="badge bg-light text-dark border px-2.5 py-1" style="border-color: #DDDDDD !important; font-weight: 500; font-size: 0.8rem; border-radius: 4px;" th:text="${#lists.size(messages)} + ' mensajes'">0</span>
                 </div>
 
                 <div class="card-body" id="chat-container">
                     <div th:if="${#lists.isEmpty(messages)}" class="text-center py-5 my-auto">
-                        <i class="bi bi-chat-left-dots text-muted" style="font-size: 3rem;"></i>
-                        <p class="mt-3 text-muted">No hay mensajes en esta conversación.</p>
+                        <i class="fa-regular fa-comment-dots text-muted mb-3" style="font-size: 2.5rem;"></i>
+                        <p class="text-muted small mb-0">No hay mensajes en esta conversación. ¡Escribe el primero!</p>
                     </div>
 
                     <div th:each="msg : ${messages}"
@@ -115,7 +34,7 @@
 
                         <div class="mw-75 position-relative">
                             <span class="user-label"
-                                  th:classappend="${msg.sender.id == 2 ? 'text-primary text-end' : 'text-secondary'}"
+                                  th:classappend="${msg.sender.id == 2 ? 'text-end' : ''}"
                                   th:text="${msg.sender.name}">Nombre</span>
 
                             <div class="bubble shadow-sm">
@@ -124,13 +43,13 @@
                             </div>
 
                             <div class="message-options" th:if="${msg.sender.id == 1}">
-                                <button type="button" class="btn-option shadow-sm"
+                                <button type="button" class="btn-option"
                                         th:onclick="'openEditModal(' + ${conversation.id} + ',' + ${msg.id} + ')'">
-                                    <i class="bi bi-pencil"></i>
+                                    <i class="fa-solid fa-pen"></i>
                                 </button>
-                                <form th:action="@{/conversation/{cId}/message/{mId}/delete(cId=${conversation.id}, mId=${msg.id})}" method="POST">
-                                    <button type="submit" class="btn-option delete shadow-sm">
-                                        <i class="bi bi-trash"></i>
+                                <form th:action="@{/conversation/{cId}/message/{mId}/delete(cId=${conversation.id}, mId=${msg.id})}" method="POST" class="m-0">
+                                    <button type="submit" class="btn-option delete">
+                                        <i class="fa-solid fa-trash-can"></i>
                                     </button>
                                 </form>
                             </div>
@@ -138,43 +57,47 @@
                     </div>
                 </div>
 
-                <div class="card-footer bg-white p-3 border-top">
-                    <form th:action="@{/conversation/{id}/send(id=${conversation.booking.id})}" method="POST" class="input-group">
-                        <input type="text" name="content" class="form-control border-light-subtle bg-light" placeholder="Escribe tu mensaje aquí..." required autocomplete="off">
-                        <button class="btn btn-primary px-4 shadow-sm" type="submit">
-                            <i class="bi bi-send-fill"></i>
+                <div class="card-footer bg-white p-4 border-top" style="border-color: #EBEBEB !important;">
+                    <form th:action="@{/conversation/{id}/send(id=${conversation.booking.id})}" method="POST" class="d-flex gap-2">
+                        <input type="text" name="content" class="form-control px-3" placeholder="Escribe tu mensaje aquí..." required autocomplete="off" style="border-color: #DDDDDD; border-radius: 12px; font-size: 0.95rem;">
+                        <button class="btn btn-airbnb d-flex align-items-center justify-content-center px-4" type="submit" style="border-radius: 12px;">
+                            <i class="fa-solid fa-paper-plane"></i>
                         </button>
                     </form>
-                    <div class="text-center mt-3">
-                        <a th:href="@{/conversation}" class="btn btn-link btn-sm text-muted text-decoration-none">
-                            <i class="bi bi-arrow-left me-1"></i> Volver a conversaciones
+                    <div class="text-center mt-4">
+                        <a th:href="@{/conversation}" class="text-secondary text-decoration-none hover-underline small fw-medium">
+                            <i class="fa-solid fa-chevron-left me-1.5" style="font-size: 0.75rem;"></i> Volver a conversaciones
                         </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</main>
 
 <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
+        <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 8px 28px rgba(0,0,0,0.15);">
             <form id="editForm" method="POST">
-                <div class="modal-header">
-                    <h5 class="modal-title">Editar mensaje</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-header px-4 pt-4 pb-2 border-0">
+                    <h5 class="modal-title fw-bold text-dark" style="letter-spacing: -0.5px;">Editar mensaje</h5>
+                    <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.8rem;"></button>
                 </div>
-                <div class="modal-body">
-                    <textarea name="content" id="editContent" class="form-control" rows="3" required></textarea>
+                <div class="modal-body px-4 py-2">
+                    <textarea name="content" id="editContent" class="form-control p-3" rows="3" required style="border-color: #DDDDDD; border-radius: 12px; font-size: 0.95rem; resize: none;"></textarea>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                <div class="modal-footer px-4 pb-4 pt-2 border-0 gap-2">
+                    <button type="button" class="btn btn-airbnb-outline px-4 py-2" data-bs-dismiss="modal" style="font-size: 0.9rem; margin: 0;">Cancelar</button>
+                    <button type="submit" class="btn btn-airbnb px-4 py-2" style="font-size: 0.9rem; margin: 0; border-radius: 24px !important;">Guardar cambios</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+
+<script th:replace="~{layout/footer :: scripts}"></script>
 
 <script>
     const chatContainer = document.getElementById('chat-container');
@@ -190,6 +113,5 @@
     }
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,18 +1,24 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-<footer th:fragment="footer" class="bg-white border-top mt-5 py-4">
-    <div class="container text-center small text-muted">
-        <p class="mb-0">
-            <i class="fa-regular fa-copyright"></i> 2026 G3 Alquiler Vacacional — Adecco
-        </p>
-        <p class="text-muted mt-2" style="font-size: 0.85rem;">
-            <i class="fa-solid fa-heart text-danger"></i> Plataforma de gestión de alquileres vacacionales
-        </p>
+<footer th:fragment="footer" class="bg-white border-top mt-auto py-4">
+    <div class="container">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 small text-secondary">
+            <div class="d-flex flex-wrap align-items-center gap-3">
+                <span>&copy; 2026 G3 Alquiler Vacacional &middot; Adecco</span>
+                <span class="d-none d-md-inline text-muted">&middot;</span>
+                <a href="#" class="text-secondary text-decoration-none hover-underline">Privacidad</a>
+                <a href="#" class="text-secondary text-decoration-none hover-underline">Términos</a>
+                <a href="#" class="text-secondary text-decoration-none hover-underline">Mapa del sitio</a>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-muted"><i class="fa-solid fa-globe me-2"></i>Español (ES)</span>
+                <span class="text-muted"><i class="fa-solid fa-wallet me-2"></i>EUR</span>
+            </div>
+        </div>
     </div>
 </footer>
 
-<!-- Bundle JS de Bootstrap (incluye Popper). Va al final del body -->
 <script th:fragment="scripts" th:src="@{/webjars/bootstrap/5.3.8/dist/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

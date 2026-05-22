@@ -12,6 +12,12 @@ import java.util.List;
 public interface ConversationRepository extends JpaRepository<Conversation, Long> {
     Conversation findByBookingId(Long bookingId);
     List<Conversation> findByBookingGuestId(Long guestId);
+    @Query("SELECT c FROM Conversation c WHERE " +
+            "(LOWER(c.booking.listing.title) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            " LOWER(c.booking.listing.owner.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            " LOWER(c.booking.guest.name) LIKE LOWER(CONCAT('%', :search, '%')))")
+    List<Conversation> searchConversations(@Param("search") String search);
+    List<Conversation> findByBookingListingTitle(String title);
     @Query("SELECT c FROM Conversation c WHERE c.booking.listing.owner.id = :hostId")
     List<Conversation> findByBookingHostId(@Param("hostId") Long hostId);
 

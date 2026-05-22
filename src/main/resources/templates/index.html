@@ -1,10 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Propiedades</title>
+    <head th:replace="~{layout/head :: head('Bienvenido a openHouse')}"></head>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
+
+<nav th:replace="~{layout/navbar :: navbar}"></nav>
+
+<main class="container flex-grow-1 d-flex align-items-center justify-content-center">
+    <div class="hero-section shadow-sm w-100 my-4">
+        <div class="hero-content">
+            <h1>Siente que estás en casa</h1>
+            <p>Encuentra alojamientos únicos en cualquier rincón del mundo.</p>
+            <div class="cta-buttons">
+                <a th:href="@{/login}" class="btn btn-airbnb-outline btn-main">
+                    Iniciar sesión
+                </a>
+                <a th:href="@{/listings}" class="btn btn-airbnb btn-main">
+                    Comenzar
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+
+<script th:replace="~{layout/footer :: scripts}"></script>
 
 </body>
 </html>

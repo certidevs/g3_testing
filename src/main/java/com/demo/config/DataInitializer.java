@@ -3,10 +3,12 @@ package com.demo.config;
 import com.demo.model.*;
 import com.demo.model.enums.BookingStatus;
 import com.demo.model.enums.ListingType;
+import com.demo.model.enums.Role;
 import com.demo.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,7 @@ public class DataInitializer implements CommandLineRunner {
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
     private final AddonRepository addonRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
@@ -55,29 +58,49 @@ public class DataInitializer implements CommandLineRunner {
 
         addonRepository.saveAll(List.of(breakfast, transport));
 
-        User owner = User.builder()
-                .name("Alex Pro")
-                .email("alex@pro.com")
-                .build();
-        User owner1 = User.builder()
-                .name("Maria Lopez")
-                .email("maria@pro.com")
-                .build();
-        User owner2 = User.builder()
-                .name("Juan Perez")
-                .email("juan@pro.com")
-                .build();
+        String passwordEncriptada = passwordEncoder.encode("1234");
+
         User admin = User.builder()
                 .name("Admin")
                 .email("admin@openhouse.com")
+                .username("admin@openhouse.com")
+                .password(passwordEncriptada)
+                .role(Role.ROLE_ADMIN)
+                .build();
+
+        User admin2 = User.builder()
+                .name("Alex Pro")
+                .email("alex@pro.com")
+                .username("alex@pro.com")
+                .password(passwordEncriptada)
+                .role(Role.ROLE_ADMIN)
                 .build();
 
         User guest = User.builder()
                 .name("Sonia Lopez")
                 .email("sonia@mail.com")
+                .username("sonia@mail.com")
+                .password(passwordEncriptada)
+                .role(Role.ROLE_USER)
                 .build();
 
-        userRepository.saveAll(List.of(owner,owner1, owner2,admin,guest));
+        User guest2 = User.builder()
+                .name("Maria Lopez")
+                .email("maria@pro.com")
+                .username("maria@pro.com")
+                .password(passwordEncriptada)
+                .role(Role.ROLE_USER)
+                .build();
+
+        User userExtra = User.builder()
+                .name("Juan Perez")
+                .email("juan@pro.com")
+                .username("juan@pro.com")
+                .password(passwordEncriptada)
+                .role(Role.ROLE_USER)
+                .build();
+
+        userRepository.saveAll(List.of(admin, admin2, guest, guest2, userExtra));
 
         Listing loft = Listing.builder()
                 .title("Loft Industrial")
@@ -89,10 +112,11 @@ public class DataInitializer implements CommandLineRunner {
                 .maxGuests(3)
                 .imageUrl("https://images.com/loft")
                 .registeredAt(LocalDateTime.now())
-                .owner(owner)
+                .owner(admin2)
                 .isActive(true)
                 .type(ListingType.LOFT)
                 .build();
+
         Listing ap = Listing.builder()
                 .title("Apartamento con Vistas")
                 .shortDescription("Apartamento moderno con vistas al mar")
@@ -103,10 +127,11 @@ public class DataInitializer implements CommandLineRunner {
                 .maxGuests(4)
                 .imageUrl("https://images.com/apartment1")
                 .registeredAt(LocalDateTime.now())
-                .owner(owner)
+                .owner(admin2)
                 .isActive(true)
                 .type(ListingType.APARTAMENTO)
                 .build();
+
         Listing ap2 = Listing.builder()
                 .title("Apartamento en el Centro")
                 .shortDescription("Perfecto para turistas")
@@ -117,10 +142,11 @@ public class DataInitializer implements CommandLineRunner {
                 .maxGuests(2)
                 .imageUrl("https://images.com/apartment2")
                 .registeredAt(LocalDateTime.now())
-                .owner(owner2)
+                .owner(userExtra)
                 .isActive(true)
                 .type(ListingType.APARTAMENTO)
                 .build();
+
         Listing cf = Listing.builder()
                 .title("Casa Familiar con Jardín")
                 .shortDescription("Ideal para familias")
@@ -131,10 +157,11 @@ public class DataInitializer implements CommandLineRunner {
                 .maxGuests(6)
                 .imageUrl("https://images.com/casa")
                 .registeredAt(LocalDateTime.now())
-                .owner(owner1)
+                .owner(guest2)
                 .isActive(true)
                 .type(ListingType.CASA)
                 .build();
+
         Listing hp = Listing.builder()
                 .title("Habitación Privada en Piso Compartido")
                 .shortDescription("Buena ubicación")
@@ -145,10 +172,11 @@ public class DataInitializer implements CommandLineRunner {
                 .maxGuests(1)
                 .imageUrl("https://images.com/room")
                 .registeredAt(LocalDateTime.now())
-                .owner(owner1)
+                .owner(guest2)
                 .isActive(true)
                 .type(ListingType.HABITACION_PRIVADA)
                 .build();
+
         Listing vi = Listing.builder()
                 .title("Villa de Lujo con Piscina")
                 .shortDescription("Privacidad y Confort")
@@ -159,10 +187,11 @@ public class DataInitializer implements CommandLineRunner {
                 .maxGuests(8)
                 .imageUrl("https://images.com/room")
                 .registeredAt(LocalDateTime.now())
-                .owner(owner2)
+                .owner(userExtra)
                 .isActive(true)
                 .type(ListingType.VILLA)
                 .build();
+
         Listing cha = Listing.builder()
                 .title("Chalet en el Bosque")
                 .shortDescription("Desconexión total")
@@ -173,12 +202,12 @@ public class DataInitializer implements CommandLineRunner {
                 .maxGuests(4)
                 .imageUrl("https://images.com/villa")
                 .registeredAt(LocalDateTime.now())
-                .owner(owner2)
+                .owner(userExtra)
                 .isActive(false)
                 .type(ListingType.CHALET)
                 .build();
-        List<Listing> listings = List.of(loft,ap,ap2,cf,hp,vi,cha);
 
+        List<Listing> listings = List.of(loft, ap, ap2, cf, hp, vi, cha);
         listingRepository.saveAll(listings);
 
         Amenity wifi = Amenity.builder()
@@ -200,16 +229,14 @@ public class DataInitializer implements CommandLineRunner {
         Booking booking = Booking.builder()
                 .checkIn(LocalDateTime.now().plusDays(1))
                 .checkOut(LocalDateTime.now().plusDays(3))
-                //.totalPrice(220.0)
                 .status(BookingStatus.CONFIRMED)
                 .guest(guest)
                 .listing(loft)
                 .build();
 
         Booking booking2 = Booking.builder()
-                .checkIn(LocalDateTime.of(2026,4,20,15,30))
-                .checkOut(LocalDateTime.of(2026,4,25,15,30))
-                //.totalPrice(750.0)
+                .checkIn(LocalDateTime.of(2026, 4, 20, 15, 30))
+                .checkOut(LocalDateTime.of(2026, 4, 25, 15, 30))
                 .status(BookingStatus.CONFIRMED)
                 .guest(guest)
                 .listing(ap)
@@ -234,7 +261,7 @@ public class DataInitializer implements CommandLineRunner {
 
         Message m2 = Message.builder()
                 .content("Sí, se te enviará 2 horas antes de tu llegada.")
-                .sender(owner)
+                .sender(admin2)
                 .conversation(conv)
                 .sentAt(LocalDateTime.now().minusMinutes(7))
                 .isRead(false)
@@ -242,7 +269,7 @@ public class DataInitializer implements CommandLineRunner {
 
         Message m3 = Message.builder()
                 .content("Te esperamos con muchas ganas.")
-                .sender(owner)
+                .sender(admin2)
                 .conversation(conv)
                 .sentAt(LocalDateTime.now().minusMinutes(6))
                 .isRead(false)
@@ -273,8 +300,8 @@ public class DataInitializer implements CommandLineRunner {
                 .creationDate(LocalDate.now())
                 .booking(booking2)
                 .build();
-        List<Review> reviews = List.of(review, review2);
 
+        List<Review> reviews = List.of(review, review2);
         reviewRepository.saveAll(reviews);
     }
 }

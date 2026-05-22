@@ -42,11 +42,19 @@ public class ConversationController {
 
 
     @GetMapping("/conversation")
-    String getConversaionts(Model model){
-        List<Conversation> conversations = conversationRepository.findAll();
+    public String showConversations(@RequestParam(value = "search", required = false) String search, Model model) {
+        List<Conversation> conversations;
+
+        if (search != null && !search.trim().isEmpty()) {
+            // Si el usuario escribe algo en el buscador
+            conversations = conversationRepository.searchConversations(search);
+        } else {
+            // Si el buscador está vacío, puedes cargar todas (o filtrar por el usuario logueado usando tus otros métodos)
+            conversations = conversationRepository.findAll();
+        }
 
         model.addAttribute("conversations", conversations);
-        return "conversation/conversation_list";
+        return "conversation/conversation_list"; // Asegúrate de que coincida con el nombre de tu archivo HTML
     }
 
     @PostMapping("/conversation/{id}/send")

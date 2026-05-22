@@ -12,6 +12,10 @@
         <i class="fa-solid fa-calendar-check me-2"></i>
         Nueva Reserva - <span th:text="${listing.title}"></span>
     </h1>
+    <div th:if="${error}" class="alert alert-danger">
+        <i class="fa-solid fa-triangle-exclamation me-2"></i>
+        <span th:text="${error}"></span>
+    </div>
 
     <!-- Información del alojamiento -->
     <div class="alert alert-info mb-4">

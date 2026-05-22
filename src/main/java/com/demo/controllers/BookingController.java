@@ -105,7 +105,7 @@ public class BookingController {
     public String cancelBooking(@PathVariable Long id, RedirectAttributes redirectAttributes){
 
         Booking booking= bookingRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Reserva no encontrada"));
-        if(booking.getStatus()== BookingStatus.PENDING){
+        if(booking.getStatus()== BookingStatus.PENDING|| booking.getStatus()== BookingStatus.CONFIRMED){
             booking.setStatus(BookingStatus.CANCELED);
             bookingRepository.save(booking);
             redirectAttributes.addFlashAttribute("message", "Reserva cancelada exitosamente.");
