@@ -33,7 +33,7 @@
                     <!-- Estado de la reserva -->
                     <p class="card-text">
                             <span class="badge"
-                                  th:classappend="${booking.status == 'CONFIRMED' ? 'bg-success' : booking.status == 'PENDING' ? 'bg-warning text-dark' : 'bg-danger'}">
+                                  th:classappend="${booking.status.name() == 'CONFIRMED' ? 'bg-success' : booking.status.name() == 'PENDING' ? 'bg-warning text-dark' : 'bg-danger'}">
                                 <i class="fa-solid fa-calendar-check me-1"></i>
                                 <span th:text="${booking.status}">Estado</span>
                             </span>

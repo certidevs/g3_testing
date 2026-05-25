@@ -53,8 +53,6 @@ public class BookingController {
 
     @GetMapping("/bookings")
     public String bookings(Model model, @AuthenticationPrincipal User user) {
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
 
         String email = user.getEmail();
 
@@ -233,6 +231,7 @@ public class BookingController {
                 throw new IllegalArgumentException("La fecha de salida debe ser posterior a la de entrada");
             }
 
+            // TODO revisar número negativo, salió -22 en la UI
             // 3. Validar mínimas y máximas noches
             long nights = ChronoUnit.DAYS.between(
                     booking.getCheckIn().toLocalDate(),

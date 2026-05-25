@@ -4,6 +4,7 @@ package com.demo.controllers;
 import com.demo.model.Booking;
 import com.demo.model.Review;
 import com.demo.repositories.BookingRepository;
+import com.demo.repositories.ListingRepository;
 import com.demo.repositories.ReviewRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -24,11 +25,17 @@ public class ReviewController {
 
     private final ReviewRepository reviewRepository;
     private final BookingRepository bookingRepository;
+    private final ListingRepository listingRepository;
 
     @GetMapping("reviews")
     public String reviews(Model model){
         model.addAttribute("reviews", reviewRepository.findAll());
         model.addAttribute("bookings", bookingRepository.findAll());
+
+        // opcion 1:
+        model.addAttribute("top10housesFilter", listingRepository.findTop10ByIsActiveTrueOrderByRegisteredAtDesc());
+
+
         return "review/review-list";
 
     }

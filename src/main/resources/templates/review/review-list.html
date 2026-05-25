@@ -20,6 +20,13 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
+
+    <div class="col" th:each="house : ${top10housesFilter}">
+        <a th:href="@{/listing/{id}/reviews(id=${house.id})}">
+            <img class="img-thumbnail" th:src="${house.imageUrl}" alt="casa">
+        </a>
+    </div>
+
     <div class="row row-cols-1 row-cols-md-2 g-3">
         <div class="col" th:each="review : ${reviews}">
             <div class="card h-100 shadow-sm">

@@ -35,7 +35,7 @@ public class Review {
     @Column(columnDefinition = "BOOLEAN DEFAULT true")
     private Boolean verified;
 
-    private LocalDate creationDate;
+    private LocalDate creationDate; // LocalDateTime
     //private LocalDate modifiedDate;
 
 
