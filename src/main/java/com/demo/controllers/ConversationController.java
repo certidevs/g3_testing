@@ -9,6 +9,7 @@ import com.demo.repositories.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -26,10 +27,12 @@ public class ConversationController {
     private UserRepository userRepository;
 
     @GetMapping("/conversation/{id}")
-    String getConversationById(@PathVariable Long id, Model model){
+    String getConversationById(@PathVariable Long id, Model model, @AuthenticationPrincipal User user){
         Conversation conversation = conversationRepository.findByBookingId(id);
+        User host = conversation.getBooking().getListing().getOwner();
+        User guest = conversation.getBooking().getGuest();
 
-        if(conversation != null) {
+        if (user != null && (user.getId().equals(host.getId()) || user.getId().equals(guest.getId()))) {
             model.addAttribute("conversation", conversation);
             List<Message> messages = messageRepository.findByConversationId(conversation.getId(), Sort.by(Sort.Direction.ASC, "sentAt"));
             model.addAttribute("messages", messages);
@@ -42,23 +45,23 @@ public class ConversationController {
 
 
     @GetMapping("/conversation")
-    public String showConversations(@RequestParam(value = "search", required = false) String search, Model model) {
+    public String showConversations(@RequestParam(value = "search", required = false) String search, Model model,@AuthenticationPrincipal User user) {
         List<Conversation> conversations;
+        Long userLogged = user.getId();
 
         if (search != null && !search.trim().isEmpty()) {
-            // Si el usuario escribe algo en el buscador
             conversations = conversationRepository.searchConversations(search);
         } else {
-            // Si el buscador está vacío, puedes cargar todas (o filtrar por el usuario logueado usando tus otros métodos)
-            conversations = conversationRepository.findAll();
+            conversations = conversationRepository.findByBookingHostId(userLogged);
+            conversations.addAll(conversationRepository.findByBookingGuestId(userLogged));
         }
 
         model.addAttribute("conversations", conversations);
-        return "conversation/conversation_list"; // Asegúrate de que coincida con el nombre de tu archivo HTML
+        return "conversation/conversation_list";
     }
 
     @PostMapping("/conversation/{id}/send")
-    String createMessage(@PathVariable Long id, @RequestParam String content, HttpSession session) {
+    String createMessage(@PathVariable Long id, @RequestParam String content, HttpSession session, @AuthenticationPrincipal User user) {
         if (content == null || content.isBlank()) {
             return "redirect:/conversation/" + id;
         }
@@ -66,16 +69,10 @@ public class ConversationController {
         Conversation conversation = conversationRepository.findByBookingId(id);
 
         if (conversation != null) {
-            User sender = (User) session.getAttribute("loggedInUser");
-
-            if (sender == null) {
-                sender = userRepository.findById(1L).orElseThrow();
-            }
-
             Message message = Message.builder()
                     .content(content)
                     .conversation(conversation)
-                    .sender(sender)
+                    .sender(user)
                     .sentAt(java.time.LocalDateTime.now())
                     .isRead(false)
                     .build();
@@ -87,10 +84,10 @@ public class ConversationController {
     }
 
     @PostMapping("/conversation/{conversationId}/message/{messageId}/edit")
-    String editMessage(@PathVariable Long conversationId, @PathVariable Long messageId, @RequestParam String content) {
+    String editMessage(@PathVariable Long conversationId, @PathVariable Long messageId, @RequestParam String content, @AuthenticationPrincipal User user) {
         Message message = messageRepository.findById(messageId).orElseThrow();
 
-        if (!message.getSender().getId().equals(1L)) {
+        if (!message.getSender().equals(user)) {
             return "redirect:/conversation/" + conversationId;
         }
 
@@ -105,10 +102,10 @@ public class ConversationController {
     }
 
     @PostMapping("/conversation/{conversationId}/message/{messageId}/delete")
-    String deleteMessage(@PathVariable Long conversationId, @PathVariable Long messageId) {
+    String deleteMessage(@PathVariable Long conversationId, @PathVariable Long messageId,@AuthenticationPrincipal User user) {
         Message message = messageRepository.findById(messageId).orElseThrow();
 
-        if (!message.getSender().getId().equals(1L)) {
+        if (!message.getSender().equals(user)) {
             return "redirect:/conversation/" + conversationId;
         }
 

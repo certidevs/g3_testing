@@ -1,6 +1,8 @@
 package com.demo.controllers;
 
 import com.demo.dto.RegisterDTO;
+import com.demo.model.User;
+import com.demo.repositories.UserRepository;
 import com.demo.services.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -14,6 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @AllArgsConstructor
 public class AuthController {
     private final UserService userService;
+    private final UserRepository userRepository;
 
     @GetMapping("/login")
     public String login(){
@@ -31,6 +34,7 @@ public class AuthController {
     public String register(@ModelAttribute RegisterDTO user, RedirectAttributes redirectAttributes){
         try {
             userService.register(user);
+            User userRegistrado = userRepository.findByEmail(user.getEmail()).orElseThrow();
             redirectAttributes.addFlashAttribute("message", "Cuenta creada correctamente, inicia sesión.");
             return "redirect:/login";
         } catch (Exception e) {

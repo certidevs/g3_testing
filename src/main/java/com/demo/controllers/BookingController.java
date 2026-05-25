@@ -8,6 +8,7 @@ import com.demo.repositories.*;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -51,11 +52,11 @@ public class BookingController {
     }
 
     @GetMapping("/bookings")
-    public String bookings(Model model) {
+    public String bookings(Model model, @AuthenticationPrincipal User user) {
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
 
-        String email = authentication.getName();
+        String email = user.getEmail();
 
         User currentUser = userRepository.findByEmail(email)
                 .orElseThrow();
@@ -214,7 +215,7 @@ public class BookingController {
 
     @PostMapping("/bookings")
     public String createBooking(@ModelAttribute Booking booking,
-                                RedirectAttributes redirectAttributes) {
+                                RedirectAttributes redirectAttributes, @AuthenticationPrincipal User user) {
         try {
 
             Listing listing = listingRepository.findById(booking.getListing().getId())
@@ -273,7 +274,7 @@ public class BookingController {
             Authentication authentication =
                     SecurityContextHolder.getContext().getAuthentication();
 
-            String email = authentication.getName();
+            String email = user.getEmail();
 
             User guest = userRepository.findByEmail(email)
                     .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
