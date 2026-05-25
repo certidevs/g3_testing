@@ -57,7 +57,7 @@ public class BookingController {
         String email = user.getEmail();
 
         User currentUser = userRepository.findByEmail(email)
-                .orElseThrow();
+                .orElseThrow(()-> new IllegalArgumentException("Usuario no encontrado"));
 
         List<Booking> bookings = List.of();
 
