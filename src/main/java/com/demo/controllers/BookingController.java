@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -59,7 +60,7 @@ public class BookingController {
         User currentUser = userRepository.findByEmail(email)
                 .orElseThrow(()-> new IllegalArgumentException("Usuario no encontrado"));
 
-        List<Booking> bookings = List.of();
+        List<Booking> bookings = new ArrayList<>();
 
         // ADMIN
         if (currentUser.getRole().equals(Role.ROLE_ADMIN)) {
@@ -71,9 +72,11 @@ public class BookingController {
         // HOST
         else if (currentUser.getRole().equals(Role.ROLE_HOST)) {
 
+            List<Booking> hostBookings = bookingRepository.findByListingOwnerId(currentUser.getId());
+            List<Booking> guestBookings= bookingRepository.findByGuestId(currentUser.getId());
 
-            bookings= bookingRepository.findByGuestId(currentUser.getId());
-
+            bookings.addAll(hostBookings);
+            bookings.addAll(guestBookings);
 
 
 
@@ -135,15 +138,52 @@ public class BookingController {
     }
 
     @PostMapping("/bookings/{id}/confirm")
-    public String confirmBooking(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        Booking booking = bookingRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Reserva no encontrada"));
+    public String confirmBooking(@PathVariable Long id,
+                                 @AuthenticationPrincipal User user,
+                                 RedirectAttributes redirectAttributes) {
 
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Reserva no encontrada"));
+
+        User currentUser = userRepository.findByEmail(user.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        boolean isAdmin = currentUser.getRole().equals(Role.ROLE_ADMIN);
+
+        boolean isOwnerHost =
+                currentUser.getRole().equals(Role.ROLE_HOST)
+                        &&
+                        booking.getListing().getOwner().getId().equals(currentUser.getId());
+
+        // Comprobar permisos
+        if (!isAdmin && !isOwnerHost) {
+
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    "No tienes permisos para confirmar esta reserva."
+            );
+
+            return "redirect:/bookings/" + id;
+        }
+
+        // Confirmar solo si está pendiente
         if (booking.getStatus() == BookingStatus.PENDING) {
+
             booking.setStatus(BookingStatus.CONFIRMED);
+
             bookingRepository.save(booking);
-            redirectAttributes.addFlashAttribute("message", "Reserva confirmada exitosamente.");
+
+            redirectAttributes.addFlashAttribute(
+                    "message",
+                    "Reserva confirmada exitosamente."
+            );
+
         } else {
-            redirectAttributes.addFlashAttribute("error", "La reserva no puede ser confirmada porque no está en estado pendiente.");
+
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    "La reserva no puede ser confirmada porque no está en estado pendiente."
+            );
         }
 
         return "redirect:/bookings/" + id;
