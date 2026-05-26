@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
 <head>
     <head th:replace="~{layout/head :: head('Conversación - openHouse')}"></head>
 </head>
@@ -28,13 +29,13 @@
                         <p class="text-muted small mb-0">No hay mensajes en esta conversación. ¡Escribe el primero!</p>
                     </div>
 
-                    <div th:each="msg : ${messages}"
+                    <div th:each="msg, msgStat : ${messages}"
                          class="message-row"
-                         th:classappend="${msg.sender.id == 2 ? 'guest-style align-items-end' : 'owner-style align-items-start'}">
+                         th:classappend="${msg.sender.id == #authentication.principal.id ? 'guest-style align-items-end' : 'owner-style align-items-start'}">
 
                         <div class="mw-75 position-relative">
                             <span class="user-label"
-                                  th:classappend="${msg.sender.id == 2 ? 'text-end' : ''}"
+                                  th:classappend="${msg.sender.id == #authentication.principal.id ? 'text-end' : ''}"
                                   th:text="${msg.sender.name}">Nombre</span>
 
                             <div class="bubble shadow-sm">
@@ -42,12 +43,18 @@
                                 <span class="time-label" th:text="${msg.sentAt != null ? #temporals.format(msg.sentAt, 'HH:mm') : '--:--'}">Hora</span>
                             </div>
 
-                            <div class="message-options" th:if="${msg.sender.id == 1}">
+                            <div th:if="${msg.sender.id == #authentication.principal.id && msgStat.last && msg.isRead}"
+                                 class="text-end text-muted small mt-1" style="font-size: 0.75rem; font-weight: 500;">
+                                <i class="fa-solid fa-check-double text-airbnb me-1"></i> Visto
+                            </div>
+
+                            <div class="message-options" th:if="${msg.sender.id == #authentication.principal.id}">
                                 <button type="button" class="btn-option"
                                         th:onclick="'openEditModal(' + ${conversation.id} + ',' + ${msg.id} + ')'">
                                     <i class="fa-solid fa-pen"></i>
                                 </button>
                                 <form th:action="@{/conversation/{cId}/message/{mId}/delete(cId=${conversation.id}, mId=${msg.id})}" method="POST" class="m-0">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                                     <button type="submit" class="btn-option delete">
                                         <i class="fa-solid fa-trash-can"></i>
                                     </button>
@@ -59,6 +66,7 @@
 
                 <div class="card-footer bg-white p-4 border-top" style="border-color: #EBEBEB !important;">
                     <form th:action="@{/conversation/{id}/send(id=${conversation.booking.id})}" method="POST" class="d-flex gap-2">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <input type="text" name="content" class="form-control px-3" placeholder="Escribe tu mensaje aquí..." required autocomplete="off" style="border-color: #DDDDDD; border-radius: 12px; font-size: 0.95rem;">
                         <button class="btn btn-airbnb d-flex align-items-center justify-content-center px-4" type="submit" style="border-radius: 12px;">
                             <i class="fa-solid fa-paper-plane"></i>
@@ -79,6 +87,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 8px 28px rgba(0,0,0,0.15);">
             <form id="editForm" method="POST">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <div class="modal-header px-4 pt-4 pb-2 border-0">
                     <h5 class="modal-title fw-bold text-dark" style="letter-spacing: -0.5px;">Editar mensaje</h5>
                     <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.8rem;"></button>
