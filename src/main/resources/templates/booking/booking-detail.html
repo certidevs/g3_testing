@@ -329,60 +329,40 @@
     <div class="d-flex gap-2 mb-4">
 
         <!-- Confirmar reserva -->
-        <!-- Confirmar reserva -->
-        <form th:if="${booking.status.name() == 'PENDING'
-        and (
-            #authorization.expression('hasRole(''ADMIN'')')
-            or
-            (
-                #authorization.expression('hasRole(''HOST'')')
-                and booking.listing.owner.id == #authentication.principal.id
-            )
-        )}"
+        <form th:if="${booking.status.name() == 'PENDING' and (
+          #authorization.expression('hasRole(''ADMIN'')') or (
+              #authorization.expression('hasRole(''HOST'')') and
+              booking.listing.owner.id == #authentication.principal.id
+          )
+      )}"
               th:action="@{/bookings/{id}/confirm(id=${booking.id})}"
               method="post">
 
             <button type="submit"
                     class="btn btn-success"
                     onclick="return confirm('¿Seguro que deseas confirmar esta reserva?')">
-
                 <i class="fa-solid fa-check me-1"></i>
                 Confirmar reserva
-
             </button>
         </form>
 
         <!-- Cancelar reserva -->
-        <form th:if="${
-        booking.status.name() == 'PENDING'
-
-        or
-
-        (
-            booking.status.name() == 'CONFIRMED'
-            and
-            (
-                #authorization.expression('hasRole(''ADMIN'')')
-
-                or
-
-                (
-                    #authorization.expression('hasRole(''HOST'')')
-                    and booking.listing.owner.id == #authentication.principal.id
-                )
-            )
-        )
-    }"
+        <form th:if="${booking.status.name() == 'PENDING' or (
+          booking.status.name() == 'CONFIRMED' and (
+              #authorization.expression('hasRole(''ADMIN'')') or (
+                  #authorization.expression('hasRole(''HOST'')') and
+                  booking.listing.owner.id == #authentication.principal.id
+              )
+          )
+      )}"
               th:action="@{/bookings/{id}/cancel(id=${booking.id})}"
               method="post">
 
             <button type="submit"
                     class="btn btn-danger"
                     onclick="return confirm('¿Seguro que deseas cancelar esta reserva?')">
-
                 <i class="fa-solid fa-xmark me-1"></i>
                 Cancelar reserva
-
             </button>
         </form>
 
