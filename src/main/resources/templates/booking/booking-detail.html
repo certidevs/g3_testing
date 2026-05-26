@@ -19,6 +19,8 @@
     <!-- Cabecera de la reserva -->
     <div class="d-flex justify-content-between align-items-start mb-4">
 
+        <!-- TODO alert-success message user su resrva ha sido creada correctamente-->
+        <!-- TODO alert-success message host reserva confirmada correctamente-->
         <div>
             <!-- Título - Propiedad -->
             <h1 class="mb-2">
@@ -36,7 +38,7 @@
             <div class="mb-3">
                 <!-- Estado -->
                 <span class="badge me-2"
-                      th:classappend="${booking.status == 'CONFIRMED' ? 'bg-success' : booking.status == 'PENDING' ? 'bg-warning text-dark' : booking.status == 'CANCELLED' ? 'bg-danger' : 'bg-secondary'}">
+                      th:classappend="${booking.status.name() == 'CONFIRMED' ? 'bg-success' : booking.status.name() == 'PENDING' ? 'bg-warning text-dark' : booking.status.name() == 'CANCELLED' ? 'bg-danger' : 'bg-secondary'}">
                     <i class="fa-solid fa-circle me-1"></i>
                     <span th:text="${booking.status}">Estado</span>
                 </span>
@@ -321,6 +323,7 @@
         </li>
     </ul>
 
+    <!-- TODO authorize has any roles HOST , ADMIN-->
     <!-- Acciones de la reserva -->
     <div class="d-flex gap-2 mb-4">
 

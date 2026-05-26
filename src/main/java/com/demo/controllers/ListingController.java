@@ -2,11 +2,15 @@ package com.demo.controllers;
 
 import com.demo.model.Amenity;
 import com.demo.model.Listing;
+import com.demo.model.User;
 import com.demo.model.enums.ListingType;
+import com.demo.model.enums.Role;
 import com.demo.repositories.AmenityRepository;
 import com.demo.repositories.ListingRepository;
+import com.demo.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +25,7 @@ class ListingController {
 
     private final ListingRepository listingRepository;
     private final AmenityRepository amenityRepository;
+    private final UserRepository userRepository;
 
     @GetMapping
     public String list(
@@ -78,7 +83,13 @@ class ListingController {
         return "listing/listing-form";
     }
     @PostMapping
-    public String saveListing(@ModelAttribute Listing listing) {
+    public String saveListing(@ModelAttribute Listing listing, @AuthenticationPrincipal User user) {
+
+        if (user != null && user.getRole() == Role.ROLE_USER) {
+            user.setRole(Role.ROLE_HOST);
+            userRepository.save(user);
+        }
+        listing.setOwner(user);
 
         // TODO: validaciones (precio, noches, etc.)
         listingRepository.save(listing);
