@@ -38,11 +38,10 @@ public class Booking {
 
     @ManyToOne
     @ToString.Exclude
-    User guest;
+    private User guest;
 
     @ToString.Exclude
     @ManyToOne
-    @JoinColumn(name = "listing_id")
     private Listing listing;
 
 }
