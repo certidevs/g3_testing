@@ -139,23 +139,26 @@
                                th:text="${review.booking.id}">ID</a>
                         </span>
                     </div>
-                    <div class="my-3">
-                        <a class="btn btn-secondary me-2" th:href="@{/reviews/{id}(id=${review.id})}">
+                    <div class="my-3 d-flex gap-2 align-items-center">
+
+                        <a class="btn btn-secondary" th:href="@{/reviews/{id}(id=${review.id})}">
                             <i class="fa-solid fa-eye me-2"></i> Ver
                         </a>
 
-                    </div>
-                    <form sec:authorize="hasRole('ADMIN')"
-                          th:action="@{/reviews/delete/{id}(id=${review.id})}"
-                          method="post">
+                        <form sec:authorize="hasRole('ADMIN')"
+                              th:action="@{/reviews/delete/{id}(id=${review.id})}"
+                              method="post">
 
-                        <button type="submit"
-                                class="btn btn-danger"
-                                onclick="return confirm('¿Seguro que deseas eliminar esta reseña?')">
-                            <i class="fa-solid fa-xmark me-1"></i>
-                            Cancelar reseña
-                        </button>
-                    </form>
+                            <button type="submit"
+                                    class="btn btn-danger"
+                                    onclick="return confirm('¿Seguro que deseas eliminar esta reseña?')">
+                                <i class="fa-solid fa-xmark me-1"></i>
+                                Cancelar reseña
+                            </button>
+                        </form>
+
+                    </div>
+
                 </div>
             </div>
         </div>
