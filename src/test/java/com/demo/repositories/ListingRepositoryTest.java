@@ -245,6 +245,26 @@ class ListingRepositoryTest {
     }
 
     @Test
+    @DisplayName("search() filtra por nights respetando minNights y maxNights")
+    void searchPorNights() {
+        Listing l1 = crearListing(80.0, 3, true);
+        l1.setMinNights(1);
+        l1.setMaxNights(5);
+
+        Listing l2 = crearListing(80.0, 3, true);
+        l2.setMinNights(3);
+        l2.setMaxNights(3);
+
+        listingRepository.saveAll(List.of(l1, l2));
+
+        List<Listing> result = listingRepository.search(null, null, null, null, 2);
+
+        assertEquals(1, result.size());
+        assertEquals(l1.getId(), result.getFirst().getId());
+    }
+
+
+    @Test
     @DisplayName("search() devuelve lista vacía cuando no hay coincidencias")
     void searchSinResultados() {
         Listing l1 = crearListing(80.0, 3, true);
