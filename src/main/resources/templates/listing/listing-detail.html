@@ -37,6 +37,12 @@
                 <i class="fa-solid fa-sun me-1"></i>
                 <span th:text="${listing.maxNights}">0</span> noches máx.
             </span>
+
+            <span class="badge bg-primary text-light me-1">
+                <i class="fa-solid fa-city me-1"></i>
+                <span th:text="${listing.city}">Ciudad</span>
+            </span>
+
         </div>
 
         <span th:if="${listing.isActive}" class="badge bg-success fs-6">
