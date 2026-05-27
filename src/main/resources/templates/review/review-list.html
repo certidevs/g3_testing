@@ -96,12 +96,12 @@
     </div>
     <!-- ── FIN PANEL DE FILTROS ──────────────────────────────────────────── -->
 
-    <!-- Casas destacadas -->
+    <!-- Casas destacadas
     <div class="col" th:each="house : ${top10housesFilter}">
         <a th:href="@{/listing/{id}/reviews(id=${house.id})}">
             <img class="img-thumbnail" th:src="${house.imageUrl}" alt="casa">
         </a>
-    </div>
+    </div>-->
 
     <!-- Sin resultados -->
     <div th:if="${reviews.isEmpty()}" class="alert alert-light border">

@@ -10,6 +10,18 @@
 
 <main class="container flex-grow-1">
 
+
+    <!-- Mensaje de éxito -->
+    <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${message}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Mensaje de error -->
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
     <!-- Botón de volver -->
     <div class="mb-4">
         <a th:href="@{/bookings}" class="btn btn-outline-secondary btn-sm">
@@ -376,15 +388,7 @@
         </a>
 
     </div>
-    <div th:if="${message}"
-         class="alert alert-success alert-dismissible fade show d-flex align-items-center my-3"
-         role="alert">
-        <i class="fa-solid fa-circle-check me-2 fs-5"></i>
-        <div>
-            <span th:text="${message}"></span>
-        </div>
-        <button type="submit" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
+
 
 </main>
 

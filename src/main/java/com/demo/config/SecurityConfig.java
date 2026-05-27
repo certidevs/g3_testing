@@ -23,21 +23,22 @@ public class SecurityConfig {
                 //Listings
                 .requestMatchers("/", "/register", "/login", "/css/**", "/webjars/**", "/images/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/listings", "/listings/{id:\\d+}").permitAll()
-                .requestMatchers("/listings/new", "/listings/edit/**", "/listings/toggle/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/listings").hasRole("ADMIN")
+                .requestMatchers("/listings/edit/**", "/listings/toggle/**").hasAnyRole("ADMIN", "HOST")
+                .requestMatchers("/listings/new").hasAnyRole("ADMIN", "HOST", "USER")
+                .requestMatchers(HttpMethod.POST, "/listings").hasAnyRole("ADMIN", "HOST", "USER")
 
                 //Bookings
                 .requestMatchers("/bookings/**").authenticated()
 
                 //Reviews
                 .requestMatchers(HttpMethod.GET, "/reviews", "/reviews/{id:\\d+}", "/listing/{listingId:\\d+}/reviews").permitAll()
-                .requestMatchers("/reviews/delete/**").hasRole("ADMIN")
+                .requestMatchers("/reviews/delete/**").hasAnyRole("ADMIN", "HOST","USER")
                 .requestMatchers("/reviews/new/**").authenticated()
 
                 //Amenities
                 .requestMatchers(HttpMethod.GET, "/amenity", "/amenity/{id:\\d+}").permitAll()
-                .requestMatchers("/amenity/new", "/amenity/edit/**", "/amenity/delete/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/amenity").hasRole("ADMIN")
+                .requestMatchers("/amenity/new", "/amenity/edit/**", "/amenity/delete/**").hasAnyRole("ADMIN", "HOST")
+                .requestMatchers(HttpMethod.POST, "/amenity").hasAnyRole("ADMIN", "HOST")
 
                 //Conversation
                 .requestMatchers("/conversation/**").authenticated()
