@@ -54,7 +54,7 @@ public class ConversationControllerTest {
         userRepository.deleteAll();
 
         owner = User.builder().username("pepe").name("Host Test").email("host@test.com").role(Role.ROLE_ADMIN).build();
-        guest = User.builder().name("Guest Test").email("guest@test.com").build();
+        guest = User.builder().name("Guest Test").username("guest").email("guest@test.com").role(Role.ROLE_USER).build();
         userRepository.saveAll(List.of(owner, guest));
 
         guest = userRepository.findById(guest.getId()).orElseThrow();
@@ -135,14 +135,19 @@ public class ConversationControllerTest {
 
     @Test
     void createMessageSuccess() throws Exception {
-        mockMvc.perform(post("/conversation/" + booking.getId() + "/send")
+        mockMvc.perform(post("/conversation/" + booking.getId() + "/send").with(user(guest))
                         .param("content", "Mensaje nuevo de prueba"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/conversation/" + booking.getId()));
 
         List<Message> messages = messageRepository.findAll();
-        boolean exists = messages.stream()
-                .anyMatch(m -> m.getContent().equals("Mensaje nuevo de prueba"));
+        boolean exists = false;
+        for(int i = 0; i < messages.size(); i++){
+            if(messages.get(i).getContent().equals("Mensaje nuevo de prueba") && messages.get(i).getSender().getId().equals(guest.getId())){
+                exists = true;
+                break;
+            }
+        }
 
         assertTrue(exists);
     }
@@ -243,15 +248,28 @@ public class ConversationControllerTest {
 
     @Test
     void createConversationFromNewSuccess() throws Exception {
+        var listing = listingRepository.findAll().getFirst();
         conversationRepository.deleteAll();
+        Booking booking2 = new Booking();
+        booking2.setGuest(guest);
+        booking2.setListing(listing);
+        booking2.setCheckIn(LocalDateTime.now().plusDays(3));
+        booking2.setCheckOut(LocalDateTime.now().plusDays(7));
+        booking2.setTotalPrice(300.0);
+        booking2.setStatus(BookingStatus.CONFIRMED);
+        bookingRepository.saveAndFlush(booking2);
 
-        mockMvc.perform(post("/conversation/new")
-                        .param("bookingId", booking.getId().toString())
+        conversationRepository.flush();
+
+        mockMvc.perform(post("/conversation/new").with(user(guest))
+                        .param("bookingId", booking2.getId().toString())
                         .param("content", "Hola, me interesa el apartamento"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/conversation/" + booking.getId()));
+                .andExpect(redirectedUrl("/conversation/" + booking2.getId()));
 
-        assertNotNull(conversationRepository.findByBookingId(booking.getId()));
+        var conversationCreada = conversationRepository.findByBookingId(booking2.getId());
+
+        assertNotNull(conversationCreada);
     }
 
     @Test
