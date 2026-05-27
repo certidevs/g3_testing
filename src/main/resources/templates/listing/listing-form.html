@@ -32,6 +32,18 @@
             </select>
         </div>
 
+        <div class="col-md-6">
+            <label class="form-label">Ciudad</label>
+            <select class="form-select" th:field="*{city}">
+                <option value="">Seleccione ciudad...</option>
+                <option th:each="c : ${cities}"
+                        th:value="${c}"
+                        th:text="${c}">
+                </option>
+            </select>
+        </div>
+
+
         <div class="col-md-4">
             <label class="form-label">Precio por noche</label>
             <input type="number" class="form-control" th:field="*{pricePerNight}" required>
