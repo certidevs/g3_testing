@@ -3,6 +3,7 @@ package com.demo.controllers;
 import com.demo.model.Amenity;
 import com.demo.model.Listing;
 import com.demo.model.User;
+import com.demo.model.enums.City;
 import com.demo.model.enums.ListingType;
 import com.demo.model.enums.Role;
 import com.demo.repositories.AmenityRepository;
@@ -70,6 +71,7 @@ class ListingController {
     public String CreateListing(Model model) {
         model.addAttribute("listing", new Listing());
         model.addAttribute("types", ListingType.values());
+        model.addAttribute("cities", City.values());
         return "listing/listing-form";
     }
 
@@ -80,6 +82,7 @@ class ListingController {
 
         model.addAttribute("listing", listing);
         model.addAttribute("types", ListingType.values());
+        model.addAttribute("cities", City.values());
         return "listing/listing-form";
     }
     @PostMapping
