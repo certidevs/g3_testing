@@ -48,7 +48,7 @@
                             <i class="fa-solid fa-bars text-muted small"></i>
 
                             <div class="avatar-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px; font-size: 0.8rem; background-color: #222222; color: #ffffff; border-radius: 50%;">
-                                <span th:text="${#strings.substring(#authentication.name,0,1).toUpperCase()}">U</span>
+                                <!-- <span sec:authentication="name"></span> -->
                             </div>
 
                             <span class="fw-semibold ms-1" th:text="${#authentication.name}">Usuario</span>
