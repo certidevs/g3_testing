@@ -3,9 +3,13 @@ package com.demo.controllers;
 
 import com.demo.model.*;
 import com.demo.model.enums.BookingStatus;
+import com.demo.model.enums.Role;
 import com.demo.repositories.*;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -21,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -48,9 +53,43 @@ public class BookingController {
     }
 
     @GetMapping("/bookings")
-    public String bookings(Model model) {
-        List<Booking> bookings = bookingRepository.findAll();
+    public String bookings(Model model, @AuthenticationPrincipal User user) {
 
+        String email = user.getEmail();
+
+        User currentUser = userRepository.findByEmail(email)
+                .orElseThrow(()-> new IllegalArgumentException("Usuario no encontrado"));
+
+        List<Booking> bookings = new ArrayList<>();
+
+        // ADMIN
+        if (currentUser.getRole().equals(Role.ROLE_ADMIN)) {
+
+            bookings = bookingRepository.findAll();
+
+
+        }
+        // HOST
+        else if (currentUser.getRole().equals(Role.ROLE_HOST)) {
+
+            List<Booking> hostBookings = bookingRepository.findByListingOwnerId(currentUser.getId());
+            List<Booking> guestBookings= bookingRepository.findByGuestId(currentUser.getId());
+
+            bookings.addAll(hostBookings);
+            bookings.addAll(guestBookings);
+
+
+
+
+        }
+        // USER NORMAL
+        else if  (currentUser.getRole().equals(Role.ROLE_USER)) {
+
+            bookings = bookingRepository.findByGuestId(currentUser.getId());
+
+
+
+        }
         // Calcular totalPrice para cada reserva si no está establecido
         for (Booking booking : bookings) {
             if (booking.getTotalPrice() == null || booking.getTotalPrice() == 0) {
@@ -59,10 +98,23 @@ public class BookingController {
             }
         }
 
-        model.addAttribute("bookings", bookingRepository.findAll());
-        model.addAttribute("listings", listingRepository.findAll());
+
+
+        model.addAttribute("bookings", bookings);
+        System.out.println("USUARIO ACTUAL: " + currentUser.getId());
+
+        for (Booking booking : bookings) {
+            System.out.println(
+                    "BOOKING " + booking.getId()
+                            + " GUEST ID: "
+                            + booking.getGuest().getId()
+            );
+        }
 
         return "booking/booking-list";
+
+
+
 
     }
 
@@ -86,15 +138,52 @@ public class BookingController {
     }
 
     @PostMapping("/bookings/{id}/confirm")
-    public String confirmBooking(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        Booking booking = bookingRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Reserva no encontrada"));
+    public String confirmBooking(@PathVariable Long id,
+                                 @AuthenticationPrincipal User user,
+                                 RedirectAttributes redirectAttributes) {
 
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Reserva no encontrada"));
+
+        User currentUser = userRepository.findByEmail(user.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        boolean isAdmin = currentUser.getRole().equals(Role.ROLE_ADMIN);
+
+        boolean isOwnerHost =
+                currentUser.getRole().equals(Role.ROLE_HOST)
+                        &&
+                        booking.getListing().getOwner().getId().equals(currentUser.getId());
+
+        // Comprobar permisos
+        if (!isAdmin && !isOwnerHost) {
+
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    "No tienes permisos para confirmar esta reserva."
+            );
+
+            return "redirect:/bookings/" + id;
+        }
+
+        // Confirmar solo si está pendiente
         if (booking.getStatus() == BookingStatus.PENDING) {
+
             booking.setStatus(BookingStatus.CONFIRMED);
+
             bookingRepository.save(booking);
-            redirectAttributes.addFlashAttribute("message", "Reserva confirmada exitosamente.");
+
+            redirectAttributes.addFlashAttribute(
+                    "message",
+                    "Reserva confirmada exitosamente."
+            );
+
         } else {
-            redirectAttributes.addFlashAttribute("error", "La reserva no puede ser confirmada porque no está en estado pendiente.");
+
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    "La reserva no puede ser confirmada porque no está en estado pendiente."
+            );
         }
 
         return "redirect:/bookings/" + id;
@@ -105,7 +194,7 @@ public class BookingController {
     public String cancelBooking(@PathVariable Long id, RedirectAttributes redirectAttributes){
 
         Booking booking= bookingRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Reserva no encontrada"));
-        if(booking.getStatus()== BookingStatus.PENDING){
+        if(booking.getStatus()== BookingStatus.PENDING|| booking.getStatus()== BookingStatus.CONFIRMED){
             booking.setStatus(BookingStatus.CANCELED);
             bookingRepository.save(booking);
             redirectAttributes.addFlashAttribute("message", "Reserva cancelada exitosamente.");
@@ -164,7 +253,7 @@ public class BookingController {
 
     @PostMapping("/bookings")
     public String createBooking(@ModelAttribute Booking booking,
-                                RedirectAttributes redirectAttributes) {
+                                RedirectAttributes redirectAttributes, @AuthenticationPrincipal User user) {
         try {
 
             Listing listing = listingRepository.findById(booking.getListing().getId())
@@ -182,6 +271,7 @@ public class BookingController {
                 throw new IllegalArgumentException("La fecha de salida debe ser posterior a la de entrada");
             }
 
+            // TODO revisar número negativo, salió -22 en la UI
             // 3. Validar mínimas y máximas noches
             long nights = ChronoUnit.DAYS.between(
                     booking.getCheckIn().toLocalDate(),
@@ -220,9 +310,14 @@ public class BookingController {
             }
 
             // 5. Asignar guest (usuario actual)
-            // NOTA: Aquí usamos el primer usuario como guest (en producción usarías autenticación)
-            User guest = userRepository.findAll().stream().findFirst()
+            Authentication authentication =
+                    SecurityContextHolder.getContext().getAuthentication();
+
+            String email = user.getEmail();
+
+            User guest = userRepository.findByEmail(email)
                     .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
             booking.setGuest(guest);
 
             // 6. Calcular totalPrice
@@ -230,6 +325,7 @@ public class BookingController {
 
             // 7. Establecer estado inicial
             booking.setStatus(BookingStatus.PENDING);
+
 
             // 8. Guardar la reserva
             bookingRepository.save(booking);

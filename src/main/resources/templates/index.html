@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
 <head>
     <head th:replace="~{layout/head :: head('Bienvenido a openHouse')}"></head>
 </head>
@@ -13,11 +14,14 @@
             <h1>Siente que estás en casa</h1>
             <p>Encuentra alojamientos únicos en cualquier rincón del mundo.</p>
             <div class="cta-buttons">
-                <a th:href="@{/login}" class="btn btn-airbnb-outline btn-main">
+                <a th:href="@{/login}" sec:authorize="isAnonymous()" class="btn btn-airbnb-outline btn-main">
                     Iniciar sesión
                 </a>
-                <a th:href="@{/listings}" class="btn btn-airbnb btn-main">
+                <a th:href="@{/listings}" sec:authorize="isAnonymous()" class="btn btn-airbnb btn-main">
                     Comenzar
+                </a>
+                <a th:href="@{/listings}" sec:authorize="isAuthenticated()" class="btn btn-airbnb btn-main">
+                    Explorar propiedades
                 </a>
             </div>
         </div>

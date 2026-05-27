@@ -10,6 +10,7 @@ import java.util.List;
 
 public interface ListingRepository extends JpaRepository<Listing, Long> {
 
+    List<Listing> findTop10ByIsActiveTrueOrderByRegisteredAtDesc();
     List<Listing> findByIsActiveTrue();
     List<Listing> findByIsActiveTrueAndPricePerNightBetween(Double minPrice, Double maxPrice);
     List<Listing> findByIsActiveTrueAndMaxGuestsGreaterThanEqual(Integer minGuests);
@@ -30,4 +31,6 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
             @Param("guests") Integer guests,
             @Param("nights") Integer nights
     );
+
+
 }

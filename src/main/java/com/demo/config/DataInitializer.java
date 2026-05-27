@@ -73,7 +73,7 @@ public class DataInitializer implements CommandLineRunner {
                 .email("alex@pro.com")
                 .username("alex@pro.com")
                 .password(passwordEncriptada)
-                .role(Role.ROLE_ADMIN)
+                .role(Role.ROLE_HOST)
                 .build();
 
         User guest = User.builder()
@@ -97,7 +97,7 @@ public class DataInitializer implements CommandLineRunner {
                 .email("juan@pro.com")
                 .username("juan@pro.com")
                 .password(passwordEncriptada)
-                .role(Role.ROLE_USER)
+                .role(Role.ROLE_HOST)
                 .build();
 
         userRepository.saveAll(List.of(admin, admin2, guest, guest2, userExtra));

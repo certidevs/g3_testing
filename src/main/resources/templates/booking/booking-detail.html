@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head th:replace="~{layout/head :: head('Detalle de Reserva')}"></head>
 
@@ -19,6 +20,8 @@
     <!-- Cabecera de la reserva -->
     <div class="d-flex justify-content-between align-items-start mb-4">
 
+        <!-- TODO alert-success message user su resrva ha sido creada correctamente-->
+        <!-- TODO alert-success message host reserva confirmada correctamente-->
         <div>
             <!-- Título - Propiedad -->
             <h1 class="mb-2">
@@ -36,7 +39,7 @@
             <div class="mb-3">
                 <!-- Estado -->
                 <span class="badge me-2"
-                      th:classappend="${booking.status == 'CONFIRMED' ? 'bg-success' : booking.status == 'PENDING' ? 'bg-warning text-dark' : booking.status == 'CANCELLED' ? 'bg-danger' : 'bg-secondary'}">
+                      th:classappend="${booking.status.name() == 'CONFIRMED' ? 'bg-success' : booking.status.name() == 'PENDING' ? 'bg-warning text-dark' : booking.status.name() == 'CANCELLED' ? 'bg-danger' : 'bg-secondary'}">
                     <i class="fa-solid fa-circle me-1"></i>
                     <span th:text="${booking.status}">Estado</span>
                 </span>
@@ -315,17 +318,23 @@
         <li class="list-group-item">
             <strong>Estado:</strong>
             <span class="badge"
-                  th:classappend="${booking.status == 'CONFIRMED' ? 'bg-success' : booking.status == 'PENDING' ? 'bg-warning text-dark' : 'bg-danger'}"
+                  th:classappend="${booking.status.name() == 'CONFIRMED' ? 'bg-success' : booking.status.name() == 'PENDING' ? 'bg-warning text-dark' : 'bg-danger'}"
                   th:text="${booking.status}">
             </span>
         </li>
     </ul>
 
+    <!-- TODO authorize has any roles HOST , ADMIN-->
     <!-- Acciones de la reserva -->
     <div class="d-flex gap-2 mb-4">
 
         <!-- Confirmar reserva -->
-        <form th:if="${booking.status.name() == 'PENDING'}"
+        <form th:if="${booking.status.name() == 'PENDING' and (
+          #authorization.expression('hasRole(''ADMIN'')') or (
+              #authorization.expression('hasRole(''HOST'')') and
+              booking.listing.owner.id == #authentication.principal.id
+          )
+      )}"
               th:action="@{/bookings/{id}/confirm(id=${booking.id})}"
               method="post">
 
@@ -338,7 +347,14 @@
         </form>
 
         <!-- Cancelar reserva -->
-        <form th:if="${booking.status.name() == 'PENDING' || booking.status.name() == 'CONFIRMED'}"
+        <form th:if="${booking.status.name() == 'PENDING' or (
+          booking.status.name() == 'CONFIRMED' and (
+              #authorization.expression('hasRole(''ADMIN'')') or (
+                  #authorization.expression('hasRole(''HOST'')') and
+                  booking.listing.owner.id == #authentication.principal.id
+              )
+          )
+      )}"
               th:action="@{/bookings/{id}/cancel(id=${booking.id})}"
               method="post">
 
