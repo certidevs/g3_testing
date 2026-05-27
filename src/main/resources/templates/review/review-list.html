@@ -11,22 +11,103 @@
         <i class="fa-solid fa-star text-primary me-2"></i> Reseñas
     </h1>
 
-    <div th:if="${reviews.isEmpty()}" class="alert alert-light border">
-        Aún no hay reseñas.
-    </div>
+    <!-- Mensaje de éxito -->
     <div th:if="${message}" class="alert alert-success fade show alert-dismissible" role="alert">
         <i class="fa-solid fa-check-circle"></i>
         <span th:text="${message}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
+    <!-- ── PANEL DE FILTROS ──────────────────────────────────────────────── -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <div class="row gy-3 align-items-end">
 
+                <!-- Filtro: Ciudad -->
+                <!-- El select usa el nombre del enum (ej. MADRID) como value.
+                     Spring convierte automáticamente el String a City en el controller. -->
+                <div class="col-12 col-md-4">
+                    <label class="form-label fw-semibold">
+                        <i class="fa-solid fa-location-dot me-1 text-primary"></i> Ciudad
+                    </label>
+                    <select class="form-select"
+                            onchange="aplicarFiltro('city', this.value)">
+                        <option value="" th:selected="${filtroCity == null}">Todas las ciudades</option>
+                        <!--
+                            Usamos 'ciudades' (solo las que tienen reseñas).
+                            Si prefieres mostrar TODAS las ciudades del enum, cambia
+                            'ciudades' por 'todasLasCiudades' en el controller.
+                        -->
+                        <option th:each="ciudad : ${ciudades}"
+                                th:value="${ciudad.name()}"
+                                th:text="${ciudad.name()}"
+                                th:selected="${ciudad == filtroCity}">
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Filtro: Rating -->
+                <div class="col-12 col-md-4">
+                    <label class="form-label fw-semibold">
+                        <i class="fa-solid fa-star me-1 text-warning"></i> Puntuación
+                    </label>
+                    <div class="d-flex flex-wrap gap-1">
+                        <a th:href="@{/reviews(city=${filtroCity?.name()}, orden=${filtroOrden})}"
+                           th:classappend="${filtroRating == null} ? 'btn-warning' : 'btn-outline-warning'"
+                           class="btn btn-sm">Todas</a>
+                        <a th:each="n : ${#numbers.sequence(1, 5)}"
+                           th:href="@{/reviews(city=${filtroCity?.name()}, rating=${n}, orden=${filtroOrden})}"
+                           th:classappend="${filtroRating == n} ? 'btn-warning' : 'btn-outline-warning'"
+                           class="btn btn-sm"
+                           th:text="${n + ' ★'}">
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Filtro: Orden por fecha -->
+                <div class="col-12 col-md-3">
+                    <label class="form-label fw-semibold">
+                        <i class="fa-solid fa-calendar me-1 text-primary"></i> Ordenar por
+                    </label>
+                    <div class="d-flex gap-2">
+                        <a th:href="@{/reviews(city=${filtroCity?.name()}, rating=${filtroRating}, orden='reciente')}"
+                           th:classappend="${filtroOrden == 'reciente'} ? 'btn-primary' : 'btn-outline-primary'"
+                           class="btn btn-sm">
+                            <i class="fa-solid fa-arrow-down-short-wide me-1"></i> Recientes
+                        </a>
+                        <a th:href="@{/reviews(city=${filtroCity?.name()}, rating=${filtroRating}, orden='antiguo')}"
+                           th:classappend="${filtroOrden == 'antiguo'} ? 'btn-primary' : 'btn-outline-primary'"
+                           class="btn btn-sm">
+                            <i class="fa-solid fa-arrow-up-short-wide me-1"></i> Antiguos
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Limpiar filtros -->
+                <div class="col-12 col-md-1 d-flex align-items-end">
+                    <a th:href="@{/reviews}" class="btn btn-outline-secondary btn-sm w-100">
+                        <i class="fa-solid fa-rotate-left me-1"></i> Limpiar
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- ── FIN PANEL DE FILTROS ──────────────────────────────────────────── -->
+
+    <!-- Casas destacadas -->
     <div class="col" th:each="house : ${top10housesFilter}">
         <a th:href="@{/listing/{id}/reviews(id=${house.id})}">
             <img class="img-thumbnail" th:src="${house.imageUrl}" alt="casa">
         </a>
     </div>
 
+    <!-- Sin resultados -->
+    <div th:if="${reviews.isEmpty()}" class="alert alert-light border">
+        No hay reseñas que coincidan con los filtros seleccionados.
+    </div>
+
+    <!-- Tarjetas de reseñas -->
     <div class="row row-cols-1 row-cols-md-2 g-3">
         <div class="col" th:each="review : ${reviews}">
             <div class="card h-100 shadow-sm">
@@ -58,11 +139,9 @@
                         </span>
                     </div>
                     <div class="my-3">
-                        <!-- Botón de ver -->
                         <a class="btn btn-secondary me-2" th:href="@{/reviews/{id}(id=${review.id})}">
                             <i class="fa-solid fa-eye me-2"></i> Ver
                         </a>
-
                         <a class="btn btn-danger" th:href="@{/reviews/delete/{id}(id=${review.id})}"
                            onclick="return confirm('Esta acción borra, ¿quiere borrar esta reseña?')">
                             <i class="fa-solid fa-trash me-2"></i> Borrar
@@ -77,6 +156,19 @@
 
 <footer th:replace="~{layout/footer :: footer}"></footer>
 <script th:replace="~{layout/footer :: scripts}"></script>
+
+<!-- Aplica el filtro de ciudad manteniendo el resto de parámetros activos -->
+<script th:inline="javascript">
+    function aplicarFiltro(param, valor) {
+        const url = new URL(window.location.href);
+        if (valor === '') {
+            url.searchParams.delete(param);
+        } else {
+            url.searchParams.set(param, valor);
+        }
+        window.location.href = url.toString();
+    }
+</script>
 
 </body>
 </html>

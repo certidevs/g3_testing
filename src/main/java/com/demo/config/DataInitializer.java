@@ -2,6 +2,7 @@ package com.demo.config;
 
 import com.demo.model.*;
 import com.demo.model.enums.BookingStatus;
+import com.demo.model.enums.City;
 import com.demo.model.enums.ListingType;
 import com.demo.model.enums.Role;
 import com.demo.repositories.*;
@@ -113,6 +114,7 @@ public class DataInitializer implements CommandLineRunner {
                 .imageUrl("https://images.com/loft")
                 .registeredAt(LocalDateTime.now())
                 .owner(admin2)
+                .city(City.MADRID)
                 .isActive(true)
                 .type(ListingType.LOFT)
                 .build();
@@ -129,6 +131,7 @@ public class DataInitializer implements CommandLineRunner {
                 .registeredAt(LocalDateTime.now())
                 .owner(admin2)
                 .isActive(true)
+                .city(City.ALICANTE)
                 .type(ListingType.APARTAMENTO)
                 .build();
 
@@ -143,6 +146,7 @@ public class DataInitializer implements CommandLineRunner {
                 .imageUrl("https://images.com/apartment2")
                 .registeredAt(LocalDateTime.now())
                 .owner(userExtra)
+                .city(City.ASTURIAS)
                 .isActive(true)
                 .type(ListingType.APARTAMENTO)
                 .build();
@@ -158,6 +162,7 @@ public class DataInitializer implements CommandLineRunner {
                 .imageUrl("https://images.com/casa")
                 .registeredAt(LocalDateTime.now())
                 .owner(guest2)
+                .city(City.SEVILLA)
                 .isActive(true)
                 .type(ListingType.CASA)
                 .build();
@@ -173,6 +178,7 @@ public class DataInitializer implements CommandLineRunner {
                 .imageUrl("https://images.com/room")
                 .registeredAt(LocalDateTime.now())
                 .owner(guest2)
+                .city(City.VALENCIA)
                 .isActive(true)
                 .type(ListingType.HABITACION_PRIVADA)
                 .build();
@@ -188,6 +194,7 @@ public class DataInitializer implements CommandLineRunner {
                 .imageUrl("https://images.com/room")
                 .registeredAt(LocalDateTime.now())
                 .owner(userExtra)
+                .city(City.BARCELONA)
                 .isActive(true)
                 .type(ListingType.VILLA)
                 .build();
@@ -203,6 +210,7 @@ public class DataInitializer implements CommandLineRunner {
                 .imageUrl("https://images.com/villa")
                 .registeredAt(LocalDateTime.now())
                 .owner(userExtra)
+                .city(City.BILBAO)
                 .isActive(false)
                 .type(ListingType.CHALET)
                 .build();

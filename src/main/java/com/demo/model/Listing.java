@@ -1,5 +1,6 @@
 package com.demo.model;
 
+import com.demo.model.enums.City;
 import com.demo.model.enums.ListingType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -49,6 +50,9 @@ public class Listing {
 
     @Enumerated(EnumType.STRING)
     private ListingType type;
+
+    @Enumerated(EnumType.STRING)
+    private City city;
 
     @ToString.Exclude
     @ManyToOne

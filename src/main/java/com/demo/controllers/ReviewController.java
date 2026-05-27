@@ -3,16 +3,14 @@ package com.demo.controllers;
 
 import com.demo.model.Booking;
 import com.demo.model.Review;
+import com.demo.model.enums.City;
 import com.demo.repositories.BookingRepository;
 import com.demo.repositories.ListingRepository;
 import com.demo.repositories.ReviewRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
@@ -27,13 +25,56 @@ public class ReviewController {
     private final BookingRepository bookingRepository;
     private final ListingRepository listingRepository;
 
+    // ── Listado principal con filtros opcionales ─────────────────────────────
+    // Parámetros opcionales en la URL:
+    //   ?city=MADRID          → filtra por ciudad (nombre del enum)
+    //   ?rating=5             → filtra por rating exacto (1-5)
+    //   ?orden=reciente       → más reciente primero (por defecto)
+    //   ?orden=antiguo        → más antiguo primero
     @GetMapping("reviews")
-    public String reviews(Model model){
-        model.addAttribute("reviews", reviewRepository.findAll());
-        model.addAttribute("bookings", bookingRepository.findAll());
-        model.addAttribute("top10housesFilter", listingRepository.findTop10ByIsActiveTrueOrderByRegisteredAtDesc());
-        return "review/review-list";
+    public String reviews(
+            @RequestParam(required = false) City city,
+            @RequestParam(required = false) Integer rating,
+            @RequestParam(required = false, defaultValue = "reciente") String orden,
+            Model model) {
 
+        boolean tieneCity   = city != null;
+        boolean tieneRating = rating != null;
+        boolean ordenAsc    = "antiguo".equals(orden);
+
+        List<Review> reviews;
+
+        if (tieneCity && tieneRating) {
+            reviews = ordenAsc
+                    ? reviewRepository.findByCityAndRatingOrderByDateAsc(city, rating)
+                    : reviewRepository.findByCityAndRatingOrderByDateDesc(city, rating);
+
+        } else if (tieneCity) {
+            reviews = ordenAsc
+                    ? reviewRepository.findByCityOrderByDateAsc(city)
+                    : reviewRepository.findByCityOrderByDateDesc(city);
+
+        } else if (tieneRating) {
+            reviews = ordenAsc
+                    ? reviewRepository.findByRatingOrderByDateAsc(rating)
+                    : reviewRepository.findByRatingOrderByDateDesc(rating);
+
+        } else {
+            reviews = ordenAsc
+                    ? reviewRepository.findAllByOrderByCreationDateAsc()
+                    : reviewRepository.findAllByOrderByCreationDateDesc();
+        }
+
+        model.addAttribute("reviews",          reviews);
+        model.addAttribute("ciudades",          reviewRepository.findDistinctCities()); // List<City>
+        model.addAttribute("todasLasCiudades",  City.values());                         // para el selector completo si se prefiere
+        model.addAttribute("bookings",          bookingRepository.findAll());
+        model.addAttribute("top10housesFilter", listingRepository.findTop10ByIsActiveTrueOrderByRegisteredAtDesc());
+        model.addAttribute("filtroCity",        city);
+        model.addAttribute("filtroRating",      rating);
+        model.addAttribute("filtroOrden",       orden);
+
+        return "review/review-list";
     }
 
     @GetMapping("reviews/{id}")
