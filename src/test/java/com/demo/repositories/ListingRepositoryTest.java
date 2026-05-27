@@ -2,6 +2,7 @@ package com.demo.repositories;
 
 import com.demo.model.Listing;
 
+import com.demo.model.enums.ListingType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -145,6 +146,116 @@ class ListingRepositoryTest {
         assertEquals(2, result.size());
         assertTrue(result.stream().allMatch(Listing::getIsActive));
     }
+
+    //Pruebas del método @Search
+
+    @Test
+    @DisplayName("search() sin filtros devuelve todos los listings")
+    void searchSinFiltros() {
+        Listing l1 = crearListing(80.0, 3, true);
+        Listing l2 = crearListing(120.0, 5, true);
+        listingRepository.saveAll(List.of(l1, l2));
+
+        List<Listing> result = listingRepository.search(null, null, null, null, null);
+
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    @DisplayName("search() filtra por type")
+    void searchPorType() {
+        Listing l1 = crearListing(80.0, 3, true);
+        l1.setType(ListingType.CASA);
+
+        Listing l2 = crearListing(80.0, 3, true);
+        l2.setType(ListingType.APARTAMENTO);
+
+        listingRepository.saveAll(List.of(l1, l2));
+
+        List<Listing> result = listingRepository.search(ListingType.CASA, null, null, null, null);
+
+        assertEquals(1, result.size());
+        assertEquals(ListingType.CASA, result.getFirst().getType());
+    }
+
+    @Test
+    @DisplayName("search() filtra por minPrice")
+    void searchPorMinPrice() {
+        Listing barato = crearListing(50.0, 3, true);
+        Listing caro = crearListing(150.0, 3, true);
+
+        listingRepository.saveAll(List.of(barato, caro));
+
+        List<Listing> result = listingRepository.search(null, 100.0, null, null, null);
+
+        assertEquals(1, result.size());
+        assertTrue(result.getFirst().getPricePerNight() >= 100.0);
+    }
+
+    @Test
+    @DisplayName("search() filtra por maxPrice")
+    void searchPorMaxPrice() {
+        Listing barato = crearListing(50.0, 3, true);
+        Listing caro = crearListing(150.0, 3, true);
+
+        listingRepository.saveAll(List.of(barato, caro));
+
+        List<Listing> result = listingRepository.search(null, null, 100.0, null, null);
+
+        assertEquals(1, result.size());
+        assertTrue(result.getFirst().getPricePerNight() <= 100.0);
+    }
+
+    @Test
+    @DisplayName("search() filtra por guests")
+    void searchPorGuests() {
+        Listing l1 = crearListing(80.0, 2, true);
+        Listing l2 = crearListing(80.0, 5, true);
+
+        listingRepository.saveAll(List.of(l1, l2));
+
+        List<Listing> result = listingRepository.search(null, null, null, 4, null);
+
+        assertEquals(1, result.size());
+        assertTrue(result.getFirst().getMaxGuests() >= 4);
+    }
+
+
+    @Test
+    @DisplayName("search() combina correctamente varios filtros")
+    void searchCombinado() {
+        Listing l1 = crearListing(100.0, 4, true);
+        l1.setType(ListingType.CASA);
+        l1.setMinNights(1);
+        l1.setMaxNights(10);
+
+        Listing l2 = crearListing(200.0, 2, true);
+        l2.setType(ListingType.APARTAMENTO);
+        l2.setMinNights(1);
+        l2.setMaxNights(10);
+
+        listingRepository.saveAll(List.of(l1, l2));
+
+        List<Listing> result = listingRepository.search(
+                ListingType.CASA, 80.0, 150.0, 3, 1
+        );
+
+        assertEquals(1, result.size());
+        assertEquals(ListingType.CASA, result.getFirst().getType());
+    }
+
+    @Test
+    @DisplayName("search() devuelve lista vacía cuando no hay coincidencias")
+    void searchSinResultados() {
+        Listing l1 = crearListing(80.0, 3, true);
+        listingRepository.save(l1);
+
+        List<Listing> result = listingRepository.search(null, 500.0, 600.0, null, null);
+
+        assertTrue(result.isEmpty());
+    }
+
+
 
     private Listing crearListing(Double precio, Integer maxGuests, Boolean activo) {
         return Listing.builder()
