@@ -22,6 +22,17 @@
             <form th:action="@{/register}" th:object="${registerDTO}" method="post" class="d-flex flex-column gap-3">
 
                 <div>
+                    <label class="form-label small fw-bold text-dark mb-1">Nombre y apellidos</label>
+                    <div class="input-group" style="border: 1px solid #DDDDDD; border-radius: 12px; background-color: #F7F7F7; overflow: hidden;">
+                        <span class="input-group-text border-0 bg-transparent ps-3 pe-2 text-muted">
+                            <i class="fa-solid fa-id-card" style="font-size: 0.9rem;"></i>
+                        </span>
+                        <input type="text" th:field="*{name}" class="form-control border-0 bg-transparent shadow-none ps-1"
+                               placeholder="Tu nombre completo" required style="font-size: 0.95rem; height: 44px;">
+                    </div>
+                </div>
+
+                <div>
                     <label class="form-label small fw-bold text-dark mb-1">Nombre de usuario</label>
                     <div class="input-group" style="border: 1px solid #DDDDDD; border-radius: 12px; background-color: #F7F7F7; overflow: hidden;">
                         <span class="input-group-text border-0 bg-transparent ps-3 pe-2 text-muted">

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+<head>
+    <head th:replace="~{layout/head :: head('Mi Perfil - openHouse')}"></head>
+</head>
+<body class="d-flex flex-column min-vh-100" style="background-color: #ffffff;">
+
+<nav th:replace="~{layout/navbar :: navbar}"></nav>
+
+<form th:action="@{/profile/update}" method="post">
+    <input type="hidden" name="id" th:value="${user.id}" />
+
+    <main class="container flex-grow-1 my-5">
+
+        <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i> ¡Perfil actualizado correctamente con éxito!
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div th:if="${usernameError != null || emailError != null}" class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i> <strong>No se pudo guardar:</strong>
+            <ul class="mb-0 mt-1 small">
+                <li th:if="${usernameError}" th:text="${usernameError}"></li>
+                <li th:if="${emailError}" th:text="${emailError}"></li>
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="row g-5">
+
+            <div class="col-md-4">
+                <div class="card border p-4 shadow-sm text-center" style="border-color: var(--border-light) !important; border-radius: 24px;">
+
+                    <div class="form-check form-switch text-start mb-3 d-flex align-items-center justify-content-center gap-2 bg-light py-2 rounded-4 border">
+                        <input class="form-check-input style-sidebar cursor-pointer" type="checkbox" id="editToggle" style="width: 2.5em; height: 1.25em;">
+                        <label class="form-check-label small fw-bold text-secondary" for="editToggle" id="editToggleLabel">Modo lectura</label>
+                    </div>
+
+                    <div class="mx-auto my-3 avatar-circle fs-3 text-white" style="width: 80px; height: 80px; background-color: var(--primary-color);">
+                        <span th:text="${#strings.substring(user.name != null ? user.name : user.username, 0, 1).toUpperCase()}">U</span>
+                    </div>
+
+                    <div class="mb-2">
+                        <input type="text" name="name" id="inputName" th:value="${user.name}"
+                               class="form-control text-center fw-bold h4 border-0 bg-transparent p-1 text-dark"
+                               style="box-shadow: none;" disabled required />
+                    </div>
+
+                    <div class="mb-3 d-flex align-items-center justify-content-center text-muted small">
+                        <span class="me-1">@</span>
+                        <input type="text" name="username" id="inputUsername" th:value="${user.username}"
+                               class="form-control form-control-sm border-0 bg-transparent p-0 text-muted w-auto"
+                               style="box-shadow: none; font-size: 0.875rem;" disabled required />
+                    </div>
+
+                    <span class="badge rounded-pill px-3 py-2 mb-4 d-inline-block mx-auto"
+                          th:classappend="${user.role.name() == 'ROLE_ADMIN' ? 'bg-dark text-white' : (user.role.name() == 'ROLE_HOST' ? 'bg-primary text-white' : 'bg-light text-dark border')}"
+                          style="font-weight: 600; font-size: 0.8rem; border-color: var(--border-light) !important;"
+                          th:text="${user.role.name() == 'ROLE_USER' ? 'Huésped' : (user.role.name() == 'ROLE_HOST' ? 'Huésped y Anfitrión' : 'Administrador')}">
+                        Rol
+                    </span>
+
+                    <hr style="color: var(--border-light);">
+
+                    <div class="text-start mt-3">
+                        <div class="mb-3">
+                            <label for="inputEmail" class="text-muted d-block mb-1" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Correo Electrónico</label>
+                            <input type="email" name="email" id="inputEmail" th:value="${user.email}"
+                                   class="form-control border-0 bg-transparent p-0 text-dark fw-medium"
+                                   style="box-shadow: none;" disabled required />
+                        </div>
+
+                        <div>
+                            <small class="text-muted d-block" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Identificador único</small>
+                            <span class="text-muted small" th:text="'ID #' + ${user.id}">#1</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4" id="saveButtonContainer" style="display: none;">
+                        <button type="submit" class="btn btn-airbnb w-100 py-2 rounded-3 fw-bold small">
+                            <i class="fa-solid fa-floppy-disk me-2"></i> Guardar cambios
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <ul class="nav nav-tabs border-bottom mb-4 gap-2" id="profileTabs" role="tablist" style="border-color: var(--border-light) !important;">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active border-0 px-3 py-2.5" id="bookings-tab" data-bs-toggle="tab" data-bs-target="#bookings-pane" type="button" role="tab" aria-controls="bookings-pane" aria-selected="true" style="border-radius: 8px;">
+                            <i class="fa-solid fa-calendar-days me-2"></i> Mis Reservas
+                            <span class="badge bg-light text-dark border ms-1" th:text="${#lists.size(bookings)}">0</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link border-0 px-3 py-2.5" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews-pane" type="button" role="tab" aria-controls="reviews-pane" aria-selected="false" style="border-radius: 8px;">
+                            <i class="fa-solid fa-star me-2"></i> Mis Reseñas
+                            <span class="badge bg-light text-dark border ms-1" th:text="${#lists.size(reviews)}">0</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation" th:if="${user.role.name() == 'ROLE_HOST'}">
+                        <button class="nav-link border-0 px-3 py-2.5" id="listings-tab" data-bs-toggle="tab" data-bs-target="#listings-pane" type="button" role="tab" aria-controls="listings-pane" aria-selected="false" style="border-radius: 8px;">
+                            <i class="fa-solid fa-building-user me-2"></i> Mis Casas Publicadas
+                            <span class="badge bg-light text-dark border ms-1" th:text="${#lists.size(listings)}">0</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation" th:if="${user.role.name() == 'ROLE_HOST'}">
+                        <button class="nav-link border-0 px-3 py-2.5" id="host-bookings-tab" data-bs-toggle="tab" data-bs-target="#host-bookings-pane" type="button" role="tab" aria-controls="host-bookings-pane" aria-selected="false" style="border-radius: 8px;">
+                            <i class="fa-solid fa-bell-concierge me-2"></i> Reservas de mis Huéspedes
+                            <span class="badge bg-light text-dark border ms-1" th:text="${#lists.size(hostBookings)}">0</span>
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="profileTabsContent">
+
+                    <div class="tab-pane fade show active" id="bookings-pane" role="tabpanel" aria-labelledby="bookings-tab" tabindex="0">
+                        <div th:if="${#lists.isEmpty(bookings)}" class="text-center py-5 border rounded-4 bg-light" style="border-color: var(--border-light) !important;">
+                            <i class="fa-solid fa-suitcase-rolling text-muted mb-3" style="font-size: 2.5rem;"></i>
+                            <p class="text-muted mb-0">No tienes ninguna reserva registrada actualmente.</p>
+                            <a th:href="@{/listings}" class="btn btn-airbnb btn-sm mt-3">Explorar alojamientos</a>
+                        </div>
+
+                        <div th:unless="${#lists.isEmpty(bookings)}" class="d-flex flex-column gap-3">
+                            <div th:each="booking : ${bookings}" class="card border shadow-sm p-3 d-flex flex-row justify-content-between align-items-center" style="border-color: var(--border-light) !important; border-radius: 16px;">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="avatar-circle text-airbnb" style="background-color: #FFF0F2;">
+                                        <i class="fa-solid fa-house-chimney"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="h6 mb-1 fw-bold text-dark">
+                                            <a th:href="@{/bookings/{id}(id=${booking.id})}" th:text="${booking.listing.title}" class="text-dark text-decoration-none hover-underline">Título de la Propiedad</a>
+                                        </h3>
+                                        <p class="text-muted small mb-0">
+                                            <i class="fa-regular fa-calendar me-1"></i>
+                                            <span th:text="${#temporals.format(booking.checkIn, 'dd LLL yyyy')}">01 Ene 2026</span>
+                                            <i class="fa-solid fa-arrow-right mx-1" style="font-size: 0.75rem;"></i>
+                                            <span th:text="${#temporals.format(booking.checkOut, 'dd LLL yyyy')}">08 Ene 2026</span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="text-end d-flex align-items-center gap-4">
+                                    <div class="d-flex flex-column align-items-end gap-1">
+                                        <span class="fw-bold text-dark fs-5" th:text="${#numbers.formatCurrency(booking.totalPrice)}">300,00 €</span>
+                                        <span class="badge"
+                                              th:classappend="${booking.status.name() == 'CONFIRMED' ? 'bg-success-subtle text-success' : (booking.status.name() == 'PENDING' ? 'bg-warning-subtle text-warning' : 'bg-danger-subtle text-danger')}"
+                                              style="font-size: 0.75rem; font-weight: 600; padding: 4px 8px;"
+                                              th:text="${booking.status}">
+                                            STATUS
+                                        </span>
+                                    </div>
+                                    <a th:href="@{/bookings/{id}(id=${booking.id})}" class="btn btn-airbnb-outline btn-sm px-3" style="border-radius: 12px; font-size: 0.85rem;">
+                                        Ver reserva
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="reviews-pane" role="tabpanel" aria-labelledby="reviews-tab" tabindex="0">
+                        <div th:if="${#lists.isEmpty(reviews)}" class="text-center py-5 border rounded-4 bg-light" style="border-color: var(--border-light) !important;">
+                            <i class="fa-regular fa-star-half-stroke text-muted mb-3" style="font-size: 2.5rem;"></i>
+                            <p class="text-muted mb-0">Todavía no has dejado comentarios ni valoraciones en el portal.</p>
+                        </div>
+
+                        <div th:unless="${#lists.isEmpty(reviews)}" class="d-flex flex-column gap-3">
+                            <div th:each="review : ${reviews}" class="card border shadow-sm p-4" style="border-color: var(--border-light) !important; border-radius: 16px;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <span class="text-airbnb me-2" style="font-size: 1.1rem;">
+                                            <i th:each="star : ${#numbers.sequence(1, review.rating)}" class="fa-solid fa-star"></i><i th:if="${review.rating < 5}" th:each="star : ${#numbers.sequence(review.rating + 1, 5)}" class="fa-regular fa-star text-muted opacity-50"></i>
+                                        </span>
+                                        <span th:if="${review.verified}" class="badge bg-success-subtle text-success border border-success-subtle rounded-pill" style="font-size: 0.75rem;">
+                                            <i class="fa-solid fa-circle-check me-1"></i> Verificada
+                                        </span>
+                                    </div>
+                                    <small class="text-muted" th:text="${#temporals.format(review.creationDate, 'dd/MM/yyyy')}">28/05/2026</small>
+                                </div>
+
+                                <p class="text-dark my-2" style="font-size: 0.95rem; line-height: 1.5; font-style: italic;" th:text="'&ldquo;' + ${review.comment} + '&rdquo;'">
+                                    "Comentario de prueba sobre la estancia."
+                                </p>
+
+                                <div class="mt-2 pt-2 border-top d-flex align-items-center justify-content-between text-muted small" style="border-color: var(--border-light) !important; font-size: 0.8rem;">
+                                    <span>
+                                        <i class="fa-solid fa-door-closed me-1"></i> Reseña para:
+                                        <strong class="text-dark" th:text="${review.booking.listing.title}">Propiedad</strong>
+                                    </span>
+                                    <span th:text="'Reserva #' + ${review.booking.id}">ID</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="listings-pane" role="tabpanel" aria-labelledby="listings-tab" tabindex="0" th:if="${user.role.name() == 'ROLE_HOST'}">
+                        <div th:if="${#lists.isEmpty(listings)}" class="text-center py-5 border rounded-4 bg-light" style="border-color: var(--border-light) !important;">
+                            <i class="fa-solid fa-house-medical text-muted mb-3" style="font-size: 2.5rem;"></i>
+                            <p class="text-muted mb-0">Aún no tienes propiedades publicadas en la plataforma.</p>
+                            <a th:href="@{/listings/create}" class="btn btn-airbnb btn-sm mt-3">Publicar un alojamiento</a>
+                        </div>
+
+                        <div th:unless="${#lists.isEmpty(listings)}" class="d-flex flex-column gap-3">
+                            <div th:each="listing : ${listings}" class="card border shadow-sm p-3 d-flex flex-row justify-content-between align-items-center" style="border-color: var(--border-light) !important; border-radius: 16px;">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="avatar-circle text-primary" style="background-color: #E8F0FE;">
+                                        <i class="fa-solid fa-hotel"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="h6 mb-1 fw-bold text-dark">
+                                            <a th:href="@{/listings/{id}(id=${listing.id})}" th:text="${listing.title}" class="text-dark text-decoration-none hover-underline">Nombre del alojamiento</a>
+                                        </h3>
+                                        <p class="text-muted small mb-0">
+                                            <i class="fa-solid fa-location-dot me-1"></i>
+                                            <span th:text="${#strings.capitalize(#strings.toLowerCase(listing.city))}">Madrid</span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="text-end d-flex align-items-center gap-4">
+                                    <div class="d-flex flex-column align-items-end gap-1">
+                                        <span class="fw-bold text-dark fs-5" th:text="${#numbers.formatCurrency(listing.pricePerNight)} + ' / noche'">120,00 €</span>
+                                    </div>
+                                    <a th:href="@{/listings/{id}(id=${listing.id})}" class="btn btn-outline-secondary btn-sm px-3" style="border-radius: 12px; font-size: 0.85rem;">
+                                        Ver casa
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="host-bookings-pane" role="tabpanel" aria-labelledby="host-bookings-tab" tabindex="0" th:if="${user.role.name() == 'ROLE_HOST'}">
+                        <div th:if="${#lists.isEmpty(hostBookings)}" class="text-center py-5 border rounded-4 bg-light" style="border-color: var(--border-light) !important;">
+                            <i class="fa-solid fa-calendar-xmark text-muted mb-3" style="font-size: 2.5rem;"></i>
+                            <p class="text-muted mb-0">Ningún huésped ha reservado tus propiedades todavía.</p>
+                        </div>
+
+                        <div th:unless="${#lists.isEmpty(hostBookings)}" class="d-flex flex-column gap-3">
+                            <div th:each="hBooking : ${hostBookings}" class="card border shadow-sm p-3 d-flex flex-row justify-content-between align-items-center" style="border-color: var(--border-light) !important; border-radius: 16px;">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="avatar-circle text-success" style="background-color: #E6F4EA;">
+                                        <i class="fa-solid fa-user-check"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="h6 mb-1 fw-bold text-dark">
+                                            <span th:text="${hBooking.listing.title}" class="text-dark">Alojamiento</span>
+                                        </h3>
+                                        <p class="text-muted small mb-1">
+                                            <i class="fa-solid fa-house-user me-1"></i> Anfitrión de la casa:
+                                            <strong class="text-dark" th:text="${hBooking.listing.owner.name != null ? hBooking.listing.owner.name : hBooking.listing.owner.username}">Propietario</strong>
+                                        </p>
+                                        <p class="text-muted small mb-0">
+                                            <i class="fa-regular fa-calendar me-1"></i>
+                                            <span th:text="${#temporals.format(hBooking.checkIn, 'dd LLL yyyy')}">01 Ene 2026</span>
+                                            <i class="fa-solid fa-arrow-right mx-1" style="font-size: 0.75rem;"></i>
+                                            <span th:text="${#temporals.format(hBooking.checkOut, 'dd LLL yyyy')}">08 Ene 2026</span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="text-end d-flex align-items-center gap-4">
+                                    <div class="d-flex flex-column align-items-end gap-1">
+                                        <span class="fw-bold text-dark fs-5" th:text="${#numbers.formatCurrency(hBooking.totalPrice)}">300,00 €</span>
+                                        <span class="badge"
+                                              th:classappend="${hBooking.status.name() == 'CONFIRMED' ? 'bg-success-subtle text-success' : (hBooking.status.name() == 'PENDING' ? 'bg-warning-subtle text-warning' : 'bg-danger-subtle text-danger')}"
+                                              style="font-size: 0.75rem; font-weight: 600; padding: 4px 8px;"
+                                              th:text="${hBooking.status}">
+                                            STATUS
+                                        </span>
+                                    </div>
+                                    <a th:href="@{/bookings/{id}(id=${hBooking.id})}" class="btn btn-outline-success btn-sm px-3" style="border-radius: 12px; font-size: 0.85rem;">
+                                        Gestionar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+</form>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+
+<script th:replace="~{layout/footer :: scripts}"></script>
+
+<script>
+    document.getElementById('editToggle').addEventListener('change', function() {
+        const isEditable = this.checked;
+        const fields = ['inputName', 'inputUsername', 'inputEmail'];
+        const label = document.getElementById('editToggleLabel');
+        const saveButtonContainer = document.getElementById('saveButtonContainer');
+
+        fields.forEach(id => {
+            const input = document.getElementById(id);
+            if (isEditable) {
+                input.removeAttribute('disabled');
+                input.classList.remove('bg-transparent', 'border-0');
+                input.classList.add('border', 'p-2', 'rounded-3');
+                input.style.backgroundColor = '#f8f9fa';
+            } else {
+                input.setAttribute('disabled', 'disabled');
+                input.classList.add('bg-transparent', 'border-0');
+                input.classList.remove('border', 'p-2', 'rounded-3');
+                input.style.backgroundColor = 'transparent';
+            }
+        });
+
+        if (isEditable) {
+            label.innerText = "Modo edición activo";
+            label.classList.remove('text-secondary');
+            label.classList.add('text-danger');
+            saveButtonContainer.style.display = 'block';
+        } else {
+            label.innerText = "Modo lectura";
+            label.classList.remove('text-danger');
+            label.classList.add('text-secondary');
+            saveButtonContainer.style.display = 'none';
+        }
+    });
+</script>
+
+</body>
+</html>

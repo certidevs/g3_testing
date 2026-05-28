@@ -32,5 +32,5 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
             @Param("nights") Integer nights
     );
 
-
+        List<Listing> findByOwnerId(Long ownerId);
 }

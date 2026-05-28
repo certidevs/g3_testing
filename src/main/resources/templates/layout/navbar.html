@@ -47,13 +47,15 @@
                            href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: #ffffff; border-color: #DDDDDD !important;">
                             <i class="fa-solid fa-bars text-muted small"></i>
 
-                            <div class="avatar-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px; font-size: 0.8rem; background-color: #222222; color: #ffffff; border-radius: 50%;">
-                                <!-- <span sec:authentication="name"></span> -->
+                            <!-- Inicial dinámica en el círculo del avatar del navbar -->
+                            <div class="avatar-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px; font-size: 0.8rem; background-color: #222222; color: #ffffff; border-radius: 50%; font-weight: 700;">
+                                <span th:text="${#strings.substring(#authentication.name, 0, 1).toUpperCase()}">U</span>
                             </div>
 
                             <span class="fw-semibold ms-1" th:text="${#authentication.name}">Usuario</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 mt-2 p-2" aria-labelledby="userMenu" style="min-width: 200px;">
+                            <!-- Este enlace ahora coincide perfectamente con la ruta de tu UserController -->
                             <li><a class="dropdown-to-item dropdown-item rounded-2 py-2 small" th:href="@{/profile}">Mi Perfil</a></li>
                             <li><hr class="dropdown-divider my-1" style="color: #EBEBEB;"></li>
                             <li>
