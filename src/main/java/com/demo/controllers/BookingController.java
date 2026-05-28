@@ -6,6 +6,7 @@ import com.demo.model.enums.BookingStatus;
 import com.demo.model.enums.Role;
 import com.demo.repositories.*;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -104,11 +105,13 @@ public class BookingController {
         System.out.println("USUARIO ACTUAL: " + currentUser.getId());
 
         for (Booking booking : bookings) {
-            System.out.println(
-                    "BOOKING " + booking.getId()
-                            + " GUEST ID: "
-                            + booking.getGuest().getId()
-            );
+            if(booking.getGuest() != null) {
+                System.out.println(
+                        "BOOKING " + booking.getId()
+                                + " GUEST ID: "
+                                + booking.getGuest().getId()
+                );
+            }
         }
 
         return "booking/booking-list";
