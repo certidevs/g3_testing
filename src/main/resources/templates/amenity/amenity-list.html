@@ -1,75 +1,92 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{layout/head :: head('Listado de Amenities')}"></head>
+<head th:replace="~{layout/head :: head('Catálogo de Servicios - openHouse')}"></head>
 
-<body class="d-flex flex-column min-vh-100 bg-light">
+<body class="d-flex flex-column min-vh-100" style="background-color: #ffffff;">
 
 <nav th:replace="~{layout/navbar :: navbar}"></nav>
 
-<main class="container flex-grow-1 my-4">
+<main class="container my-5" style="max-width: 1100px;">
 
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <h1 class="mb-0">
-            <i class="fa-solid fa-couch text-primary me-2"></i>Amenities
-        </h1>
-        <span class="badge bg-secondary fs-6"
-              th:text="${amenities != null} ? |${#lists.size(amenities)} amenities| : '0 amenities'">
-            0 amenities
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 pb-3 border-bottom" style="border-color: var(--border-light) !important;">
+        <div>
+            <h1 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">Comodidades y servicios</h1>
+            <p class="text-secondary small mb-0">Gestiona y asigna las características especiales o elementos de confort de las propiedades.</p>
+        </div>
+        <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-bold"
+              style="border-color: var(--border-light) !important;"
+              th:text="${amenities != null} ? |${#lists.size(amenities)} servicios| : '0 servicios'">
+            0 servicios
         </span>
     </div>
 
-    <div class="mb-4">
-        <a th:href="@{/amenity/new}" class="btn btn-success shadow-sm">
-            <i class="fa-solid fa-plus me-1"></i>Agregar Nuevo Amenity
+    <div class="mb-5">
+        <a th:href="@{/amenity/new}" class="btn btn-dark fw-bold px-4 py-2.5 rounded-3 small shadow-sm">
+            <i class="fa-solid fa-plus me-1.5"></i> Agregar nuevo servicio
         </a>
     </div>
 
-    <div th:if="${amenities == null or #lists.isEmpty(amenities)}" class="alert alert-light border text-center py-5">
-        <i class="fa-regular fa-folder-open fa-2x mb-2 d-block text-muted"></i>
-        <p class="mb-0 text-muted">Todavía no hay Amenities registrados</p>
+    <div th:if="${amenities == null or #lists.isEmpty(amenities)}" class="text-center py-5 my-4 bg-light rounded-4">
+        <div class="p-3 bg-white rounded-circle d-inline-block mb-3 shadow-sm" style="width: 60px; height: 60px; line-height: 32px;">
+            <i class="fa-regular fa-folder-open fa-lg text-secondary opacity-75"></i>
+        </div>
+        <h4 class="h6 fw-bold text-dark mb-1">No hay servicios registrados</h4>
+        <p class="text-secondary small mb-0">Comienza configurando los servicios disponibles en tus propiedades asociadas.</p>
     </div>
 
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3"
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"
          th:if="${amenities != null and !#lists.isEmpty(amenities)}">
 
         <div class="col" th:each="amenity : ${amenities}">
-            <div class="card h-100 shadow-sm border-0">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <span class="badge bg-info text-dark">
-                        <i class="fa-solid fa-star me-1"></i>Servicio
-                    </span>
-                    <span class="text-primary">
-                        <i th:class="${amenity.icon != null ? amenity.icon : 'fa-solid fa-tag'}"></i>
-                    </span>
-                </div>
+            <div class="card h-100 p-4 border shadow-sm d-flex flex-column justify-content-between"
+                 style="border-radius: 20px; border-color: var(--border-light) !important; background-color: #ffffff; transition: transform 0.2s ease, box-shadow 0.2s ease;">
 
-                <div class="card-body">
-                    <h5 class="card-title mb-2" th:text="${amenity.name}">Nombre del Amenity</h5>
-                    <p class="card-text text-muted small mb-0"
-                       th:text="${amenity.description != null ? amenity.description : 'Sin descripción'}">
+                <div>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="bg-light text-dark rounded-circle d-flex align-items-center justify-content-center border"
+                             style="width: 44px; height: 44px; border-color: var(--border-light) !important;">
+                            <i th:class="${amenity.icon != null ? amenity.icon + ' fs-5' : 'fa-solid fa-tag fs-5'}"></i>
+                        </div>
+
+                        <span class="badge rounded-pill bg-light text-secondary border px-2.5 py-1.5 fw-bold tracking-wider text-uppercase"
+                              style="font-size: 0.65rem; border-color: var(--border-light) !important;">
+                            Interior / Confort
+                        </span>
+                    </div>
+
+                    <h5 class="h6 text-dark fw-bold mb-2" th:text="${amenity.name}">Nombre del Amenity</h5>
+                    <p class="text-secondary small lh-base mb-4 text-line-clamp-3"
+                       th:text="${amenity.description != null ? amenity.description : 'Este servicio no cuenta con una descripción detallada.'}">
                         Descripción
                     </p>
                 </div>
 
-                <div class="card-footer bg-white d-flex justify-content-between align-items-center">
-                    <small class="text-muted text-truncate me-2" th:if="${amenity.listing != null}">
-                        <i class="fa-solid fa-house text-danger me-1"></i>
-                        <span th:text="${amenity.listing.title}">Propiedad</span>
-                    </small>
+                <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center gap-2" style="border-color: var(--border-light) !important;">
+
+                    <div class="text-truncate flex-grow-1" th:if="${amenity.listing != null}" style="font-size: 0.8rem;">
+                        <span class="text-muted small d-block" style="font-size: 0.7rem; font-weight: 700; letter-spacing: 0.3px;">ALOJAMIENTO</span>
+                        <span class="text-dark fw-bold" th:text="${amenity.listing.title}">Propiedad</span>
+                    </div>
+                    <div class="text-truncate flex-grow-1" th:unless="${amenity.listing != null}" style="font-size: 0.8rem;">
+                        <span class="text-muted small d-block" style="font-size: 0.7rem; font-weight: 700; letter-spacing: 0.3px;">ALOJAMIENTO</span>
+                        <span class="text-muted italic small" style="font-style: italic;">No asignado</span>
+                    </div>
+
                     <a th:href="@{/amenity/{id}(id=${amenity.id})}"
-                       class="btn btn-sm btn-outline-primary flex-shrink-0">
-                        <i class="fa-regular fa-eye me-1"></i>Ver
+                       class="btn btn-outline-dark btn-sm px-3 py-1.5 rounded-2 fw-bold small flex-shrink-0">
+                        Gestionar
                     </a>
                 </div>
+
             </div>
         </div>
+
     </div>
 
 </main>
 
 <footer th:replace="~{layout/footer :: footer}"></footer>
-<script th:replace="~{layout/footer :: scripts}"></script>
 
 </body>
 </html>
