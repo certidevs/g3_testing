@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head th:replace="~{layout/head :: head('Listings')}"></head>
 
@@ -17,82 +18,135 @@
     </div>
 
     <!-- 🔽 FORMULARIO DE FILTROS 🔽 -->
-    <form method="get" action="/listings" class="row g-3 mb-4">
+    <form method="get" action="/listings" class="mb-4" autocomplete="off">
+    <!-- 🟦 FILA 1 (6 columnas) -->
+        <div class="row g-3">
 
-        <div class="col-md-2">
-            <div class="input-group">
-        <span class="input-group-text rounded-pill-start">
-            <i class="fa-solid fa-list"></i>
-        </span>
-                <select name="type" class="form-select rounded-pill-end">
-                    <option value="">Tipo</option>
-                    <option th:each="t : ${types}"
-                            th:value="${t}"
-                            th:text="${t}"
-                            th:selected="${selectedType == t}">
-                    </option>
-                </select>
+            <div class="col-md-2"> <!-- Tipo -->
+                <div class="input-group">
+                <span class="input-group-text rounded-pill-start">
+                    <i class="fa-solid fa-list"></i>
+                </span>
+                    <select name="type" class="form-select rounded-pill-end">
+                        <option value="">Tipo</option>
+                        <option th:each="t : ${types}"
+                                th:value="${t}"
+                                th:text="${t}"
+                                th:selected="${selectedType == t}">
+                        </option>
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <div class="col-md-2">
-            <div class="input-group">
-        <span class="input-group-text rounded-pill-start">
-            <i class="fa-solid fa-euro-sign"></i>
-        </span>
-                <input type="number" name="minPrice" class="form-control rounded-pill-end"
-                       placeholder="Mínimo"
-                       th:value="${selectedMinPrice}">
+            <div class="col-md-2"> <!-- Min -->
+                <div class="input-group">
+                <span class="input-group-text rounded-pill-start">
+                    <i class="fa-solid fa-euro-sign"></i>
+                </span>
+                    <input type="number" name="minPrice" class="form-control rounded-pill-end"
+                           placeholder="Mínimo"
+                           th:value="${selectedMinPrice}">
+                </div>
             </div>
-        </div>
 
-
-        <div class="col-md-2">
-            <div class="input-group">
-        <span class="input-group-text rounded-pill-start">
-            <i class="fa-solid fa-euro-sign"></i>
-        </span>
-                <input type="number" name="maxPrice" class="form-control rounded-pill-end"
-                       placeholder="Máximo"
-                       th:value="${selectedMaxPrice}">
+            <div class="col-md-2"> <!-- Max -->
+                <div class="input-group">
+                <span class="input-group-text rounded-pill-start">
+                    <i class="fa-solid fa-euro-sign"></i>
+                </span>
+                    <input type="number" name="maxPrice" class="form-control rounded-pill-end"
+                           placeholder="Máximo"
+                           th:value="${selectedMaxPrice}">
+                </div>
             </div>
-        </div>
 
-
-        <div class="col-md-2">
-            <div class="input-group">
-        <span class="input-group-text rounded-pill-start">
-            <i class="fa-solid fa-users"></i>
-        </span>
-                <input type="number" name="guests" class="form-control rounded-pill-end"
-                       placeholder="Huéspedes"
-                       th:value="${selectedGuests}">
+            <div class="col-md-2"> <!-- Huéspedes -->
+                <div class="input-group">
+                <span class="input-group-text rounded-pill-start">
+                    <i class="fa-solid fa-users"></i>
+                </span>
+                    <input type="number" name="guests" class="form-control rounded-pill-end"
+                           placeholder="Huéspedes"
+                           th:value="${selectedGuests}">
+                </div>
             </div>
-        </div>
 
-
-        <div class="col-md-2">
-            <div class="input-group">
-        <span class="input-group-text rounded-pill-start">
-            <i class="fa-solid fa-moon"></i>
-        </span>
-                <input type="number" name="nights" class="form-control rounded-pill-end"
-                       placeholder="Noches"
-                       th:value="${selectedNights}">
+            <div class="col-md-2"> <!-- Noches -->
+                <div class="input-group">
+                <span class="input-group-text rounded-pill-start">
+                    <i class="fa-solid fa-moon"></i>
+                </span>
+                    <input type="number" name="nights" class="form-control rounded-pill-end"
+                           placeholder="Noches"
+                           th:value="${selectedNights}">
+                </div>
             </div>
+
+            <div class="col-md-2 d-flex align-items-end"> <!-- FILTRAR -->
+                <button type="submit" class="btn btn-primary w-100 rounded-pill">Filtrar</button>
+            </div>
+
         </div>
 
+        <!-- 🟦 FILA 2 (6 columnas, Limpiar debajo de Filtrar) -->
+        <div class="row g-3 mt-1"
+             th:with="hasFilters=
+            ${selectedType != null
+            or selectedMinPrice != null
+            or selectedMaxPrice != null
+            or selectedGuests != null
+            or selectedNights != null
+            or selectedCity != null
+            or (startDate != null and startDate != '')
+            or (endDate != null and endDate != '')}">
+            <div class="col-md-2"> <!-- Ciudad -->
+                <div class="input-group">
+                <span class="input-group-text rounded-pill-start">
+                    <i class="fa-solid fa-city"></i>
+                </span>
+                    <select name="city" class="form-select rounded-pill-end">
+                        <option value="">Ciudad</option>
+                        <option th:each="c : ${cities}"
+                                th:value="${c}"
+                                th:text="${c}"
+                                th:selected="${selectedCity == c}">
+                        </option>
+                    </select>
+                </div>
+            </div>
 
-        <div class="col-md-1">
-            <button type="submit" class="btn btn-primary w-100 rounded-pill">Filtrar</button>
+            <div class="col-md-2"> <!-- Fecha entrada -->
+                <div class="input-group">
+                <span class="input-group-text rounded-pill-start">
+                    <i class="fa-solid fa-calendar-day"></i>
+                </span>
+                    <input type="date" name="startDate" class="form-control rounded-pill-end"
+                           th:value="${startDate}">
+                </div>
+            </div>
+
+            <div class="col-md-2"> <!-- Fecha salida -->
+                <div class="input-group">
+                <span class="input-group-text rounded-pill-start">
+                    <i class="fa-solid fa-calendar-check"></i>
+                </span>
+                    <input type="date" name="endDate" class="form-control rounded-pill-end"
+                           th:value="${endDate}">
+                </div>
+            </div>
+
+            <!-- 🟦 Columnas vacías para empujar LIMPIAR a la columna 6 -->
+            <div class="col-md-2"></div>
+            <div class="col-md-2"></div>
+
+            <div class="col-md-2 d-flex align-items-end">
+                <a href="/listings" class="btn btn-outline-secondary w-100 rounded-pill">Limpiar</a>
+            </div>
+
         </div>
-
-        <div class="col-md-1">
-            <a href="/listings" class="btn btn-outline-secondary w-100 rounded-pill">Limpiar</a>
-        </div>
-
 
     </form>
+
     <!-- 🔼 FIN FORMULARIO 🔼 -->
 
     <div class="mb-3">
@@ -131,6 +185,48 @@
         <a th:href="@{/listings(type=${selectedType},minPrice=${selectedMinPrice},maxPrice=${selectedMaxPrice},guests=${selectedGuests})}"
            class="ms-2 text-danger text-decoration-none">×</a>
     </span>
+
+    <span th:if="${selectedCity != null}" class="badge bg-light text-dark border rounded-pill px-3 py-2 me-2">
+    <i class="fa-solid fa-city me-1"></i>
+    <span th:text="${selectedCity}"></span>
+    <a th:href="@{/listings(
+        type=${selectedType},
+        minPrice=${selectedMinPrice},
+        maxPrice=${selectedMaxPrice},
+        guests=${selectedGuests},
+        nights=${selectedNights},
+        startDate=${startDate},
+        endDate=${endDate}
+    )}" class="ms-2 text-danger text-decoration-none">×</a>
+</span>
+
+        <span th:if="${startDate != null}" class="badge bg-light text-dark border rounded-pill px-3 py-2 me-2">
+    <i class="fa-solid fa-calendar-day me-1"></i>
+    Desde: <span th:text="${startDate}"></span>
+    <a th:href="@{/listings(
+        type=${selectedType},
+        minPrice=${selectedMinPrice},
+        maxPrice=${selectedMaxPrice},
+        guests=${selectedGuests},
+        nights=${selectedNights},
+        city=${selectedCity},
+        endDate=${endDate}
+    )}" class="ms-2 text-danger text-decoration-none">×</a>
+</span>
+        <span th:if="${endDate != null}" class="badge bg-light text-dark border rounded-pill px-3 py-2 me-2">
+    <i class="fa-solid fa-calendar-check me-1"></i>
+    Hasta: <span th:text="${endDate}"></span>
+    <a th:href="@{/listings(
+        type=${selectedType},
+        minPrice=${selectedMinPrice},
+        maxPrice=${selectedMaxPrice},
+        guests=${selectedGuests},
+        nights=${selectedNights},
+        city=${selectedCity},
+        startDate=${startDate}
+    )}" class="ms-2 text-danger text-decoration-none">×</a>
+</span>
+
 
     </div>
 
@@ -189,12 +285,14 @@
 
                         <!-- Editar -->
                         <a class="btn btn-warning btn-sm flex-fill"
-                           th:href="@{/listings/edit/{id}(id=${listing.id})}">
+                           th:href="@{/listings/edit/{id}(id=${listing.id})}"
+                            sec:authorize="hasAnyRole('ROLE_HOST','ROLE_ADMIN')">
                             Editar
                         </a>
 
                         <!-- Activar / Desactivar -->
-                        <form th:action="@{/listings/toggle/{id}(id=${listing.id})}" method="post" class="flex-fill">
+                        <form th:action="@{/listings/toggle/{id}(id=${listing.id})}" method="post" class="flex-fill"
+                              sec:authorize="hasAnyRole('ROLE_HOST','ROLE_ADMIN')">
                             <button type="submit"
                                     th:class="${listing.isActive} ? 'btn btn-outline-danger btn-sm w-100' : 'btn btn-success btn-sm w-100'">
                                 <span th:text="${listing.isActive} ? 'Desactivar' : 'Activar'"></span>
