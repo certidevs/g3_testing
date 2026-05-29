@@ -1,155 +1,181 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{layout/head :: head('Nueva Reserva')}"></head>
+<head th:replace="~{layout/head :: head('Confirmar tu reserva - openHouse')}"></head>
 
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100" style="background-color: #ffffff;">
 
 <nav th:replace="~{layout/navbar :: navbar}"></nav>
 
-<main class="container flex-grow-1">
-    <h1 class="mb-4">
-        <i class="fa-solid fa-calendar-check me-2"></i>
-        Nueva Reserva - <span th:text="${listing.title}"></span>
-    </h1>
-    <div th:if="${error}" class="alert alert-danger">
+<main class="container my-5" style="max-width: 950px;">
+
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show border-0 rounded-3 shadow-sm mb-4" role="alert">
         <i class="fa-solid fa-triangle-exclamation me-2"></i>
         <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
-    <!-- Información del alojamiento -->
-    <div class="alert alert-info mb-4">
-        <div class="row">
-            <div class="col-md-6">
-                <strong>Precio por noche:</strong>
-                <span th:text="${listing.pricePerNight}">0</span> €
-            </div>
-            <div class="col-md-6">
-                <strong>Mínimo de noches:</strong>
-                <span th:text="${listing.minNights}">0</span> |
-                <strong>Máximo:</strong>
-                <span th:text="${listing.maxNights}">0</span>
-            </div>
-        </div>
+    <div class="mb-5 border-bottom pb-3" style="border-color: var(--border-light) !important;">
+        <h1 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">Confirmar y pagar</h1>
+        <p class="text-secondary mb-0 fw-medium">
+            <i class="fa-solid fa-house-user me-1 text-muted"></i>
+            Reserva en <span th:text="${listing.title}" class="text-dark fw-bold">Alojamiento</span>
+        </p>
     </div>
 
-    <!-- Formulario de reserva -->
-    <form th:action="@{/bookings}" method="post" th:object="${booking}">
+    <form th:action="@{/bookings}" method="post" th:object="${booking}" autocomplete="off">
 
-        <!-- Campo oculto para listing_id -->
         <input type="hidden" th:field="*{listing.id}">
 
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="checkIn" class="form-label">
-                    <i class="fa-solid fa-calendar me-2"></i>Fecha de Entrada
-                </label>
-                <input type="date"
-                       class="form-control"
-                       id="checkIn"
-                       th:field="*{checkIn}"
-                       required
-                       min="">
-                <small class="text-muted">Selecciona el día de entrada</small>
-            </div>
+        <div class="row g-5">
 
-            <div class="col-md-6 mb-3">
-                <label for="checkOut" class="form-label">
-                    <i class="fa-solid fa-calendar me-2"></i>Fecha de Salida
-                </label>
-                <input type="date"
-                       class="form-control"
-                       id="checkOut"
-                       th:field="*{checkOut}"
-                       required>
-                <small class="text-muted">Selecciona el día de salida</small>
-            </div>
-        </div>
+            <div class="col-md-7">
+                <h3 class="h5 fw-bold text-dark mb-4">Tu viaje</h3>
 
-        <!-- Resumen de precio -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="card-title">Resumen de Precio</h5>
-                <div class="row">
-                    <div class="col-md-4">
-                        <p class="mb-0">
-                            <strong>Noches:</strong>
-                            <span id="nights">0</span>
-                        </p>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <label for="checkIn" class="form-label text-dark fw-bold small">
+                            <i class="fa-solid fa-calendar-import text-secondary me-1"></i> Fecha de Entrada
+                        </label>
+                        <input type="date"
+                               class="form-control bg-light border-0 py-2.5 rounded-3 fw-medium text-dark"
+                               id="checkIn"
+                               th:field="*{checkIn}"
+                               required>
+                        <div class="form-text text-muted small">Día en que llegas al alojamiento.</div>
                     </div>
-                    <div class="col-md-4">
-                        <p class="mb-0">
-                            <strong>Precio/noche:</strong>
-                            <span th:text="${listing.pricePerNight}">0</span> €
-                        </p>
-                    </div>
-                    <div class="col-md-4">
-                        <p class="mb-2">
-                            <strong>Total:</strong>
-                            <span id="totalPrice" class="fs-5 text-success">0</span> €
-                        </p>
+
+                    <div class="col-sm-6">
+                        <label for="checkOut" class="form-label text-dark fw-bold small">
+                            <i class="fa-solid fa-calendar-export text-secondary me-1"></i> Fecha de Salida
+                        </label>
+                        <input type="date"
+                               class="form-control bg-light border-0 py-2.5 rounded-3 fw-medium text-dark"
+                               id="checkOut"
+                               th:field="*{checkOut}"
+                               required>
+                        <div id="checkOutFeedback" class="invalid-feedback fw-semibold"></div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Botones -->
-        <div class="mb-3">
-            <button type="submit" class="btn btn-lg btn-success">
-                <i class="fa-solid fa-check me-2"></i>Confirmar Reserva
-            </button>
-            <a th:href="@{/listings/{id}(id=${listing.id})}" class="btn btn-lg btn-outline-secondary">
-                <i class="fa-solid fa-arrow-left me-2"></i>Cancelar
-            </a>
+                <div class="mt-5 p-4 rounded-4 bg-light border-0">
+                    <h4 class="h6 fw-bold text-dark mb-3"><i class="fa-solid fa-circle-info text-secondary me-2"></i>Información sobre la estancia</h4>
+                    <ul class="list-unstyled mb-0 small text-secondary d-flex flex-column gap-2">
+                        <li><i class="fa-solid fa-circle text-muted me-2" style="font-size: 0.5rem; vertical-align: middle;"></i>Precio base por noche asignado: <strong class="text-dark" th:text="${#numbers.formatCurrency(listing.pricePerNight)}">0 €</strong></li>
+                        <li><i class="fa-solid fa-circle text-muted me-2" style="font-size: 0.5rem; vertical-align: middle;"></i>Estancia mínima requerida: <strong class="text-dark" th:text="${listing.minNights} + ' noches'">0</strong></li>
+                        <li><i class="fa-solid fa-circle text-muted me-2" style="font-size: 0.5rem; vertical-align: middle;"></i>Límite de estancia máxima: <strong class="text-dark" th:text="${listing.maxNights} + ' noches'">0</strong></li>
+                    </ul>
+                </div>
+
+                <div class="mt-5 pt-4 border-top d-flex gap-3 align-items-center" style="border-color: var(--border-light) !important;">
+                    <button type="submit" class="btn btn-airbnb fw-bold px-5 py-3 rounded-3 fs-6 flex-fill flex-sm-none">
+                        <i class="fa-solid fa-credit-card me-2"></i>Confirmar Reserva
+                    </button>
+                    <a th:href="@{/listings/{id}(id=${listing.id})}" class="btn btn-outline-secondary fw-bold px-4 py-3 rounded-3 small">
+                        Cancelar
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-5">
+                <div class="card p-4 border shadow-sm position-sticky" style="top: 100px; border-radius: 24px; border-color: var(--border-light) !important;">
+
+                    <h3 class="h5 fw-bold text-dark mb-4">Detalle del precio</h3>
+
+                    <div class="d-flex justify-content-between mb-3 small text-secondary">
+                        <span id="priceLabel" th:text="${#numbers.formatCurrency(listing.pricePerNight)} + ' x 0 noches'">0,00 € x 0 noches</span>
+                        <span id="subtotalPrice" class="text-dark fw-semibold">0,00 €</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-3 small text-secondary">
+                        <span>Gastos de gestión openHouse</span>
+                        <span class="text-success fw-medium">Incluido</span>
+                    </div>
+
+                    <hr style="border-color: var(--border-light) !important;">
+
+                    <div class="d-flex justify-content-between align-items-baseline pt-2 mb-2">
+                        <span class="fw-bold text-dark fs-5">Total (EUR)</span>
+                        <div>
+                            <span id="totalPrice" class="fs-3 fw-bold text-dark">0,00 €</span>
+                        </div>
+                    </div>
+
+                    <p class="text-muted small mb-0 mt-2 text-center bg-light py-2 rounded-3">
+                        <i class="fa-solid fa-shield-halved me-1 text-secondary"></i> Cancelación sujeta a políticas del anfitrión.
+                    </p>
+
+                </div>
+            </div>
+
         </div>
 
     </form>
 
 </main>
 
-<footer th:replace="~{layout/footer :: footer}"></footer>
-<script th:replace="~{layout/footer :: scripts}"></script>
+<footer th:replace="~{layout/footer :: footer}"></footer >
 
-<!-- Script para cálculo dinámico de precio -->
-<script>
-    const pricePerNight = [[${listing.pricePerNight}]];
-    const minNights = [[${listing.minNights}]];
-    const maxNights = [[${listing.maxNights}]];
+<script th:inline="javascript">
+    const pricePerNight = /*[[${listing.pricePerNight}]]*/ 0;
+    const minNights = /*[[${listing.minNights}]]*/ 1;
+    const maxNights = /*[[${listing.maxNights}]]*/ 999;
 
     const checkInInput = document.getElementById('checkIn');
     const checkOutInput = document.getElementById('checkOut');
-    const nightsSpan = document.getElementById('nights');
+    const priceLabel = document.getElementById('priceLabel');
+    const subtotalPrice = document.getElementById('subtotalPrice');
     const totalPriceSpan = document.getElementById('totalPrice');
+    const feedbackDiv = document.getElementById('checkOutFeedback');
+
+    // Configurar el min de hoy en la fecha de entrada
+    const today = new Date().toISOString().split('T')[0];
+    checkInInput.min = today;
+
+    function formatCurrency(value) {
+        return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value);
+    }
 
     function calculatePrice() {
         const checkIn = new Date(checkInInput.value);
         const checkOut = new Date(checkOutInput.value);
 
-        if (checkIn && checkOut && checkIn < checkOut) {
+        // Limpiar errores previos
+        checkOutInput.classList.remove('is-invalid');
+        feedbackDiv.textContent = '';
+
+        if (checkInInput.value && checkOutInput.value && checkIn < checkOut) {
             const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
-            const totalPrice = nights * pricePerNight;
+            const total = nights * pricePerNight;
 
-            nightsSpan.textContent = nights;
-            totalPriceSpan.textContent = totalPrice.toFixed(2);
+            // Actualizar interfaz del desglose de la Card de forma elegante
+            priceLabel.textContent = `${formatCurrency(pricePerNight)} x ${nights} ${nights === 1 ? 'noche' : 'noches'}`;
+            subtotalPrice.textContent = formatCurrency(total);
+            totalPriceSpan.textContent = formatCurrency(total);
 
-            // Validar límites
+            // Validar límites establecidos por el anfitrión
             if (nights < minNights) {
                 checkOutInput.classList.add('is-invalid');
-                checkOutInput.parentElement.innerHTML +=
-                    '<div class="invalid-feedback">Mínimo ' + minNights + ' noches</div>';
+                feedbackDiv.textContent = `La estancia mínima requerida es de ${minNights} noches.`;
             } else if (nights > maxNights) {
                 checkOutInput.classList.add('is-invalid');
-            } else {
-                checkOutInput.classList.remove('is-invalid');
+                feedbackDiv.textContent = `La estancia máxima permitida es de ${maxNights} noches.`;
             }
+        } else {
+            // Valores por defecto si las fechas se limpian o son incorrectas
+            priceLabel.textContent = `${formatCurrency(pricePerNight)} x 0 noches`;
+            subtotalPrice.textContent = formatCurrency(0);
+            totalPriceSpan.textContent = formatCurrency(0);
         }
     }
 
     checkInInput.addEventListener('change', () => {
-        // Establecer min de checkOut como checkIn + 1 día
-        const minCheckOut = new Date(checkInInput.value);
-        minCheckOut.setDate(minCheckOut.getDate() + 1);
-        checkOutInput.min = minCheckOut.toISOString().split('T')[0];
+        if (checkInInput.value) {
+            // Establecer el mínimo de salida como Check-In + 1 día de forma dinámica
+            const minCheckOut = new Date(checkInInput.value);
+            minCheckOut.setDate(minCheckOut.getDate() + 1);
+            checkOutInput.min = minCheckOut.toISOString().split('T')[0];
+        }
         calculatePrice();
     });
 

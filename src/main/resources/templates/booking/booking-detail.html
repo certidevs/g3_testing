@@ -2,399 +2,230 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
-<head th:replace="~{layout/head :: head('Detalle de Reserva')}"></head>
+<head th:replace="~{layout/head :: head('Detalle de Reserva - openHouse')}"></head>
 
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100" style="background-color: #ffffff;">
 
 <nav th:replace="~{layout/navbar :: navbar}"></nav>
 
-<main class="container flex-grow-1">
+<main class="container my-5" style="max-width: 950px;">
 
-
-    <!-- Mensaje de éxito -->
-    <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+    <div th:if="${message}" class="alert alert-success alert-dismissible fade show border-0 rounded-3 shadow-sm mb-4" role="alert">
+        <i class="fa-solid fa-circle-check me-2"></i>
         <span th:text="${message}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
-    <!-- Mensaje de error -->
-    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show border-0 rounded-3 shadow-sm mb-4" role="alert">
+        <i class="fa-solid fa-circle-exclamation me-2"></i>
         <span th:text="${error}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
-    <!-- Botón de volver -->
+
     <div class="mb-4">
-        <a th:href="@{/bookings}" class="btn btn-outline-secondary btn-sm">
-            <i class="fa-solid fa-arrow-left me-1"></i> Volver a reservas
+        <a th:href="@{/bookings}" class="btn btn-link text-secondary text-decoration-none p-0 fw-semibold small">
+            <i class="fa-solid fa-arrow-left me-1"></i> Volver al listado de reservas
         </a>
     </div>
 
-    <!-- Cabecera de la reserva -->
-    <div class="d-flex justify-content-between align-items-start mb-4">
-
-        <!-- TODO alert-success message user su resrva ha sido creada correctamente-->
-        <!-- TODO alert-success message host reserva confirmada correctamente-->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 pb-4 border-bottom" style="border-color: var(--border-light) !important;">
         <div>
-            <!-- Título - Propiedad -->
-            <h1 class="mb-2">
-                <i class="fa-solid fa-calendar-check text-primary me-2"></i>
-                <span th:text="'Reserva #' + ${booking.id}">Reserva #000</span>
-            </h1>
-
-            <!-- Nombre de la propiedad -->
-            <p class="mb-3 fs-5 text-muted" th:if="${booking.listing != null}">
-                <i class="fa-solid fa-house me-2"></i>
+            <h1 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;" th:text="'Reserva #' + ${booking.id}">Reserva #000</h1>
+            <p class="text-secondary fs-5 mb-0 fw-medium" th:if="${booking.listing != null}">
+                <i class="fa-solid fa-house me-1 text-muted" style="font-size: 1.1rem;"></i>
                 <span th:text="${booking.listing.title}">Nombre de la propiedad</span>
             </p>
-
-            <!-- Badges principales -->
-            <div class="mb-3">
-                <!-- Estado -->
-                <span class="badge me-2"
-                      th:classappend="${booking.status.name() == 'CONFIRMED' ? 'bg-success' : booking.status.name() == 'PENDING' ? 'bg-warning text-dark' : booking.status.name() == 'CANCELLED' ? 'bg-danger' : 'bg-secondary'}">
-                    <i class="fa-solid fa-circle me-1"></i>
-                    <span th:text="${booking.status}">Estado</span>
-                </span>
-
-                <!-- Precio total -->
-                <span class="badge bg-success me-2">
-                    <i class="fa-solid fa-euro-sign me-1"></i>
-                    <span th:text="${booking.totalPrice}">0</span> €
-                </span>
-
-                <!-- Duración de la estancia -->
-                <span class="badge bg-info text-dark">
-                    <i class="fa-solid fa-calendar-days me-1"></i>
-                    <span th:text="${booking.checkOut.dayOfMonth - booking.checkIn.dayOfMonth}">0</span> noches
-                </span>
-            </div>
         </div>
 
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge px-3 py-2 rounded-pill fw-bold"
+                  th:classappend="${booking.status.name() == 'CONFIRMED' ? 'bg-success-subtle text-success border border-success-subtle' :
+                                   booking.status.name() == 'PENDING' ? 'bg-warning-subtle text-warning border border-warning-subtle' :
+                                   'bg-danger-subtle text-danger border border-danger-subtle'}">
+                <i class="fa-solid fa-circle me-1" style="font-size: 0.6rem; vertical-align: middle;"></i>
+                <span th:text="${booking.status}">Estado</span>
+            </span>
+        </div>
     </div>
 
-    <hr>
-
-    <!-- Información de fechas -->
-    <div class="row mb-4">
+    <div class="row g-4 mb-5">
         <div class="col-md-6">
-            <h3 class="mb-3">
-                <i class="fa-solid fa-clock text-primary me-2"></i> Fechas de la reserva
-            </h3>
-            <div class="card bg-light border-0">
-                <div class="card-body">
-                    <p class="mb-2">
-                        <strong><i class="fa-solid fa-arrow-right-to-bracket text-success me-2"></i> Check-in:</strong>
-                        <br>
-                        <span class="fs-6" th:text="${#temporals.format(booking.checkIn, 'EEEE, dd MMMM yyyy - HH:mm')}">
-                            Viernes, 20 Abril 2026 - 15:00
-                        </span>
-                    </p>
-                    <p class="mb-0">
-                        <strong><i class="fa-solid fa-arrow-right-from-bracket text-danger me-2"></i> Check-out:</strong>
-                        <br>
-                        <span class="fs-6" th:text="${#temporals.format(booking.checkOut, 'EEEE, dd MMMM yyyy - HH:mm')}">
-                            Martes, 24 Abril 2026 - 15:00
-                        </span>
-                    </p>
+            <div class="card h-100 p-4 border rounded-4" style="border-color: var(--border-light) !important;">
+                <h3 class="h6 fw-bold text-dark mb-4 text-uppercase tracking-wider">
+                    <i class="fa-solid fa-calendar text-secondary me-2"></i>Fechas de la estancia
+                </h3>
+
+                <div class="d-flex align-items-start mb-4">
+                    <div class="p-2 bg-light rounded-3 text-success me-3">
+                        <i class="fa-solid fa-arrow-right-to-bracket fs-5"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small d-block fw-semibold">Llegada (Check-in)</span>
+                        <span class="text-dark fw-bold" th:text="${#temporals.format(booking.checkIn, 'EEEE, dd MMMM yyyy')}">Viernes, 20 Abril 2026</span>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-start">
+                    <div class="p-2 bg-light rounded-3 text-danger me-3">
+                        <i class="fa-solid fa-arrow-right-from-bracket fs-5"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small d-block fw-semibold">Salida (Check-out)</span>
+                        <span class="text-dark fw-bold" th:text="${#temporals.format(booking.checkOut, 'EEEE, dd MMMM yyyy')}">Martes, 24 Abril 2026</span>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="col-md-6">
-            <h3 class="mb-3">
-                <i class="fa-solid fa-circle-info text-primary me-2"></i> Resumen de precios
-            </h3>
-            <div class="card bg-light border-0">
-                <div class="card-body" th:if="${booking.listing != null}">
-                    <p class="mb-2">
-                        <strong>Precio por noche:</strong>
-                        <br>
-                        <span class="fs-6" th:text="${booking.listing.pricePerNight} + ' €/noche'">0 €/noche</span>
-                    </p>
-                    <p class="mb-2">
-                        <strong>Número de noches:</strong>
-                        <br>
-                        <span class="fs-6" th:text="${booking.checkOut.dayOfMonth - booking.checkIn.dayOfMonth}">0 noches</span>
-                    </p>
-                    <hr>
-                    <p class="mb-0">
-                        <strong>Precio total:</strong>
-                        <br>
-                        <span class="fs-5 text-success fw-bold" th:text="${booking.totalPrice} + ' €'">0 €</span>
-                    </p>
+            <div class="card h-100 p-4 border rounded-4 bg-light-subtle" style="border-color: var(--border-light) !important;">
+                <h3 class="h6 fw-bold text-dark mb-4 text-uppercase tracking-wider">
+                    <i class="fa-solid fa-receipt text-secondary me-2"></i>Resumen del pago
+                </h3>
+                <div th:if="${booking.listing != null}">
+                    <div class="d-flex justify-content-between mb-2.5 small">
+                        <span class="text-secondary" th:text="${#numbers.formatCurrency(booking.listing.pricePerNight)} + ' x ' + ${booking.checkOut.toLocalDate().toEpochDay() - booking.checkIn.toLocalDate().toEpochDay()} + ' noches'">0 € x 0 noches</span>
+                        <span class="text-dark fw-semibold" th:text="${#numbers.formatCurrency(booking.totalPrice)}">0 €</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2.5 small">
+                        <span class="text-secondary">Gastos de gestión openHouse</span>
+                        <span class="text-success fw-medium">Gratis</span>
+                    </div>
+                    <hr style="border-color: var(--border-light) !important;">
+                    <div class="d-flex justify-content-between align-items-baseline pt-2">
+                        <span class="fw-bold text-dark">Total (EUR)</span>
+                        <span class="fs-4 fw-bold text-dark" th:text="${#numbers.formatCurrency(booking.totalPrice)}">0 €</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <hr>
-
-    <!-- Información de usuarios -->
-    <h2 class="mt-4 mb-3">
-        <i class="fa-solid fa-users text-primary me-2"></i> Información de usuarios
-    </h2>
-
-    <div class="row mb-4">
-        <!-- Huésped -->
-        <div class="col-md-6" th:if="${booking.guest != null}">
-            <div class="card border-info">
-                <div class="card-header bg-info text-white">
-                    <i class="fa-solid fa-user me-2"></i> Huésped
-                </div>
-                <div class="card-body">
-                    <p class="mb-2">
-                        <strong>Nombre:</strong>
-                        <br>
-                        <span th:text="${booking.guest.name}">Nombre del huésped</span>
-                    </p>
-                    <p class="mb-2">
-                        <strong>Email:</strong>
-                        <br>
-                        <span th:text="${booking.guest.email}">email@example.com</span>
-                    </p>
-                    <p class="mb-0">
-                        <strong>ID:</strong>
-                        <br>
-                        <span th:text="${booking.guest.id}">#000</span>
-                    </p>
+    <div class="mb-5">
+        <h3 class="h5 fw-bold text-dark mb-3">Detalles de los usuarios</h3>
+        <div class="row g-4">
+            <div class="col-md-6" th:if="${booking.guest != null}">
+                <div class="card p-4 h-100 border rounded-4" style="border-color: var(--border-light) !important;">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-light p-2.5 rounded-circle text-secondary me-3">
+                            <i class="fa-solid fa-user fs-5"></i>
+                        </div>
+                        <div>
+                            <span class="badge bg-light text-secondary border px-2.5 py-1 rounded-pill small fw-bold">Huésped viajero</span>
+                            <h4 class="h6 fw-bold text-dark mb-0 mt-1" th:text="${booking.guest.name}">Nombre del huésped</h4>
+                        </div>
+                    </div>
+                    <p class="small text-secondary mb-1"><strong>Correo electrónico:</strong> <span th:text="${booking.guest.email}">email@example.com</span></p>
+                    <p class="small text-muted mb-0"><strong>ID Usuario:</strong> #<span th:text="${booking.guest.id}">000</span></p>
                 </div>
             </div>
-        </div>
 
-        <!-- Anfitrión -->
-        <div class="col-md-6" th:if="${owner != null}">
-            <div class="card border-success">
-                <div class="card-header bg-success text-white">
-                    <i class="fa-solid fa-user-tie me-2"></i> Anfitrión
-                </div>
-                <div class="card-body">
-                    <p class="mb-2">
-                        <strong>Nombre:</strong>
-                        <br>
-                        <span th:text="${owner.name}">Nombre del anfitrión</span>
-                    </p>
-                    <p class="mb-2">
-                        <strong>Email:</strong>
-                        <br>
-                        <span th:text="${owner.email}">email@example.com</span>
-                    </p>
-                    <p class="mb-0">
-                        <strong>ID:</strong>
-                        <br>
-                        <span th:text="${owner.id}">#000</span>
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Mensaje si falta información de usuarios -->
-        <div class="col-12" th:if="${booking.guest == null || owner == null}">
-            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                <i class="fa-solid fa-triangle-exclamation me-2"></i>
-                <strong>Información incompleta</strong> - Faltan algunos datos de usuarios para esta reserva.
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        </div>
-    </div>
-
-    <hr>
-
-    <!-- Información de la propiedad -->
-    <h2 class="mt-4 mb-3">
-        <i class="fa-solid fa-home text-primary me-2"></i> Información de la propiedad
-    </h2>
-
-    <div class="card bg-light border-0 mb-4" th:if="${booking.listing != null}">
-        <div class="card-body">
-            <p class="mb-2">
-                <strong>Título:</strong>
-                <br>
-                <span th:text="${booking.listing.title}">Título de la propiedad</span>
-            </p>
-            <p class="mb-2">
-                <strong>Descripción:</strong>
-                <br>
-                <span th:text="${booking.listing.shortDescription}">Descripción corta</span>
-            </p>
-            <p class="mb-2">
-                <strong>Máximo de huéspedes:</strong>
-                <br>
-                <span th:text="${booking.listing.maxGuests}">0</span> huéspedes
-            </p>
-            <p class="mb-2">
-                <strong>Noches mínimas:</strong>
-                <br>
-                <span th:text="${booking.listing.minNights}">0</span> noches
-            </p>
-            <p class="mb-0">
-                <strong>Noches máximas:</strong>
-                <br>
-                <span th:text="${booking.listing.maxNights}">0</span> noches
-            </p>
-        </div>
-    </div>
-
-    <hr>
-
-    <!-- Sección de Reseñas -->
-    <h2 class="mt-4 mb-3">
-        <i class="fa-solid fa-star text-primary me-2"></i> Reseñas de esta reserva
-    </h2>
-
-    <!-- Si hay reseñas -->
-    <div th:if="${review != null}" class="mb-4">
-        <div class="card border-warning shadow-sm">
-            <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
-                <div>
-                    <i class="fa-solid fa-star-half-stroke me-2"></i>
-                    <strong>Valoración: </strong>
-                    <span th:text="${review.rating}">0</span>/5
-                </div>
-                <div>
-                    <span class="badge bg-light text-dark" th:if="${review.verified}">
-                        <i class="fa-solid fa-check-circle me-1"></i> Verificada
-                    </span>
-                    <span class="badge bg-light text-dark" th:unless="${review.verified}">
-                        <i class="fa-solid fa-circle me-1"></i> No verificada
-                    </span>
-                </div>
-            </div>
-            <div class="card-body">
-                <!-- Estrellas visuales -->
-                <div class="mb-3">
-                    <span th:each="i : ${#numbers.sequence(1, 5)}">
-                        <i th:if="${i <= review.rating}" class="fa-solid fa-star text-warning"></i>
-                        <i th:unless="${i <= review.rating}" class="fa-regular fa-star text-warning"></i>
-                    </span>
-                </div>
-
-                <!-- Comentario -->
-                <p class="card-text fs-6" th:text="${review.comment}">
-                    Aquí va el comentario de la reseña...
-                </p>
-
-                <!-- Información adicional de la reseña -->
-                <hr class="my-2">
-                <div class="small text-muted">
-                    <p class="mb-1">
-                        <strong>Fecha de la reseña:</strong>
-                        <span th:text="${#temporals.format(review.creationDate, 'dd/MM/yyyy')}">01/01/2026</span>
-                    </p>
-                    <p class="mb-0">
-                        <strong>ID de Reseña:</strong>
-                        <span th:text="${review.id}">#000</span>
-                    </p>
+            <div class="col-md-6" th:if="${owner != null}">
+                <div class="card p-4 h-100 border rounded-4" style="border-color: var(--border-light) !important;">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-light p-2.5 rounded-circle text-secondary me-3">
+                            <i class="fa-solid fa-user-shield fs-5"></i>
+                        </div>
+                        <div>
+                            <span class="badge bg-light text-secondary border px-2.5 py-1 rounded-pill small fw-bold">Anfitrión Propietario</span>
+                            <h4 class="h6 fw-bold text-dark mb-0 mt-1" th:text="${owner.name}">Nombre del anfitrión</h4>
+                        </div>
+                    </div>
+                    <p class="small text-secondary mb-1"><strong>Correo electrónico:</strong> <span th:text="${owner.email}">email@example.com</span></p>
+                    <p class="small text-muted mb-0"><strong>ID Usuario:</strong> #<span th:text="${owner.id}">000</span></p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Si no hay reseñas -->
-    <div th:if="${review == null}" class="alert alert-info alert-dismissible fade show mb-4" role="alert">
+    <div class="mb-5 pt-4 border-top" style="border-color: var(--border-light) !important;">
+        <h3 class="h5 fw-bold text-dark mb-3">Evaluación de la estancia</h3>
 
-        <i class="fa-solid fa-circle-info me-2"></i>
-        <strong>Sin reseñas</strong> - Esta reserva no tiene ninguna reseña asignada aún.
+        <div th:if="${review != null}" class="card p-4 border rounded-4 bg-light-subtle" style="border-color: var(--border-light) !important;">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="text-warning fs-5">
+                        <span th:each="i : ${#numbers.sequence(1, 5)}">
+                            <i th:class="${i <= review.rating} ? 'fa-solid fa-star' : 'fa-regular fa-star'"></i>
+                        </span>
+                    </div>
+                    <span class="fw-bold text-dark ms-1" th:text="${review.rating} + ' / 5'">5 / 5</span>
+                </div>
+                <span class="badge rounded-pill px-3 py-1.5 fw-semibold small"
+                      th:classappend="${review.verified} ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-light text-muted border'">
+                    <i th:class="${review.verified} ? 'fa-solid fa-circle-check me-1' : 'fa-solid fa-circle me-1'"></i>
+                    <span th:text="${review.verified} ? 'Verificada' : 'Pendiente de verificar'">Verificación</span>
+                </span>
+            </div>
 
-        <!-- Botón crear reseña -->
-        <div class="mt-3" th:if="${booking.status.name() == 'CONFIRMED' and (
-    #authorization.expression('hasRole(''ADMIN'')') or
-    booking.guest.id == #authentication.principal.id
-)}">
-            <a th:href="@{/reviews/new/{id}(id=${booking.id})}"
-               class="btn btn-warning btn-sm">
-                <i class="fa-solid fa-star me-1"></i>
-                Crear reseña
+            <p class="text-secondary lh-base mb-3 italic" style="font-style: italic;" th:text="'&ldquo;' + ${review.comment} + '&rdquo;'">"Comentario de la reseña..."</p>
+            <div class="text-muted small border-top pt-2" style="font-size: 0.8rem;">
+                Publicada el <span th:text="${#temporals.format(review.creationDate, 'dd/MM/yyyy')}">01/01/2026</span> · Ref: #<span th:text="${review.id}">0</span>
+            </div>
+        </div>
+
+        <div th:if="${review == null}" class="p-4 rounded-4 bg-light d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h4 class="h6 fw-bold text-dark mb-1">Ninguna opinión añadida</h4>
+                <p class="text-muted small mb-0">Esta reserva no cuenta con ninguna valoración registrada por el huésped todavía.</p>
+            </div>
+
+            <div th:if="${booking.status.name() == 'CONFIRMED' and (#authorization.expression('hasRole(''ADMIN'')') or booking.guest.id == #authentication.principal.id)}">
+                <a th:href="@{/reviews/new/{id}(id=${booking.id})}" class="btn btn-airbnb fw-bold rounded-3 px-4 py-2 small">
+                    <i class="fa-solid fa-star me-1"></i> Escribir reseña
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-5 pt-4 border-top" style="border-color: var(--border-light) !important;">
+        <h3 class="h5 fw-bold text-dark mb-3">Auditoría del registro</h3>
+        <div class="card border rounded-4 overflow-hidden" style="border-color: var(--border-light) !important;">
+            <div class="p-3 bg-light border-bottom d-flex justify-content-between small">
+                <span class="text-muted font-monospace">IDENTIFICADOR RESERVA</span>
+                <span class="text-dark fw-bold font-monospace" th:text="'ID-' + ${booking.id}">ID-0</span>
+            </div>
+            <div class="p-3 bg-white border-bottom d-flex justify-content-between small" th:if="${booking.listing != null}">
+                <span class="text-muted font-monospace">IDENTIFICADOR ALOJAMIENTO</span>
+                <span class="text-dark fw-bold font-monospace" th:text="'LIS-' + ${booking.listing.id}">LIS-0</span>
+            </div>
+            <div class="p-3 bg-light d-flex justify-content-between small">
+                <span class="text-muted font-monospace">CÓDIGO DE FLUJO (STATUS)</span>
+                <span class="text-dark fw-bold font-monospace" th:text="${booking.status.name()}">PENDING</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center border-top pt-4 flex-wrap gap-3" style="border-color: var(--border-light) !important;">
+
+        <div class="d-flex gap-2">
+            <form th:if="${booking.status.name() == 'PENDING' and (#authorization.expression('hasRole(''ADMIN'')') or (#authorization.expression('hasRole(''HOST'')') and booking.listing.owner.id == #authentication.principal.id))}"
+                  th:action="@{/bookings/{id}/confirm(id=${booking.id})}" method="post">
+                <button type="submit" class="btn btn-success fw-bold px-4 py-2.5 rounded-3 small"
+                        onclick="return confirm('¿Seguro que deseas confirmar esta solicitud de reserva?')">
+                    <i class="fa-solid fa-circle-check me-1"></i> Confirmar reserva
+                </button>
+            </form>
+
+            <form th:if="${booking.status.name() == 'PENDING' or (booking.status.name() == 'CONFIRMED' and (#authorization.expression('hasRole(''ADMIN'')') or (#authorization.expression('hasRole(''HOST'')') and booking.listing.owner.id == #authentication.principal.id)))}"
+                  th:action="@{/bookings/{id}/cancel(id=${booking.id})}" method="post">
+                <button type="submit" class="btn btn-outline-danger fw-bold px-4 py-2.5 rounded-3 small"
+                        onclick="return confirm('¿Estás completamente seguro de que deseas rechazar/cancelar esta reserva?')">
+                    <i class="fa-solid fa-trash-can me-1"></i> Cancelar estancia
+                </button>
+            </form>
+        </div>
+
+        <div>
+            <a th:href="@{/bookings}" class="btn btn-outline-secondary fw-bold px-4 py-2.5 rounded-3 small">
+                Regresar a mis viajes
             </a>
         </div>
-
-        <button type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-                aria-label="Close"></button>
-
     </div>
-
-    <hr>
-
-    <!-- Información adicional -->
-    <h2 class="mt-4 mb-3">
-        <i class="fa-solid fa-rectangle-list text-primary me-2"></i> Información adicional
-    </h2>
-
-    <ul class="list-group mb-4">
-        <li class="list-group-item">
-            <strong>ID de Reserva:</strong>
-            <span th:text="${booking.id}"></span>
-        </li>
-        <li class="list-group-item" th:if="${booking.listing != null}">
-            <strong>ID de Propiedad:</strong>
-            <span th:text="${booking.listing.id}"></span>
-        </li>
-        <li class="list-group-item">
-            <strong>Estado:</strong>
-            <span class="badge"
-                  th:classappend="${booking.status.name() == 'CONFIRMED' ? 'bg-success' : booking.status.name() == 'PENDING' ? 'bg-warning text-dark' : 'bg-danger'}"
-                  th:text="${booking.status}">
-            </span>
-        </li>
-    </ul>
-
-    <!-- TODO authorize has any roles HOST , ADMIN-->
-    <!-- Acciones de la reserva -->
-    <div class="d-flex gap-2 mb-4">
-
-        <!-- Confirmar reserva -->
-        <form th:if="${booking.status.name() == 'PENDING' and (
-          #authorization.expression('hasRole(''ADMIN'')') or (
-              #authorization.expression('hasRole(''HOST'')') and
-              booking.listing.owner.id == #authentication.principal.id
-          )
-      )}"
-              th:action="@{/bookings/{id}/confirm(id=${booking.id})}"
-              method="post">
-
-            <button type="submit"
-                    class="btn btn-success"
-                    onclick="return confirm('¿Seguro que deseas confirmar esta reserva?')">
-                <i class="fa-solid fa-check me-1"></i>
-                Confirmar reserva
-            </button>
-        </form>
-
-        <!-- Cancelar reserva -->
-        <form th:if="${booking.status.name() == 'PENDING' or (
-          booking.status.name() == 'CONFIRMED' and (
-              #authorization.expression('hasRole(''ADMIN'')') or (
-                  #authorization.expression('hasRole(''HOST'')') and
-                  booking.listing.owner.id == #authentication.principal.id
-              )
-          )
-      )}"
-              th:action="@{/bookings/{id}/cancel(id=${booking.id})}"
-              method="post">
-
-            <button type="submit"
-                    class="btn btn-danger"
-                    onclick="return confirm('¿Seguro que deseas cancelar esta reserva?')">
-                <i class="fa-solid fa-xmark me-1"></i>
-                Cancelar reserva
-            </button>
-        </form>
-
-        <!-- Volver -->
-        <a th:href="@{/bookings}" class="btn btn-secondary">
-            <i class="fa-solid fa-arrow-left me-1"></i>
-            Volver a reservas
-        </a>
-
-    </div>
-
 
 </main>
 
 <footer th:replace="~{layout/footer :: footer}"></footer>
-<script th:replace="~{layout/footer :: scripts}"></script>
 
 </body>
-
 </html>
