@@ -1,44 +1,41 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head th:replace="~{layout/head :: head('Reseñas')}"></head>
-<body class="d-flex flex-column min-vh-100">
+
+<head th:replace="~{layout/head :: head('Reseñas de la comunidad - openHouse')}"></head>
+
+<body class="d-flex flex-column min-vh-100" style="background-color: #ffffff;">
 
 <nav th:replace="~{layout/navbar :: navbar}"></nav>
 
-<main class="container flex-grow-1">
+<main class="container my-5" style="max-width: 1000px;">
 
-    <h1 class="mb-4">
-        <i class="fa-solid fa-star text-primary me-2"></i> Reseñas
-    </h1>
-
-    <!-- Mensaje de éxito -->
-    <div th:if="${message}" class="alert alert-success fade show alert-dismissible" role="alert">
-        <i class="fa-solid fa-check-circle"></i>
-        <span th:text="${message}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-5 border-bottom pb-3" style="border-color: var(--border-light) !important;">
+        <div>
+            <h1 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">
+                <i class="fa-solid fa-star text-warning me-1"></i> Reseñas de huéspedes
+            </h1>
+            <p class="text-secondary small mb-0">Descubre las opiniones reales y puntuaciones sobre las estancias del ecosistema openHouse.</p>
+        </div>
     </div>
 
-    <!-- ── PANEL DE FILTROS ──────────────────────────────────────────────── -->
-    <div class="card mb-4 shadow-sm">
-        <div class="card-body">
-            <div class="row gy-3 align-items-end">
+    <div th:if="${message}" class="alert alert-success alert-dismissible fade show border-0 rounded-3 shadow-sm mb-4" role="alert">
+        <i class="fa-solid fa-circle-check me-2"></i>
+        <span th:text="${message}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
 
-                <!-- Filtro: Ciudad -->
-                <!-- El select usa el nombre del enum (ej. MADRID) como value.
-                     Spring convierte automáticamente el String a City en el controller. -->
-                <div class="col-12 col-md-4">
-                    <label class="form-label fw-semibold">
-                        <i class="fa-solid fa-location-dot me-1 text-primary"></i> Ciudad
+    <div class="card p-3 border-0 bg-light rounded-4 mb-5">
+        <div class="card-body p-2">
+            <div class="row g-4 align-items-end">
+
+                <div class="col-12 col-md-3">
+                    <label class="form-label text-dark fw-bold small mb-2">
+                        <i class="fa-solid fa-location-dot me-1 text-secondary"></i> Destino
                     </label>
-                    <select class="form-select"
+                    <select class="form-select bg-white border border-light py-2 rounded-3 text-secondary fw-medium"
                             onchange="aplicarFiltro('city', this.value)">
                         <option value="" th:selected="${filtroCity == null}">Todas las ciudades</option>
-                        <!--
-                            Usamos 'ciudades' (solo las que tienen reseñas).
-                            Si prefieres mostrar TODAS las ciudades del enum, cambia
-                            'ciudades' por 'todasLasCiudades' en el controller.
-                        -->
                         <option th:each="ciudad : ${ciudades}"
                                 th:value="${ciudad.name()}"
                                 th:text="${ciudad.name()}"
@@ -47,129 +44,129 @@
                     </select>
                 </div>
 
-                <!-- Filtro: Rating -->
                 <div class="col-12 col-md-4">
-                    <label class="form-label fw-semibold">
-                        <i class="fa-solid fa-star me-1 text-warning"></i> Puntuación
+                    <label class="form-label text-dark fw-bold small mb-2">
+                        <i class="fa-solid fa-star me-1 text-warning"></i> Calificación mínima
                     </label>
-                    <div class="d-flex flex-wrap gap-1">
+                    <div class="d-flex flex-wrap gap-1.5">
                         <a th:href="@{/reviews(city=${filtroCity?.name()}, orden=${filtroOrden})}"
-                           th:classappend="${filtroRating == null} ? 'btn-warning' : 'btn-outline-warning'"
-                           class="btn btn-sm">Todas</a>
+                           th:classappend="${filtroRating == null} ? 'bg-dark text-white border-dark' : 'bg-white text-dark border'"
+                           class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold small transition-all">Todas</a>
+
                         <a th:each="n : ${#numbers.sequence(1, 5)}"
                            th:href="@{/reviews(city=${filtroCity?.name()}, rating=${n}, orden=${filtroOrden})}"
-                           th:classappend="${filtroRating == n} ? 'btn-warning' : 'btn-outline-warning'"
-                           class="btn btn-sm"
+                           th:classappend="${filtroRating == n} ? 'bg-dark text-white border-dark' : 'bg-white text-dark border'"
+                           class="btn btn-sm rounded-pill px-2.5 py-1.5 fw-semibold small transition-all"
                            th:text="${n + ' ★'}">
                         </a>
                     </div>
                 </div>
 
-                <!-- Filtro: Orden por fecha -->
                 <div class="col-12 col-md-3">
-                    <label class="form-label fw-semibold">
-                        <i class="fa-solid fa-calendar me-1 text-primary"></i> Ordenar por
+                    <label class="form-label text-dark fw-bold small mb-2">
+                        <i class="fa-solid fa-clock me-1 text-secondary"></i> Cronología
                     </label>
                     <div class="d-flex gap-2">
                         <a th:href="@{/reviews(city=${filtroCity?.name()}, rating=${filtroRating}, orden='reciente')}"
-                           th:classappend="${filtroOrden == 'reciente'} ? 'btn-primary' : 'btn-outline-primary'"
-                           class="btn btn-sm">
-                            <i class="fa-solid fa-arrow-down-short-wide me-1"></i> Recientes
+                           th:classappend="${filtroOrden == 'reciente'} ? 'btn-dark' : 'btn-outline-dark bg-white'"
+                           class="btn btn-sm rounded-3 py-2 w-100 fw-bold small">
+                            Recientes
                         </a>
                         <a th:href="@{/reviews(city=${filtroCity?.name()}, rating=${filtroRating}, orden='antiguo')}"
-                           th:classappend="${filtroOrden == 'antiguo'} ? 'btn-primary' : 'btn-outline-primary'"
-                           class="btn btn-sm">
-                            <i class="fa-solid fa-arrow-up-short-wide me-1"></i> Antiguos
+                           th:classappend="${filtroOrden == 'antiguo'} ? 'btn-dark' : 'btn-outline-dark bg-white'"
+                           class="btn btn-sm rounded-3 py-2 w-100 fw-bold small">
+                            Antiguas
                         </a>
                     </div>
                 </div>
 
-                <!-- Limpiar filtros -->
-                <div class="col-12 col-md-1 d-flex align-items-end">
-                    <a th:href="@{/reviews}" class="btn btn-outline-secondary btn-sm w-100">
-                        <i class="fa-solid fa-rotate-left me-1"></i> Limpiar
+                <div class="col-12 col-md-2">
+                    <a th:href="@{/reviews}" class="btn btn-outline-secondary btn-sm py-2 rounded-3 w-100 fw-bold small">
+                        <i class="fa-solid fa-arrow-rotate-left me-1"></i> Restablecer
                     </a>
                 </div>
 
             </div>
         </div>
     </div>
-    <!-- ── FIN PANEL DE FILTROS ──────────────────────────────────────────── -->
-
-    <!-- Casas destacadas
-    <div class="col" th:each="house : ${top10housesFilter}">
-        <a th:href="@{/listing/{id}/reviews(id=${house.id})}">
-            <img class="img-thumbnail" th:src="${house.imageUrl}" alt="casa">
-        </a>
-    </div>-->
-
-    <!-- Sin resultados -->
-    <div th:if="${reviews.isEmpty()}" class="alert alert-light border">
-        No hay reseñas que coincidan con los filtros seleccionados.
+    <div th:if="${reviews.isEmpty()}" class="p-5 text-center bg-light rounded-4 mb-4">
+        <i class="fa-solid fa-comment-slash text-muted opacity-50 fs-2 mb-3"></i>
+        <h4 class="h6 fw-bold text-dark mb-1">Sin valoraciones coincidentes</h4>
+        <p class="text-secondary small mb-0">No se encontraron comentarios que cumplan los filtros seleccionados actualmente.</p>
     </div>
 
-    <!-- Tarjetas de reseñas -->
-    <div class="row row-cols-1 row-cols-md-2 g-3">
+    <div class="row row-cols-1 row-cols-md-2 g-4" th:if="${not reviews.isEmpty()}">
+
         <div class="col" th:each="review : ${reviews}">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h5 class="card-title mb-0">Reseña #<span th:text="${review.id}"></span></h5>
-                        <span class="badge bg-warning text-dark">
-                            <i class="fa-solid fa-star me-1"></i>
-                            <span th:text="${review.rating + ' / 5'}"></span>
-                        </span>
+            <div class="card h-100 p-4 border shadow-sm d-flex flex-column justify-content-between"
+                 style="border-radius: 20px; border-color: var(--border-light) !important; background-color: #ffffff;">
+
+                <div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-light p-2 rounded-circle text-secondary me-2.5" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fa-solid fa-quote-left small"></i>
+                            </div>
+                            <span class="fw-bold text-dark font-monospace small" th:text="'REF-#' + ${review.id}">REF-#0</span>
+                        </div>
+
+                        <div class="text-warning small">
+                            <span th:each="i : ${#numbers.sequence(1, 5)}">
+                                <i th:class="${i <= review.rating} ? 'fa-solid fa-star' : 'fa-regular fa-star'"></i>
+                            </span>
+                        </div>
                     </div>
-                    <p class="card-text" th:text="${review.comment}">Comentario de la reseña</p>
-                    <p class="text-muted small mb-0">
-                        <i class="fa-regular fa-calendar me-1"></i>
-                        <span th:text="${#temporals.format(review.creationDate, 'dd/MM/yyyy')}"></span>
-                        <span th:if="${review.verified}" class="badge bg-success ms-2">Verificada</span>
-                        <span th:unless="${review.verified}" class="badge bg-secondary ms-2">No verificada</span>
-                    </p>
+
+                    <p class="text-secondary lh-base fs-6 mb-4 italic" style="font-style: italic; white-space: pre-line;"
+                       th:text="'&ldquo;' + ${review.comment} + '&rdquo;'">Comentario de la reseña</p>
                 </div>
-                <div class="card-footer bg-transparent small">
-                    <div th:if="${review.booking != null}">
-                        <i class="fa-solid fa-house text-primary me-1"></i>
-                        <a th:href="@{/listings/{id}(id=${review.booking.listing.id})}"
-                           th:text="${review.booking.listing.title}">Propiedad</a>
-                        <span class="text-muted">
-                            — Reserva #
-                            <a th:href="@{/bookings/{id}(id=${review.booking.id})}"
-                               th:text="${review.booking.id}">ID</a>
-                        </span>
-                    </div>
-                    <div class="my-3 d-flex gap-2 align-items-center">
 
-                        <a class="btn btn-secondary" th:href="@{/reviews/{id}(id=${review.id})}">
-                            <i class="fa-solid fa-eye me-2"></i> Ver
-                        </a>
-
-                        <form sec:authorize="hasRole('ADMIN')"
-                              th:action="@{/reviews/delete/{id}(id=${review.id})}"
-                              method="post">
-
-                            <button type="submit"
-                                    class="btn btn-danger"
-                                    onclick="return confirm('¿Seguro que deseas eliminar esta reseña?')">
-                                <i class="fa-solid fa-xmark me-1"></i>
-                                Cancelar reseña
-                            </button>
-                        </form>
-
+                <div class="mt-auto">
+                    <div class="p-2.5 rounded-3 bg-light mb-3" th:if="${review.booking != null}" style="font-size: 0.8rem;">
+                        <div class="text-truncate text-secondary mb-1">
+                            <i class="fa-solid fa-house text-muted me-1.5"></i>
+                            <a th:href="@{/listings/{id}(id=${review.booking.listing.id})}" class="text-dark fw-bold text-decoration-none hover-link" th:text="${review.booking.listing.title}">Propiedad</a>
+                        </div>
+                        <div class="text-muted" style="font-size: 0.75rem;">
+                            <i class="fa-solid fa-receipt me-1.5"></i>Vinculado al código de estancia #<a th:href="@{/bookings/{id}(id=${review.booking.id})}" class="text-secondary fw-semibold text-decoration-none" th:text="${review.booking.id}">ID</a>
+                        </div>
                     </div>
 
+                    <div class="d-flex justify-content-between align-items-center pt-2 border-top flex-wrap gap-2" style="border-color: var(--border-light) !important;">
+
+                        <div class="text-muted small" style="font-size: 0.75rem; font-weight: 500;">
+                            <i class="fa-regular fa-calendar me-1"></i>
+                            <span th:text="${#temporals.format(review.creationDate, 'dd/MM/yyyy')}">01/01/2026</span>
+                            <span class="ms-1.5 badge rounded-pill px-2 py-0.5 fw-bold"
+                                  th:classappend="${review.verified} ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-light text-muted border'"
+                                  th:text="${review.verified ? 'Verificada' : 'No verificada'}" style="font-size: 0.65rem;">Estado</span>
+                        </div>
+
+                        <div class="d-flex gap-1.5">
+                            <a class="btn btn-light btn-sm px-3 rounded-2 fw-bold text-dark border small" th:href="@{/reviews/{id}(id=${review.id})}">
+                                <i class="fa-regular fa-eye me-1"></i> Detalles
+                            </a>
+
+                            <form sec:authorize="hasRole('ADMIN')" th:action="@{/reviews/delete/{id}(id=${review.id})}" method="post" class="m-0">
+                                <button type="submit" class="btn btn-outline-danger btn-sm px-2.5 rounded-2 fw-medium small"
+                                        onclick="return confirm('¿Estás seguro de que deseas eliminar administrativamente esta reseña?')">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
                 </div>
+
             </div>
         </div>
+
     </div>
 
 </main>
 
 <footer th:replace="~{layout/footer :: footer}"></footer>
-<script th:replace="~{layout/footer :: scripts}"></script>
 
-<!-- Aplica el filtro de ciudad manteniendo el resto de parámetros activos -->
 <script th:inline="javascript">
     function aplicarFiltro(param, valor) {
         const url = new URL(window.location.href);
