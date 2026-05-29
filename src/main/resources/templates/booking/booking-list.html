@@ -27,10 +27,6 @@
 
     <!-- Grid de tarjetas -->
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3" th:if="${not #lists.isEmpty(bookings)}">
-
-    <!-- Grid de tarjetas -->
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-
         <div class="col" th:each="booking : ${bookings}">
             <div class="card card-booking h-100 shadow-sm">
 

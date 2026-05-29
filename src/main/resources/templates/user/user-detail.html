@@ -187,9 +187,16 @@
                                 <div class="mt-2 pt-2 border-top d-flex align-items-center justify-content-between text-muted small" style="border-color: var(--border-light) !important; font-size: 0.8rem;">
                                     <span>
                                         <i class="fa-solid fa-door-closed me-1"></i> Reseña para:
-                                        <strong class="text-dark" th:text="${review.booking.listing.title}">Propiedad</strong>
+                                        <a th:href="@{/listings/{id}(id=${review.booking.listing.id})}"
+                                           th:text="${review.booking.listing.title}"
+                                           class="text-dark fw-bold text-decoration-none hover-underline">Propiedad</a>
                                     </span>
-                                    <span th:text="'Reserva #' + ${review.booking.id}">ID</span>
+                                    <a th:href="@{/reviews/{id}(id=${review.id})}"
+                                       class="btn btn-outline-secondary btn-sm px-3"
+                                       style="border-radius: 12px; font-size: 0.75rem;">
+                                        <i class="fa-solid fa-pen-to-square me-1"></i>
+                                        Ver reseña
+                                    </a>
                                 </div>
                             </div>
                         </div>
