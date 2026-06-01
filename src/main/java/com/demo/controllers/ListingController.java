@@ -13,6 +13,8 @@ import com.demo.services.ListingService;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,9 +22,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @AllArgsConstructor
 @Controller
@@ -54,31 +56,35 @@ public class ListingController {
         List<Listing> listings = listingService.search(
                 type, minPrice, maxPrice, guests, nights, city, startDate, endDate
         );
-
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String role = auth.getAuthorities().iterator().next().getAuthority();
-        String email = auth.getName(); // email del usuario autenticado
 
-// GUEST → solo listings activos
-        if (role.equals("ROLE_USER")) {
+        boolean isAnonymous = auth instanceof AnonymousAuthenticationToken;
+
+        User currentUser = isAnonymous ? null : (User) auth.getPrincipal();
+        String email = currentUser != null ? currentUser.getEmail() : null;
+
+        boolean isUser = !isAnonymous && auth.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_USER".equals(a.getAuthority()));
+        boolean isHost = !isAnonymous && auth.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_HOST".equals(a.getAuthority()));
+        boolean isAdmin = !isAnonymous && auth.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+
+// ANONYMOUS + USER → solo activos
+        if (isAnonymous || isUser) {
             listings = listings.stream()
                     .filter(l -> Boolean.TRUE.equals(l.getIsActive()))
                     .toList();
         }
-        if (role.equals("ROLE_ANONYMOUS")) {
+
+// HOST → activos + sus propios inactivos
+        if (isHost) {
             listings = listings.stream()
-                    .filter(l -> Boolean.TRUE.equals(l.getIsActive()))
+                    .filter(l -> Boolean.TRUE.equals(l.getIsActive())
+                            || Objects.equals(l.getOwner().getEmail(), email))
                     .toList();
         }
-
-// HOST → solo sus listings (activos e inactivos)
-        if (role.equals("ROLE_HOST")) {
-            listings = listings.stream()
-                    .filter(l -> l.getOwner().getEmail().equals(email))
-                    .toList();
-        }
-
-// ADMIN → ve todos (no filtramos)
+// ADMIN → no se filtra nada
 
         model.addAttribute("listings", listings);
         model.addAttribute("types", ListingType.values());
@@ -91,6 +97,8 @@ public class ListingController {
         model.addAttribute("selectedCity", city);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
+        model.addAttribute("currentUserEmail", email);
+        model.addAttribute("isAdmin", isAdmin);
 
         return "listing/listing-list";
     }
@@ -107,9 +115,8 @@ public class ListingController {
         return "listing/listing-detail";
     }
 
-    // TODO bajar a minusculas createListing
     @GetMapping("/new")
-    public String CreateListing(Model model) {
+    public String createListing(Model model) {
         model.addAttribute("listing", new Listing());
         model.addAttribute("types", ListingType.values());
         model.addAttribute("cities", City.values());
@@ -129,13 +136,28 @@ public class ListingController {
     @PostMapping
     public String saveListing(@ModelAttribute Listing listing, @AuthenticationPrincipal User user) {
 
-        if (user != null && user.getRole() == Role.ROLE_USER) {
+        System.out.println("Usuario en saveListing: " + user.getEmail());
+        System.out.println("Rol antes de promover: " + user.getRole());
+
+        // Si el usuario es USER, lo promovemos a HOST
+        if (user.getRole() == Role.ROLE_USER) {
             user.setRole(Role.ROLE_HOST);
             userRepository.save(user);
+
+            // Recargar la autenticación usando el propio objeto User (que implementa UserDetails)
+            Authentication newAuth = new UsernamePasswordAuthenticationToken(
+                    user,                      // principal actualizado
+                    user.getPassword(),        // credenciales
+                    user.getAuthorities()      // roles actualizados
+            );
+
+            SecurityContextHolder.getContext().setAuthentication(newAuth);
         }
+
+        // Asignar propietario
         listing.setOwner(user);
 
-        // TODO: validaciones (precio, noches, etc.)
+        // Guardar listing
         listingRepository.save(listing);
 
         return "redirect:/listings";

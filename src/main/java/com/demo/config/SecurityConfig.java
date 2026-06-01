@@ -21,7 +21,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(auth -> auth
                 //Listings
-                .requestMatchers("/", "/register", "/login", "/css/**", "/webjars/**", "/images/**").permitAll()
+                .requestMatchers("/", "/register", "/error", "/login", "/css/**", "/webjars/**", "/images/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/listings", "/listings/{id:\\d+}").permitAll()
                 .requestMatchers("/listings/edit/**", "/listings/toggle/**").hasAnyRole("ADMIN", "HOST")
                 .requestMatchers("/listings/new").hasAnyRole("ADMIN", "HOST", "USER")

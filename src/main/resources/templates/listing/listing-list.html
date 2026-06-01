@@ -81,15 +81,7 @@
         </div>
 
         <div class="row g-3 mt-1"
-             th:with="hasFilters=
-            ${selectedType != null
-            or selectedMinPrice != null
-            or selectedMaxPrice != null
-            or selectedGuests != null
-            or selectedNights != null
-            or selectedCity != null
-            or (startDate != null and startDate != '')
-            or (endDate != null and endDate != '')}">
+             th:with="hasFilters=${selectedType != null or selectedMinPrice != null or selectedMaxPrice != null or selectedGuests != null or selectedNights != null or selectedCity != null or (startDate != null and startDate != '') or (endDate != null and endDate != '')}">
             <div class="col-md-2"> <div class="input-group">
                 <span class="input-group-text rounded-pill-start bg-light border-end-0 text-muted">
                     <i class="fa-solid fa-city"></i>
@@ -244,12 +236,12 @@
 
                         <a class="btn btn-outline-secondary btn-sm flex-fill fw-bold rounded-3 py-2 small"
                            th:href="@{/listings/edit/{id}(id=${listing.id})}"
-                           sec:authorize="hasAnyRole('ROLE_HOST','ROLE_ADMIN')">
+                           th:if="${currentUserEmail != null and (currentUserEmail == listing.owner.email or isAdmin)}" >
                             <i class="fa-solid fa-pen-to-square"></i>
                         </a>
 
                         <form th:action="@{/listings/toggle/{id}(id=${listing.id})}" method="post" class="flex-fill"
-                              sec:authorize="hasAnyRole('ROLE_HOST','ROLE_ADMIN')">
+                              th:if="${currentUserEmail != null and (currentUserEmail == listing.owner.email or isAdmin)}">
                             <button type="submit"
                                     th:class="${listing.isActive} ? 'btn btn-outline-danger btn-sm w-100 fw-bold rounded-3 py-2 small' : 'btn btn-success btn-sm w-100 fw-bold rounded-3 py-2 small'">
                                 <span th:text="${listing.isActive} ? 'Pausar' : 'Activar'"></span>
