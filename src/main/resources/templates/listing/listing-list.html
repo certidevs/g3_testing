@@ -101,7 +101,7 @@
                 <span class="input-group-text rounded-pill-start bg-light border-end-0 text-muted">
                     <i class="fa-solid fa-calendar-day"></i>
                 </span>
-                <input type="date" name="startDate" class="form-control rounded-pill-end bg-light small"
+                <input type="date" name="startDate" id="startDate" class="form-control rounded-pill-end bg-light small"
                        th:value="${startDate}">
             </div>
             </div>
@@ -110,7 +110,7 @@
                 <span class="input-group-text rounded-pill-start bg-light border-end-0 text-muted">
                     <i class="fa-solid fa-calendar-check"></i>
                 </span>
-                <input type="date" name="endDate" class="form-control rounded-pill-end bg-light small"
+                <input type="date" name="endDate" id="endDate" class="form-control rounded-pill-end bg-light small"
                        th:value="${endDate}">
             </div>
             </div>
@@ -260,6 +260,33 @@
 
 <footer th:replace="~{layout/footer :: footer}"></footer>
 <script th:replace="~{layout/footer :: scripts}"></script>
+<script>
+    const checkInInput = document.getElementById('startDate');
+    const checkOutInput = document.getElementById('endDate');
 
+    // Configurar el min de hoy en la fecha de entrada
+    const today = new Date().toISOString().split('T')[0];
+    checkInInput.min = today;
+
+    checkInInput.addEventListener('change', () => {
+        if (checkInInput.value) {
+            const minCheckOut = new Date(checkInInput.value);
+            minCheckOut.setDate(minCheckOut.getDate() + 1);
+            checkOutInput.min = minCheckOut.toISOString().split('T')[0];
+
+            // Si endDate ya tiene un valor inválido, lo limpia
+            if (checkOutInput.value && checkOutInput.value <= checkInInput.value) {
+                checkOutInput.value = '';
+            }
+        }
+    });
+
+    // Al cargar la página, si ya hay startDate aplicar el mínimo
+    if (checkInInput.value) {
+        const minCheckOut = new Date(checkInInput.value);
+        minCheckOut.setDate(minCheckOut.getDate() + 1);
+        checkOutInput.min = minCheckOut.toISOString().split('T')[0];
+    }
+</script>
 </body>
 </html>
