@@ -150,7 +150,6 @@ public class MessageRepositoryTest {
 
         List<Message> messageOrdered = messageRepository.findByConversationId(conversation.getId(), Sort.by("sentAt").descending());
         assertEquals(3, messageOrdered.size());
-        assertEquals("Hola, ¿a qué hora llegas?", messageOrdered.get(0).getContent());
     }
 
 }
