@@ -7,6 +7,7 @@ import com.demo.model.User;
 import com.demo.repositories.BookingRepository;
 import com.demo.repositories.ConversationRepository;
 import com.demo.repositories.MessageRepository;
+import com.demo.repositories.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -24,6 +25,7 @@ public class ConversationController {
     private final ConversationRepository conversationRepository;
     private final MessageRepository messageRepository;
     private final BookingRepository bookingRepository;
+    private final UserRepository userRepository;
 
     @GetMapping("/conversation/{id}")
     public String getConversationById(@PathVariable Long id, Model model, @AuthenticationPrincipal User user) {
@@ -157,17 +159,18 @@ public class ConversationController {
         Conversation conversation = Conversation.builder()
                 .booking(booking)
                 .build();
-        conversationRepository.save(conversation);
+        Conversation conversationSaved = conversationRepository.save(conversation);
 
+        var managedUser = userRepository.findById(user.getId()).orElseThrow();
         Message message = Message.builder()
                 .content(content)
-                .conversation(conversation)
+                .conversation(conversationSaved)
                 .sender(user)
                 .sentAt(java.time.LocalDateTime.now())
                 .isRead(false)
                 .build();
         messageRepository.save(message);
 
-        return "redirect:/conversation/" + bookingId;
+        return "redirect:/conversation/" + booking.getId();
     }
 }
