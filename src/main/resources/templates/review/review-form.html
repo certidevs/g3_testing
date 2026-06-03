@@ -58,6 +58,9 @@
 
                     <input type="hidden" id="ratingValue" th:field="*{rating}" required>
                     <div id="ratingLabel" class="text-secondary fw-bold small mt-2">Selecciona una puntuación</div>
+                    <div id="ratingError" class="text-danger fw-bold small mt-2" style="display:none;">
+                        <i class="fa-solid fa-triangle-exclamation me-1"></i> Debes seleccionar una puntuación antes de publicar la reseña.
+                    </div>
                 </div>
 
                 <div class="mb-3">
@@ -143,6 +146,27 @@
         paintStars(selectedRating);
         ratingLabel.textContent = ratingLabels[selectedRating];
     }
+
+    // Interceptar el submit nativo del form para validar el rating
+    // Usar el evento submit del form garantiza que el token CSRF de Thymeleaf se envía correctamente
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const errorDiv = document.getElementById('ratingError');
+        if (!selectedRating || selectedRating < 1) {
+            e.preventDefault(); // Bloquear el envío
+            errorDiv.style.display = 'block';
+            document.getElementById('star-container').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return false;
+        }
+        errorDiv.style.display = 'none';
+        // Dejar que el form se envíe normalmente con el CSRF incluido
+    });
+
+    // Ocultar el error en cuanto el usuario seleccione una estrella
+    stars.forEach(star => {
+        star.addEventListener('click', () => {
+            document.getElementById('ratingError').style.display = 'none';
+        });
+    });
 </script>
 
 </body>

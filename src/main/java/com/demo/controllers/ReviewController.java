@@ -104,7 +104,7 @@ public class ReviewController {
     }
 
 
-    @GetMapping("reviews/delete/{id}")
+    @PostMapping("reviews/delete/{id}")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         reviewRepository.deleteById(id);
         redirectAttributes.addFlashAttribute("message", "Borrado exitosamente");
@@ -150,11 +150,15 @@ public class ReviewController {
             redirectAttributes.addFlashAttribute("message", "Reseña creada exitosamente");
             return "redirect:/reviews/"+review.getId();
 
-        }catch (Exception e){
+        } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error",
                     "Error al crear la reseña: " + e.getMessage());
+            // Volver al formulario de la reserva correspondiente para mostrar el error
+            Long bookingId = review.getBooking() != null ? review.getBooking().getId() : null;
+            if (bookingId != null) {
+                return "redirect:/reviews/new/" + bookingId;
+            }
             return "redirect:/bookings";
-
         }
 
     }
