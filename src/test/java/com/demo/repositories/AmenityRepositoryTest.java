@@ -1,115 +1,58 @@
 package com.demo.repositories;
 
 import com.demo.model.Amenity;
-import com.demo.model.Listing;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @DataJpaTest
 class AmenityRepositoryTest {
 
     @Autowired
-    AmenityRepository amenityRepository;
+    private AmenityRepository amenityRepository;
 
-    @Autowired
-    ListingRepository listingRepository;
-
-    Listing casa1;
-    Listing casa2;
-    Amenity wifi;
-    Amenity piscina;
-    Amenity parking;
-    Amenity cocina;
+    private Amenity wifi;
+    private Amenity piscina;
+    private Amenity parking;
+    private Amenity cocina;
 
     @BeforeEach
     void setUp() {
-            casa1 = Listing.builder().title("Casa 1").registeredAt(LocalDateTime.now()).build();
-            casa2 = Listing.builder().title("Casa 2").build();
+        wifi = Amenity.builder().name("Wifi").description("Alta velocidad").icon("wifi").build();
+        piscina = Amenity.builder().name("Piscina").description("Climatizada").icon("water").build();
+        parking = Amenity.builder().name("Parking").description("Subterráneo").icon("car").build();
+        cocina = Amenity.builder().name("Cocina").description("Equipada").icon("kitchen-set").build();
 
-            listingRepository.saveAll(List.of(casa1, casa2));
-            //añadir características a los amenities
-            wifi = Amenity.builder().name("Wifi").listing(casa1).build();
-            piscina = Amenity.builder().name("Piscina").listing(casa1).build();
-            parking = Amenity.builder().name("Parking").listing(casa2).build();
-            cocina = Amenity.builder().name("Cocina").listing(casa2).build();
-            amenityRepository.saveAll(List.of(wifi, piscina, parking, cocina));
-
+        amenityRepository.saveAll(List.of(wifi, piscina, parking, cocina));
     }
-    @Test
-    void amenityExists(){
-        List<Amenity> amenities = amenityRepository.findAll();
 
+    @Test
+    void amenityExists() {
+        List<Amenity> amenities = amenityRepository.findAll();
         assertEquals(4, amenities.size());
     }
 
     @Test
-    void findByName(){
-        Amenity amenity = amenityRepository.findByName("Wifi").get(0);
-
-        assertEquals("Wifi", amenity.getName());
+    void findByName() {
+        List<Amenity> result = amenityRepository.findByName("Wifi");
+        assertFalse(result.isEmpty());
+        assertEquals("Wifi", result.get(0).getName());
     }
-
-
-    @Test
-    void findByListing_Id() {
-        List<Amenity> amenitiesCasa1 = amenityRepository.findByListing_Id(casa1.getId());
-        List<Amenity> amenitiesCasa2 = amenityRepository.findByListing_Id(casa2.getId());
-
-        assertEquals(2, amenitiesCasa1.size());
-        assertEquals(2, amenitiesCasa2.size());
-    }
-
 
     @Test
     void findByNameContainingIgnoreCase() {
-
         List<Amenity> amenitiesFound = amenityRepository.findByNameContainingIgnoreCase("wi");
-
-        // Verifica que se haya encontrado el amenity correcto
         assertEquals(1, amenitiesFound.size());
-        assertEquals("Wifi", amenitiesFound.getFirst().getName());
+        assertEquals("Wifi", amenitiesFound.get(0).getName());
 
-        // Busca amenities que contengan "c" (debería encontrar "Cocina" y "Piscina")
         List<Amenity> amenitiesFoundCaseInsensitive = amenityRepository.findByNameContainingIgnoreCase("c");
-
-        // Verifica que se hayan encontrado los amenities correctos
         assertEquals(2, amenitiesFoundCaseInsensitive.size());
         assertTrue(amenitiesFoundCaseInsensitive.stream().anyMatch(a -> a.getName().equals("Cocina")));
         assertTrue(amenitiesFoundCaseInsensitive.stream().anyMatch(a -> a.getName().equals("Piscina")));
     }
-
-    @Test
-    void findByNameAndListing_Id() {
-
-        // Busca el amenity "Wifi" para casa1
-        List<Amenity> amenitiesFoundCasa1 = amenityRepository.findByNameAndListing_Id("Wifi", casa1.getId());
-
-        // Verifica que se haya encontrado el amenity correcto para casa1
-        assertEquals(1, amenitiesFoundCasa1.size());
-        assertEquals("Wifi", amenitiesFoundCasa1.getFirst().getName());
-        assertEquals(casa1.getId(), amenitiesFoundCasa1.getFirst().getListing().getId());
-
-        // Busca el amenity "Parking" para casa1 (debería devolver una lista vacía)
-        List<Amenity> amenitiesFoundCasa1Parking = amenityRepository.findByNameAndListing_Id("Parking", casa1.getId());
-
-        // Verifica que no se haya encontrado ningún amenity para casa1
-        assertTrue(amenitiesFoundCasa1Parking.isEmpty());
-
-        // Busca el amenity "Cocina" para casa2
-        List<Amenity> amenitiesFoundCasa2 = amenityRepository.findByNameAndListing_Id("Cocina", casa2.getId());
-
-        // Verifica que se haya encontrado el amenity correcto para casa2
-        assertEquals(1, amenitiesFoundCasa2.size());
-        assertEquals("Cocina", amenitiesFoundCasa2.getFirst().getName());
-        assertEquals(casa2.getId(), amenitiesFoundCasa2.getFirst().getListing().getId());
-    }
-
 }
