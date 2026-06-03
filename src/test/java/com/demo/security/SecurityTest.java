@@ -14,7 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class SecurityConfigTest {
+public class SecurityTest {
 
     @Autowired
     private MockMvc mockMvc;
