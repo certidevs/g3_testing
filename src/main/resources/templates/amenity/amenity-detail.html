@@ -10,8 +10,8 @@
 <main class="container my-5" style="max-width: 750px;">
 
     <div class="mb-4">
-        <a th:href="@{/listings}" class="btn btn-link text-secondary text-decoration-none p-0 fw-semibold small">
-            <i class="fa-solid fa-arrow-left me-1"></i> Volver a los alojamientos
+        <a th:href="@{/amenity}" class="btn btn-link text-secondary text-decoration-none p-0 fw-semibold small">
+            <i class="fa-solid fa-arrow-left me-1"></i> Volver a los servicios
         </a>
     </div>
 
@@ -21,11 +21,11 @@
             <div class="d-flex align-items-center flex-wrap gap-4 mb-4 pb-4 border-bottom" style="border-color: var(--border-light) !important;">
                 <div class="bg-light text-dark rounded-circle d-flex align-items-center justify-content-center border"
                      style="width: 70px; height: 70px; border-color: var(--border-light) !important;">
-                    <i th:class="${amenity.icon != null ? amenity.icon + ' fs-2' : 'fa-solid fa-tag fs-2'}"></i>
+                    <i th:class="${amenity.icon != null ? 'fa-solid fa-' + amenity.icon + ' fs-2' : 'fa-solid fa-tag fs-2'}"></i>
                 </div>
 
                 <div>
-                    <span class="text-muted d-block uppercase fw-bold tracking-wider mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">COMODIDAD / AMENITY</span>
+                    <span class="text-muted d-block uppercase fw-bold tracking-wider mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">COMODIDAD GLOBAL</span>
                     <h1 class="fw-bold text-dark h2 mb-0" style="letter-spacing: -0.5px;" th:text="${amenity.name}">Nombre del Amenity</h1>
                 </div>
             </div>
@@ -43,36 +43,22 @@
                     <span th:text="'AMN-' + ${amenity.id}">AMN-0</span>
                 </div>
                 <div>
-                    <span class="fw-bold text-secondary">CLASE ICONO:</span>
-                    <span th:text="${amenity.icon != null ? amenity.icon : 'fa-solid fa-tag'}">fa-tag</span>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <div th:if="${amenity.listing != null}" class="card p-4 border-0 bg-light mb-4" style="border-radius: 20px;">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-            <div class="d-flex align-items-center">
-                <div class="text-dark me-3">
-                    <i class="fa-solid fa-house-circle-check fs-4"></i>
+                    <span class="fw-bold text-secondary">TIPO:</span>
+                    <span th:text="${amenity.type != null ? amenity.type : 'GENERAL'}">GENERAL</span>
                 </div>
                 <div>
-                    <span class="text-muted d-block fw-semibold" style="font-size: 0.75rem;">DISPONIBLE EN EL ALOJAMIENTO</span>
-                    <span class="fw-bold text-dark fs-6" th:text="${amenity.listing.title}">Nombre de la Propiedad</span>
+                    <span class="fw-bold text-secondary">ICONO CSS:</span>
+                    <span th:text="${amenity.icon != null ? 'fa-' + amenity.icon : 'fa-tag'}">fa-tag</span>
                 </div>
             </div>
 
-            <a th:href="@{/listings/{id}(id=${amenity.listing.id})}" class="btn btn-white bg-white btn-sm px-3 py-2 rounded-3 fw-bold border text-dark small shadow-sm">
-                Ver propiedad <i class="fa-solid fa-chevron-right ms-1 small"></i>
-            </a>
         </div>
     </div>
 
     <div class="p-3 bg-light-subtle rounded-3 border d-flex align-items-start gap-2.5 mt-4" style="border-color: var(--border-light) !important;">
         <i class="fa-solid fa-circle-exclamation text-secondary mt-0.5" style="font-size: 0.9rem;"></i>
         <p class="mb-0 text-muted small lh-base">
-            Las comodidades e instalaciones son gestionadas y preparadas de manera directa por el anfitrión del inmueble. Si tienes dudas específicas sobre el funcionamiento, restricciones o solicitudes especiales, te recomendamos ponerte en contacto directo mediante la guía de la casa.
+            Las comodidades del sistema son de carácter global. Se asocian a cada alojamiento de manera individual especificando las cantidades disponibles en la sección de edición de cada propiedad.
         </p>
     </div>
 
@@ -80,7 +66,6 @@
 
 <footer th:replace="~{layout/footer :: footer}"></footer>
 <script th:replace="~{layout/footer :: scripts}"></script>
-
 
 </body>
 </html>

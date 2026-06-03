@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{layout/head :: head('Añadir servicio - openHouse')}"></head>
+<head th:replace="~{layout/head :: head('Crear Comodidad - openHouse')}"></head>
 
 <body class="d-flex flex-column min-vh-100" style="background-color: #ffffff;">
 
@@ -10,23 +10,23 @@
 <main class="container my-5" style="max-width: 700px;">
 
     <div class="mb-4">
-        <a th:href="@{/listings}" class="btn btn-link text-secondary text-decoration-none p-0 fw-semibold small">
-            <i class="fa-solid fa-arrow-left me-1"></i> Volver a los alojamientos
+        <a th:href="@{/amenity}" class="btn btn-link text-secondary text-decoration-none p-0 fw-semibold small">
+            <i class="fa-solid fa-arrow-left me-1"></i> Volver a los servicios
         </a>
     </div>
 
     <div class="mb-5 border-bottom pb-3" style="border-color: var(--border-light) !important;">
-        <h1 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">Añadir nuevo servicio</h1>
-        <p class="text-muted small mb-0">Configura las comodidades o características especiales disponibles para los huéspedes en tu propiedad.</p>
+        <h1 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">Crear nueva comodidad global</h1>
+        <p class="text-muted small mb-0">Configura un servicio o característica estándar en el sistema para que pueda ser asignado a las propiedades.</p>
     </div>
 
     <div class="card p-4 border shadow-sm" style="border-radius: 20px; border-color: var(--border-light) !important;">
         <div class="card-body p-0">
 
-            <form th:action="@{/amenity}" th:object="${amenity}" method="post" autocomplete="off">
+            <form th:action="@{/amenity/create}" th:object="${amenity}" method="post" autocomplete="off">
 
                 <div class="mb-4">
-                    <label for="name" class="form-label text-dark fw-bold small">Nombre del Servicio <span class="text-danger">*</span></label>
+                    <label for="name" class="form-label text-dark fw-bold small">Nombre de la Comodidad <span class="text-danger">*</span></label>
                     <input type="text"
                            th:field="*{name}"
                            class="form-control bg-light border-0 py-2.5 rounded-3 fw-medium text-dark"
@@ -35,44 +35,45 @@
                            required>
                 </div>
 
-                <div class="mb-4">
-                    <label for="icon" class="form-label text-dark fw-bold small">Icono de la comodidad</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-0 text-secondary border-end-0 rounded-start-3"><i class="fa-solid fa-icons"></i></span>
-                        <input type="text"
-                               th:field="*{icon}"
-                               class="form-control bg-light border-0 py-2.5 rounded-end-3 fw-medium text-dark"
-                               id="icon"
-                               placeholder="fa-solid fa-wifi">
+                <div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
+                    <div class="col">
+                        <label for="type" class="form-label text-dark fw-bold small">Tipo de Servicio <span class="text-danger">*</span></label>
+                        <select th:field="*{type}" class="form-select bg-light border-0 py-2.5 rounded-3 text-dark fw-medium" id="type" required>
+                            <option value="" selected disabled>Selecciona el tipo...</option>
+                            <option th:each="enumType : ${T(com.demo.model.enums.AmenityType).values()}"
+                                    th:value="${enumType}"
+                                    th:text="${enumType}">Tipo</option>
+                        </select>
                     </div>
-                    <div class="form-text text-muted small mt-1.5">Introduce la clase CSS de FontAwesome (ej: <code>fa-solid fa-snowflake</code> para aire acondicionado).</div>
-                </div>
 
-                <div class="mb-4">
-                    <label for="listing" class="form-label text-dark fw-bold small">Asignar a una propiedad <span class="text-danger">*</span></label>
-                    <select th:field="*{listing}" class="form-select bg-light border-0 py-2.5 rounded-3 text-secondary fw-medium" id="listing" required>
-                        <option value="" selected disabled>Selecciona la propiedad correspondiente...</option>
-                        <option th:each="list : ${listings}"
-                                th:value="${list.id}"
-                                th:text="${list.title}">Propiedad</option>
-                    </select>
+                    <div class="col">
+                        <label for="icon" class="form-label text-dark fw-bold small">Icono de FontAwesome</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0 text-secondary border-end-0 rounded-start-3"><i class="fa-solid fa-icons"></i></span>
+                            <input type="text"
+                                   th:field="*{icon}"
+                                   class="form-control bg-light border-0 py-2.5 rounded-end-3 fw-medium text-dark"
+                                   id="icon"
+                                   placeholder="wifi, snowflake, tv (sin prefijos)">
+                        </div>
+                    </div>
                 </div>
 
                 <div class="mb-5">
-                    <label for="description" class="form-label text-dark fw-bold small">Detalles o especificaciones</label>
+                    <label for="description" class="form-label text-dark fw-bold small">Descripción general</label>
                     <textarea th:field="*{description}"
                               class="form-control bg-light border-0 py-3 rounded-4 fs-6 text-dark"
                               id="description"
                               rows="4"
-                              placeholder="Ej: Conexión de fibra óptica de 300 Mbps disponible en todo el inmueble. Código de acceso visible tras el check-in..."></textarea>
+                              placeholder="Describe brevemente las especificaciones de este servicio..."></textarea>
                 </div>
 
                 <div class="d-flex justify-content-end align-items-center gap-3 pt-4 border-top" style="border-color: var(--border-light) !important;">
-                    <a th:href="@{/listings}" class="btn btn-outline-secondary fw-bold px-4 py-2.5 rounded-3 small">
+                    <a th:href="@{/amenity}" class="btn btn-outline-secondary fw-bold px-4 py-2.5 rounded-3 small">
                         Cancelar
                     </a>
                     <button type="submit" class="btn btn-dark fw-bold px-5 py-2.5 rounded-3 small">
-                        <i class="fa-solid fa-circle-plus me-1.5"></i> Guardar servicio
+                        <i class="fa-solid fa-circle-plus me-1.5"></i> Guardar servicio base
                     </button>
                 </div>
 

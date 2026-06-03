@@ -37,10 +37,6 @@ public class Amenity {
     private AmenityType type;
 
 
-    @ToString.Exclude
-    @ManyToOne
-    @JoinColumn(name="listing_id")
-    private Listing listing;
 
     //@ManyToOne
     //private User user;
