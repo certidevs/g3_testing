@@ -151,14 +151,12 @@ public class BaseSeleniumTest {
                 .name("Fibra Optica")
                 .description("600 Mbps")
                 .icon("wifi-icon")
-                .listing(loft)
                 .build());
 
         heating = amenityRepository.save(Amenity.builder()
                 .name("Calefaccion")
                 .description("Radiadores inteligentes")
                 .icon("heat-icon")
-                .listing(loft)
                 .build());
 
         // --- Bookings ---
