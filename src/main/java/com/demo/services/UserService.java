@@ -31,6 +31,8 @@ public class UserService implements UserDetailsService{
             throw new RuntimeException("El correo electrónico ya existe");
         } else if (!registerDTO.getPassword().equals(registerDTO.getPasswordConfirmed())) {
             throw new RuntimeException("Las contraseñas no coinciden");
+        }else if(registerDTO.getPassword().length() < 6) {
+            throw new RuntimeException("La contraseña debe tener al menos 6 caracteres");
         } else if (!registerDTO.getAcceptRGPD()) {
             throw new RuntimeException("Debes aceptar la política de privacidad");
         }
