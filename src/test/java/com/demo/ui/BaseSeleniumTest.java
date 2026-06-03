@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -234,10 +235,13 @@ public class BaseSeleniumTest {
         login("sonia@mail.com", "1234");
     }
 
+    // ✅ DESPUÉS — busca por name, que es lo que tiene tu login.html
     void login(String username, String password) {
         driver.get(baseUrl + "login");
-        driver.findElement(By.id("username")).sendKeys(username);
-        driver.findElement(By.id("password")).sendKeys(password);
+        wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.cssSelector("input[name='username']")));
+        driver.findElement(By.cssSelector("input[name='username']")).sendKeys(username);
+        driver.findElement(By.cssSelector("input[name='password']")).sendKeys(password);
         driver.findElement(By.cssSelector("button[type='submit']")).click();
         wait.until(d -> d.getCurrentUrl().equals(baseUrl + "listings"));
     }
