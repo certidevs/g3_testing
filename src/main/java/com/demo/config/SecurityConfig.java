@@ -41,7 +41,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/amenity").hasAnyRole("ADMIN", "HOST")
 
                 //Conversation
-                .requestMatchers("/conversation/**").authenticated()
+                .requestMatchers("/conversation/**").hasAnyRole("HOST", "USER")
 
                 .anyRequest().authenticated()
         );

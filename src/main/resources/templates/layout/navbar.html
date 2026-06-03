@@ -24,9 +24,11 @@
                 <li class="nav-item">
                     <a class="nav-link px-3 py-2" th:href="@{/reviews}">Reseñas</a>
                 </li>
-                <li class="nav-item">
+
+                <li class="nav-item" sec:authorize="!hasRole('ADMIN')">
                     <a class="nav-link px-3 py-2" th:href="@{/conversation}">Mensajes</a>
                 </li>
+
                 <li class="nav-item">
                     <a class="nav-link px-3 py-2" th:href="@{/amenity}">Comodidades</a>
                 </li>

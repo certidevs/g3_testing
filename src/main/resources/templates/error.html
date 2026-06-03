@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{layout/head :: head('Hubo un problema')}"></head>
+<body class="d-flex flex-column min-vh-100" style="background-color: #ffffff;">
+
+<nav th:replace="~{layout/navbar :: navbar}"></nav>
+
+<main class="container flex-grow-1 d-flex align-items-center justify-content-center my-5">
+    <div class="text-center p-5 border rounded-4 shadow-sm" style="border-color: #EBEBEB !important; max-width: 550px; background-color: #F7F7F7;">
+
+        <div th:switch="${status}">
+
+            <div th:case="403">
+                <i class="fa-solid fa-user-shield text-danger mb-4" style="font-size: 3.5rem;"></i>
+                <h1 class="h3 mb-2 text-dark fw-bold" style="letter-spacing: -0.5px;">Acceso restringido</h1>
+                <p class="text-muted mb-4">Lo sentimos, tu cuenta no tiene los permisos necesarios para ver esta sección (por ejemplo, el área de mensajes para administradores).</p>
+            </div>
+
+            <div th:case="404">
+                <i class="fa-solid fa-compass-drafting text-warning mb-4" style="font-size: 3.5rem;"></i>
+                <h1 class="h3 mb-2 text-dark fw-bold" style="letter-spacing: -0.5px;">Página no encontrada</h1>
+                <p class="text-muted mb-4">La propiedad, reserva o dirección que estás buscando no existe o ha sido eliminada del sistema.</p>
+            </div>
+
+            <div th:case="500">
+                <i class="fa-solid fa-bug text-danger mb-4" style="font-size: 3.5rem;"></i>
+                <h1 class="h3 mb-2 text-dark fw-bold" style="letter-spacing: -0.5px;">Error interno del sistema</h1>
+                <p class="text-muted mb-4">¡Ups! El servidor ha tenido un tropiezo inesperado procesando tus datos. Nuestro equipo ya está revisando los logs.</p>
+            </div>
+
+            <div th:case="*">
+                <i class="fa-solid fa-circle-exclamation text-secondary mb-4" style="font-size: 3.5rem;"></i>
+                <h1 class="h3 mb-2 text-dark fw-bold" style="letter-spacing: -0.5px;">Algo no ha ido bien</h1>
+                <p class="text-muted mb-4">Ha ocurrido un problema inesperado en la solicitud de red. Por favor, inténtalo de nuevo.</p>
+            </div>
+        </div>
+
+        <div class="p-2 bg-light rounded-3 mb-4 border text-center" th:if="${status != null}">
+            <code class="text-muted small">Identificador técnico: HTTP <span th:text="${status}">Error</span></code>
+        </div>
+
+        <a th:href="@{/listings}" class="btn btn-airbnb px-4 py-2" style="border-radius: 24px; font-weight: 500;">
+            Volver a Propiedades
+        </a>
+    </div>
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+<script th:replace="~{layout/footer :: scripts}"></script>
+</body>
+</html>
