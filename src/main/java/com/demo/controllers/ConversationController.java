@@ -56,6 +56,11 @@ public class ConversationController {
 
     @GetMapping("/conversation")
     public String showConversations(@RequestParam(value = "search", required = false) String search, Model model, @AuthenticationPrincipal User user) {
+
+        if (user == null) {
+            return "redirect:/login";
+        }
+
         List<Conversation> conversations;
         Long userLogged = user.getId();
 
