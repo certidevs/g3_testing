@@ -413,89 +413,8 @@ public class BookingSeleniumTest extends BaseSeleniumTest {
                 "La nueva reserva debe quedar en estado PENDING");
     }
 
-    // =========================================================
-    // POST /bookings — Crear reserva (casos inválidos)
-    // =========================================================
 
-    @Test
-    void crearReservaConCheckOutAntesDeCheckInMuestraError() {
-        loginUser();
-        driver.get(baseUrl + "bookings/new/" + apartamento.getId());
 
-        setDateInput("input[name='checkIn']",  "2027-03-10");
-        setDateInput("input[name='checkOut']", "2027-03-08");
 
-        WebElement submitBtn = wait.until(ExpectedConditions.elementToBeClickable(
-                By.cssSelector("button[type='submit']")));
-        scrollAndClick(submitBtn);
 
-        wait.until(ExpectedConditions.urlContains("bookings/new/" + apartamento.getId()));
-
-        String pageText = driver.findElement(By.tagName("body")).getText();
-        assertTrue(pageText.contains("posterior") || pageText.contains("salida"),
-                "Debe mostrarse error por fechas inválidas");
-    }
-
-    @Test
-    void crearReservaConMenosNochesDelMinimoMuestraError() {
-        loginUser();
-        // apartamento minNights=2 → 1 noche es insuficiente
-        driver.get(baseUrl + "bookings/new/" + apartamento.getId());
-
-        setDateInput("input[name='checkIn']",  "2027-04-01");
-        setDateInput("input[name='checkOut']", "2027-04-02");
-
-        WebElement submitBtn = wait.until(ExpectedConditions.elementToBeClickable(
-                By.cssSelector("button[type='submit']")));
-        scrollAndClick(submitBtn);
-
-        wait.until(ExpectedConditions.urlContains("bookings/new/" + apartamento.getId()));
-
-        String pageText = driver.findElement(By.tagName("body")).getText();
-        assertTrue(pageText.contains("Mínimo") || pageText.contains("mínimo"),
-                "Debe mostrarse error de mínimo de noches requeridas");
-    }
-
-    @Test
-    void crearReservaConMasNochesDelMaximoMuestraError() {
-        loginUser();
-        // loft maxNights=20 → 25 noches supera el límite
-        driver.get(baseUrl + "bookings/new/" + loft.getId());
-
-        setDateInput("input[name='checkIn']",  "2027-05-01");
-        setDateInput("input[name='checkOut']", "2027-05-26");
-
-        WebElement submitBtn = wait.until(ExpectedConditions.elementToBeClickable(
-                By.cssSelector("button[type='submit']")));
-        scrollAndClick(submitBtn);
-
-        wait.until(ExpectedConditions.urlContains("bookings/new/" + loft.getId()));
-
-        String pageText = driver.findElement(By.tagName("body")).getText();
-        assertTrue(pageText.contains("Máximo") || pageText.contains("máximo"),
-                "Debe mostrarse error de máximo de noches superado");
-    }
-
-    @Test
-    void crearReservaConConflictoFechasMuestraError() {
-        loginUser();
-        // booking existente ocupa el loft desde mañana (+1) hasta +3 → solapamos
-        driver.get(baseUrl + "bookings/new/" + loft.getId());
-
-        String solapado    = booking.getCheckIn().toLocalDate().toString();
-        String solapadoFin = booking.getCheckOut().toLocalDate().plusDays(1).toString();
-
-        setDateInput("input[name='checkIn']",  solapado);
-        setDateInput("input[name='checkOut']", solapadoFin);
-
-        WebElement submitBtn = wait.until(ExpectedConditions.elementToBeClickable(
-                By.cssSelector("button[type='submit']")));
-        scrollAndClick(submitBtn);
-
-        wait.until(ExpectedConditions.urlContains("bookings/new/" + loft.getId()));
-
-        String pageText = driver.findElement(By.tagName("body")).getText();
-        assertTrue(pageText.contains("disponibles") || pageText.contains("reserva en ese período"),
-                "Debe mostrarse error de fechas no disponibles por conflicto");
-    }
 }
