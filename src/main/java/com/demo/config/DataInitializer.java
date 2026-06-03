@@ -30,6 +30,7 @@ public class DataInitializer implements CommandLineRunner {
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
     private final AddonRepository addonRepository;
+    private final AmenityLineRepository amenityLineRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -39,6 +40,7 @@ public class DataInitializer implements CommandLineRunner {
         messageRepository.deleteAll();
         conversationRepository.deleteAll();
         reviewRepository.deleteAll();
+        amenityLineRepository.deleteAll();
         amenityRepository.deleteAll();
         bookingRepository.deleteAll();
         listingRepository.deleteAll();
@@ -221,18 +223,36 @@ public class DataInitializer implements CommandLineRunner {
         Amenity wifi = Amenity.builder()
                 .name("Fibra Optica")
                 .description("600 Mbps")
-                .icon("wifi-icon")
-                .listing(loft)
+                .icon("fa-solid fa-wifi")
                 .build();
 
         Amenity heating = Amenity.builder()
-                .name("Calefaccion")
+                .name("Calefacción")
                 .description("Radiadores inteligentes")
-                .icon("heat-icon")
-                .listing(loft)
+                .icon("fire")
                 .build();
 
         amenityRepository.saveAll(List.of(wifi, heating));
+
+        AmenityLine line1 = AmenityLine.builder()
+                .amenity(wifi)
+                .listing(loft)
+                .quantity(1)
+                .build();
+
+        AmenityLine line2 = AmenityLine.builder()
+                .amenity(heating)
+                .listing(loft)
+                .quantity(3)
+                .build();
+
+        AmenityLine line3 = AmenityLine.builder()
+                .amenity(wifi)
+                .listing(ap)
+                .quantity(1)
+                .build();
+
+        amenityLineRepository.saveAll(List.of(line1, line2, line3));
 
         Booking booking = Booking.builder()
                 .checkIn(LocalDateTime.now().plusDays(1))
