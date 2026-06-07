@@ -18,15 +18,20 @@
     <form th:action="@{/listings}" th:object="${listing}" method="post" class="row g-4" autocomplete="off">
 
         <input type="hidden" th:field="*{id}"/>
+        <div class="col-12">
+            <p class="text-muted small mb-0">
+                <span class="text-danger fw-bold">*</span> Los campos marcados son obligatorios.
+            </p>
+        </div>
 
         <div class="col-md-7">
-            <label class="form-label text-dark fw-bold small">Título del anuncio</label>
+            <label class="form-label text-dark fw-bold small">Título del anuncio <span class="text-danger">*</span></label>
             <input type="text" class="form-control bg-light border-0 py-2.5 rounded-3"
                    placeholder="Ej. Loft moderno en el centro" th:field="*{title}" required>
         </div>
 
         <div class="col-md-5">
-            <label class="form-label text-dark fw-bold small">Tipo de propiedad</label>
+            <label class="form-label text-dark fw-bold small">Tipo de propiedad <span class="text-danger">*</span></label>
             <select class="form-select bg-light border-0 py-2.5 rounded-3 fw-medium text-secondary" th:field="*{type}" required>
                 <option value="">Seleccione tipo...</option>
                 <option th:each="t : ${types}" th:value="${t}" th:text="${t}"></option>
@@ -34,7 +39,7 @@
         </div>
 
         <div class="col-md-6">
-            <label class="form-label text-dark fw-bold small">Ubicación (Ciudad)</label>
+            <label class="form-label text-dark fw-bold small">Ubicación (Ciudad) <span class="text-danger">*</span></label>
             <select class="form-select bg-light border-0 py-2.5 rounded-3 fw-medium text-secondary" th:field="*{city}" required>
                 <option value="">Seleccione ciudad...</option>
                 <option th:each="c : ${cities}" th:value="${c}" th:text="${c}"></option>
@@ -45,10 +50,14 @@
             <label class="form-label text-dark fw-bold small">Ruta de la Imagen (Estáticos o URL)</label>
             <input type="text" class="form-control bg-light border-0 py-2.5 rounded-3"
                    placeholder="Ej. /img/loft-industrial.jpg" th:field="*{imageUrl}">
+            <small class="text-warning mt-1 d-block">
+                <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                Sin foto el anuncio tendrá menos visibilidad.
+            </small>
         </div>
 
         <div class="col-md-4">
-            <label class="form-label text-dark fw-bold small">Precio por noche</label>
+            <label class="form-label text-dark fw-bold small">Precio por noche <span class="text-danger">*</span></label>
             <div class="input-group">
                 <span class="input-group-text bg-light border-0 text-muted rounded-start-3"><i class="fa-solid fa-euro-sign text-secondary"></i></span>
                 <input type="number" class="form-control bg-light border-0 py-2.5 rounded-end-3" th:field="*{pricePerNight}" min="1" required>
@@ -56,10 +65,10 @@
         </div>
 
         <div class="col-md-4">
-            <label class="form-label text-dark fw-bold small">Mínimo de noches</label>
+            <label class="form-label text-dark fw-bold small">Mínimo de noches <span class="text-danger">*</span></label>
             <div class="input-group">
                 <span class="input-group-text bg-light border-0 text-muted rounded-start-3"><i class="fa-solid fa-calendar-minus text-secondary"></i></span>
-                <input type="number" class="form-control bg-light border-0 py-2.5 rounded-end-3" th:field="*{minNights}" min="1">
+                <input type="number" class="form-control bg-light border-0 py-2.5 rounded-end-3" th:field="*{minNights}" min="1" required>
             </div>
         </div>
 
@@ -72,7 +81,7 @@
         </div>
 
         <div class="col-md-4">
-            <label class="form-label text-dark fw-bold small">Máximo de huéspedes</label>
+            <label class="form-label text-dark fw-bold small">Máximo de huéspedes <span class="text-danger">*</span></label>
             <div class="input-group">
                 <span class="input-group-text bg-light border-0 text-muted rounded-start-3"><i class="fa-solid fa-users text-secondary"></i></span>
                 <input type="number" class="form-control bg-light border-0 py-2.5 rounded-end-3" th:field="*{maxGuests}" min="1" required>
@@ -90,14 +99,14 @@
         </div>
 
         <div class="col-md-12">
-            <label class="form-label text-dark fw-bold small">Descripción resumida</label>
+            <label class="form-label text-dark fw-bold small">Descripción resumida <span class="text-danger">*</span></label>
             <textarea class="form-control bg-light border-0 py-2.5 rounded-3"
                       placeholder="Escribe una introducción breve y llamativa de la propiedad..."
                       th:field="*{shortDescription}" rows="2" maxlength="255" required></textarea>
         </div>
 
         <div class="col-md-12">
-            <label class="form-label text-dark fw-bold small">Descripción detallada</label>
+            <label class="form-label text-dark fw-bold small">Descripción detallada <span class="text-danger">*</span></label>
             <textarea class="form-control bg-light border-0 py-2.5 rounded-3"
                       placeholder="Describe las habitaciones, la zona, el transporte y los puntos fuertes de tu alojamiento..."
                       th:field="*{longDescription}" rows="5" required></textarea>
