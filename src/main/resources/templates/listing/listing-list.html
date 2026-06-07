@@ -40,7 +40,7 @@
                     <i class="fa-solid fa-euro-sign"></i>
                 </span>
                 <input type="number" name="minPrice" class="form-control rounded-pill-end bg-light small"
-                       placeholder="Mínimo"
+                       placeholder="Mín. por noche"
                        th:value="${selectedMinPrice}">
             </div>
             </div>
@@ -50,7 +50,7 @@
                     <i class="fa-solid fa-euro-sign"></i>
                 </span>
                 <input type="number" name="maxPrice" class="form-control rounded-pill-end bg-light small"
-                       placeholder="Máximo"
+                       placeholder="Máx. por noche"
                        th:value="${selectedMaxPrice}">
             </div>
             </div>
@@ -134,13 +134,13 @@
 
         <span th:if="${selectedMinPrice != null}" class="badge bg-light text-dark border rounded-pill px-3 py-2 me-2" style="border-color: var(--border-light) !important;">
             <i class="fa-solid fa-euro-sign me-1 text-muted"></i>
-            Mín: <span th:text="${selectedMinPrice}"></span>
+            Mín. por noche: <span th:text="${selectedMinPrice}"></span>
             <a th:href="@{/listings(type=${selectedType},maxPrice=${selectedMaxPrice},guests=${selectedGuests},nights=${selectedNights})}" class="ms-2 text-danger text-decoration-none fw-bold">×</a>
         </span>
 
         <span th:if="${selectedMaxPrice != null}" class="badge bg-light text-dark border rounded-pill px-3 py-2 me-2" style="border-color: var(--border-light) !important;">
             <i class="fa-solid fa-euro-sign me-1 text-muted"></i>
-            Máx: <span th:text="${selectedMaxPrice}"></span>
+            Máx. por noche: <span th:text="${selectedMaxPrice}"></span>
             <a th:href="@{/listings(type=${selectedType},minPrice=${selectedMinPrice},guests=${selectedGuests},nights=${selectedNights})}" class="ms-2 text-danger text-decoration-none fw-bold">×</a>
         </span>
 
