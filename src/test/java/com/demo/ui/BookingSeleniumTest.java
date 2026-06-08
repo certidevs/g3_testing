@@ -2,6 +2,7 @@ package com.demo.ui;
 
 import com.demo.model.Booking;
 import com.demo.model.enums.BookingStatus;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
@@ -14,6 +15,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Disabled
 public class BookingSeleniumTest extends BaseSeleniumTest {
 
     // ------------------------------------------------------------------

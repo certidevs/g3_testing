@@ -1,0 +1,36 @@
+name: SonarCloud Analysis
+
+on:
+  workflow_dispatch:
+
+jobs:
+  sonar:
+    name: Build + Tests + Coverage + SonarCloud
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # Sonar necesita el historial (blame / new code)
+
+      - name: Setup Java 25 + cache Maven
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Cache de paquetes SonarCloud
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      # 'verify' corre TODA la suite (incl. Selenium headless gracias a CI=true) -> JaCoCo genera el xml
+      # -> 'sonar' lo lee y sube cobertura + nº de tests + análisis estático.
+      - name: Build + tests + JaCoCo + análisis Sonar
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar

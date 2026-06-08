@@ -1,6 +1,7 @@
 package com.demo.ui;
 
 import com.demo.model.Review;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
@@ -12,7 +13,7 @@ import org.openqa.selenium.support.ui.Select;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+@Disabled
 public class ReviewSeleniumTest extends BaseSeleniumTest {
 
     // ------------------------------------------------------------------

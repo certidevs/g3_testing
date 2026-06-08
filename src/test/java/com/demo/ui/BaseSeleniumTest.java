@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -208,8 +209,14 @@ public class BaseSeleniumTest {
 
         // --- Driver ---
         baseUrl = "http://localhost:" + port + "/";
-        driver = new ChromeDriver();
-        driver.manage().window().maximize();
+        // options para GitHub Actions
+        boolean ci = System.getenv("CI") != null; // GitHub Actions pone CI=True
+        ChromeOptions chromeOptions = new ChromeOptions();
+        chromeOptions.addArguments("--window-size=1920,1080");
+        if (ci) {
+            chromeOptions.addArguments("--headless=new", "--no-sandbox", "--disable-gpu", "--disable-dev-shm-usage");
+        }
+        driver = new ChromeDriver(chromeOptions);
         wait = new WebDriverWait(driver, Duration.ofSeconds(30L));
     }
 
