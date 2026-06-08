@@ -1,11 +1,13 @@
 package com.demo.controllers;
 
 import com.demo.model.Amenity;
+import com.demo.model.AmenityLine;
 import com.demo.model.Listing;
 import com.demo.model.User;
 import com.demo.model.enums.City;
 import com.demo.model.enums.ListingType;
 import com.demo.model.enums.Role;
+import com.demo.repositories.AmenityLineRepository;
 import com.demo.repositories.AmenityRepository;
 import com.demo.repositories.ListingRepository;
 import com.demo.repositories.UserRepository;
@@ -35,6 +37,7 @@ public class ListingController {
     private final AmenityRepository amenityRepository;
     private final UserRepository userRepository;
     private final ListingService listingService;
+    private final AmenityLineRepository amenityLineRepository;
 
     @GetMapping
     public String list(
@@ -110,8 +113,13 @@ public class ListingController {
         Listing listing = listingRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
+        List<Amenity> amenities = amenityLineRepository.findByListingId(id)
+                .stream()
+                .map(AmenityLine::getAmenity)
+                .toList();
+
         model.addAttribute("listing", listing);
-        //model.addAttribute("amenities", amenities);
+        model.addAttribute("amenities", amenities);
         return "listing/listing-detail";
     }
 
@@ -120,6 +128,8 @@ public class ListingController {
         model.addAttribute("listing", new Listing());
         model.addAttribute("types", ListingType.values());
         model.addAttribute("cities", City.values());
+        model.addAttribute("amenities", amenityRepository.findAll());       // ← nuevo
+        model.addAttribute("selectedAmenityIds", List.of());
         return "listing/listing-form";
     }
 
@@ -128,16 +138,21 @@ public class ListingController {
         Listing listing = listingRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
+        List<Long> selectedAmenityIds = amenityLineRepository.findByListingId(id)
+                .stream()
+                .map(al -> al.getAmenity().getId())
+                .toList();
+
         model.addAttribute("listing", listing);
         model.addAttribute("types", ListingType.values());
         model.addAttribute("cities", City.values());
+        model.addAttribute("amenities", amenityRepository.findAll());
+        model.addAttribute("selectedAmenityIds", selectedAmenityIds);
         return "listing/listing-form";
     }
     @PostMapping
-    public String saveListing(@ModelAttribute Listing listing, @AuthenticationPrincipal User user) {
+    public String saveListing(@ModelAttribute Listing listing,  @RequestParam(required = false) List<Long> amenityIds, @AuthenticationPrincipal User user) {
 
-        System.out.println("Usuario en saveListing: " + user.getEmail());
-        System.out.println("Rol antes de promover: " + user.getRole());
 
         // Si el usuario es USER, lo promovemos a HOST
         if (user.getRole() == Role.ROLE_USER) {
@@ -158,8 +173,24 @@ public class ListingController {
         listing.setOwner(user);
 
         // Guardar listing
-        listingRepository.save(listing);
+        Listing saved = listingRepository.save(listing);
 
+        // Borrar amenityLines existentes (cubre tanto crear como editar)
+        amenityLineRepository.deleteAll(
+                amenityLineRepository.findByListingId(saved.getId())        // ← nuevo
+        );
+
+        // Crear las nuevas seleccionadas
+        if (amenityIds != null && !amenityIds.isEmpty()) {                  // ← nuevo
+            List<AmenityLine> lines = amenityIds.stream()
+                    .map(amenityId -> AmenityLine.builder()
+                            .amenity(amenityRepository.findById(amenityId).orElseThrow())
+                            .listing(saved)
+                            .quantity(1)
+                            .build())
+                    .toList();
+            amenityLineRepository.saveAll(lines);
+        }
         return "redirect:/listings";
     }
 

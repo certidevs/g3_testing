@@ -1,10 +1,7 @@
 package com.demo.config;
 
 import com.demo.model.*;
-import com.demo.model.enums.BookingStatus;
-import com.demo.model.enums.City;
-import com.demo.model.enums.ListingType;
-import com.demo.model.enums.Role;
+import com.demo.model.enums.*;
 import com.demo.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -15,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -220,39 +218,33 @@ public class DataInitializer implements CommandLineRunner {
         List<Listing> listings = List.of(loft, ap, ap2, cf, hp, vi, cha);
         listingRepository.saveAll(listings);
 
-        Amenity wifi = Amenity.builder()
-                .name("Fibra Optica")
-                .description("600 Mbps")
-                .icon("fa-solid fa-wifi")
-                .build();
+        // ── CATÁLOGO DE AMENITIES (generado desde el enum) ────────────
+        List<Amenity> catalogo = Arrays.stream(AmenityType.values())
+                .map(type -> Amenity.builder()
+                        .name(type.getLabel())
+                        .icon(type.getIcon().replace("fa-", ""))
+                        .type(type)
+                        .build())
+                .toList();
+        List<Amenity> savedCatalogo = amenityRepository.saveAll(catalogo);
 
-        Amenity heating = Amenity.builder()
-                .name("Calefacción")
-                .description("Radiadores inteligentes")
-                .icon("fire")
-                .build();
+// ── AMENITY LINES (ejemplos para listings de prueba) ──────────
+        Amenity wifi = savedCatalogo.stream()
+                .filter(a -> a.getType() == AmenityType.WIFI).findFirst().orElseThrow();
+        Amenity calefaccion = savedCatalogo.stream()
+                .filter(a -> a.getType() == AmenityType.CALEFACCION).findFirst().orElseThrow();
+        Amenity piscina = savedCatalogo.stream()
+                .filter(a -> a.getType() == AmenityType.PISCINA).findFirst().orElseThrow();
+        Amenity ac = savedCatalogo.stream()
+                .filter(a -> a.getType() == AmenityType.AIRE_ACONDICIONADO).findFirst().orElseThrow();
 
-        amenityRepository.saveAll(List.of(wifi, heating));
-
-        AmenityLine line1 = AmenityLine.builder()
-                .amenity(wifi)
-                .listing(loft)
-                .quantity(1)
-                .build();
-
-        AmenityLine line2 = AmenityLine.builder()
-                .amenity(heating)
-                .listing(loft)
-                .quantity(3)
-                .build();
-
-        AmenityLine line3 = AmenityLine.builder()
-                .amenity(wifi)
-                .listing(ap)
-                .quantity(1)
-                .build();
-
-        amenityLineRepository.saveAll(List.of(line1, line2, line3));
+        amenityLineRepository.saveAll(List.of(
+                AmenityLine.builder().amenity(wifi).listing(loft).quantity(1).build(),
+                AmenityLine.builder().amenity(calefaccion).listing(loft).quantity(1).build(),
+                AmenityLine.builder().amenity(wifi).listing(ap).quantity(1).build(),
+                AmenityLine.builder().amenity(piscina).listing(vi).quantity(1).build(),
+                AmenityLine.builder().amenity(ac).listing(vi).quantity(1).build()
+        ));
 
         Booking booking = Booking.builder()
                 .checkIn(LocalDateTime.now().plusDays(1))
