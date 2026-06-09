@@ -8,6 +8,7 @@ import com.demo.model.enums.Role;
 import com.demo.repositories.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -22,7 +23,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
+@ExtendWith(ScreenshotOnFailure.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class BaseSeleniumTest {
 
@@ -213,6 +217,12 @@ public class BaseSeleniumTest {
         boolean ci = System.getenv("CI") != null; // GitHub Actions pone CI=True
         ChromeOptions chromeOptions = new ChromeOptions();
         chromeOptions.addArguments("--window-size=1920,1080");
+        Map<String, Object> prefs = new HashMap<>();
+        prefs.put("credentials_enable_service", false);
+        prefs.put("profile.password_manager_enabled", false);
+        prefs.put("profile.password_manager_leak_detection", false);   // ← la clave del modal
+        chromeOptions.setExperimentalOption("prefs", prefs);
+        chromeOptions.addArguments("--disable-features=PasswordLeakDetection");
         if (ci) {
             chromeOptions.addArguments("--headless=new", "--no-sandbox", "--disable-gpu", "--disable-dev-shm-usage");
         }
