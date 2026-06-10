@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class AmenityController {
 
     private final AmenityRepository amenityRepository;
-    private final ListingRepository listingRepository;
     private final AmenityLineRepository amenityLineRepository;
 
     @GetMapping("/amenity")
@@ -37,7 +36,6 @@ public class AmenityController {
     public String create(Model model) {
         model.addAttribute("amenityLine", new AmenityLine());
         model.addAttribute("amenities", amenityRepository.findAll());
-        model.addAttribute("listings", listingRepository.findAll());
         return "amenity/amenity-form";
     }
 
