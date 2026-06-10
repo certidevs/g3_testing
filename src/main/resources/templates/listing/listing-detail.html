@@ -75,11 +75,11 @@
             <div th:if="${amenities != null and !amenities.isEmpty()}" class="mb-5 pt-4 border-top" style="border-color: var(--border-light) !important;">
                 <h3 class="h4 fw-bold text-dark mb-4">Lo que este lugar ofrece</h3>
 
-                <div class="row row-cols-1 row-cols-md-2 g-4">
+                <div class="row row-cols-1 row-cols-md-4 g-4">
                     <div class="col" th:each="amenity : ${amenities}">
                         <div class="d-flex align-items-center p-2 rounded-3">
                             <div class="me-3 fs-4 text-dark opacity-75 d-flex align-items-center justify-content-center" style="width: 32px;">
-                                <i th:if="${amenity.icon != null and !amenity.icon.isEmpty()}" th:class="${amenity.icon}"></i>
+                                <i th:if="${amenity.icon != null and !amenity.icon.isEmpty()}" th:class="'fa-solid fa-' + ${amenity.icon}"></i>
                                 <i th:unless="${amenity.icon != null and !amenity.icon.isEmpty()}" class="fa-solid fa-square-check text-success"></i>
                             </div>
                             <div>

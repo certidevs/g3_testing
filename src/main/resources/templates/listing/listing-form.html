@@ -113,32 +113,85 @@
         </div>
 
         <div class="col-12">
-            <label class="form-label text-dark fw-bold small">
-                Servicios y comodidades
-            </label>
-            <div th:if="${#lists.isEmpty(amenities)}" class="text-muted small fst-italic">
-                No hay comodidades disponibles en el catálogo todavía.
+            <label class="form-label text-dark fw-bold small">Servicios y comodidades</label>
+            <p class="text-muted small mb-3">Selecciona los servicios disponibles en tu alojamiento.</p>
 
+            <div th:if="${amenities == null or #lists.isEmpty(amenities)}"
+                 class="text-muted small fst-italic">
+                No hay comodidades disponibles en el catálogo todavía.
             </div>
-            <div class="d-flex flex-wrap gap-2" th:unless="${#lists.isEmpty(amenities)}">
-                <div th:each="amenity : ${amenities}">
+
+            <div class="row row-cols-3 g-3"
+                 th:unless="${amenities == null or #lists.isEmpty(amenities)}">
+                <div class="col" th:each="amenity : ${amenities}">
+
                     <input type="checkbox"
-                           class="btn-check"
+                           class="btn-check amenity-check"
                            name="amenityIds"
                            th:id="'amenity-' + ${amenity.id}"
                            th:value="${amenity.id}"
                            th:checked="${selectedAmenityIds != null
-                                 and selectedAmenityIds.contains(amenity.id)}"
+                         and selectedAmenityIds.contains(amenity.id)}"
                            autocomplete="off">
-                    <label class="btn btn-outline-secondary rounded-pill small fw-medium"
-                           th:for="'amenity-' + ${amenity.id}">
-                        <i th:if="${amenity.icon != null}"
-                           th:class="'fa-solid fa-' + ${amenity.icon} + ' me-1'"></i>
-                        <span th:text="${amenity.name}">WiFi</span>
+
+                    <label class="amenity-card card h-100 border p-3 text-center
+                          d-flex flex-column align-items-center justify-content-center
+                          gap-2 rounded-3 position-relative"
+                           th:for="'amenity-' + ${amenity.id}"
+                           style="cursor: pointer; min-height: 100px;
+                          border-color: var(--border-light) !important;
+                          transition: all 0.2s ease;">
+
+                        <!-- Checkmark esquina superior derecha (solo visible al seleccionar) -->
+                        <span class="amenity-check-badge position-absolute top-0 end-0
+                             m-2 d-none">
+                    <i class="fa-solid fa-circle-check text-dark fs-6"></i>
+                </span>
+
+                        <!-- Icono -->
+                        <div class="amenity-icon-circle bg-light rounded-circle
+                            d-flex align-items-center justify-content-center border"
+                             style="width: 44px; height: 44px; flex-shrink: 0;
+                            border-color: var(--border-light) !important;">
+                            <i th:if="${amenity.icon != null}"
+                               th:class="'fa-solid fa-' + ${amenity.icon} + ' fs-5'"></i>
+                            <i th:unless="${amenity.icon != null}"
+                               class="fa-solid fa-tag fs-5"></i>
+                        </div>
+
+                        <!-- Nombre (se parte en 2 líneas si es largo) -->
+                        <span class="fw-semibold text-dark lh-sm"
+                              style="font-size: 0.78rem;"
+                              th:text="${amenity.name}">Nombre</span>
+
                     </label>
                 </div>
             </div>
         </div>
+
+        <style>
+            /* Estado seleccionado */
+            .amenity-check:checked + .amenity-card {
+                border-color: #222 !important;
+                box-shadow: 0 0 0 2px #222;
+                background-color: #f8f9fa;
+            }
+            .amenity-check:checked + .amenity-card .amenity-icon-circle {
+                background-color: #222 !important;
+                border-color: #222 !important;
+            }
+            .amenity-check:checked + .amenity-card .amenity-icon-circle i {
+                color: #fff !important;
+            }
+            .amenity-check:checked + .amenity-card .amenity-check-badge {
+                display: block !important;
+            }
+            /* Hover */
+            .amenity-card:hover {
+                border-color: #aaa !important;
+                background-color: #fafafa;
+            }
+        </style>
 
         <div class="col-12 mt-5 pt-3 border-top d-flex justify-content-end gap-3" style="border-color: var(--border-light) !important;">
             <a href="/listings" class="btn btn-outline-secondary fw-bold px-4 py-2.5 rounded-3 small">
