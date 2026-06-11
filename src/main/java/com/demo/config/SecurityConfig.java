@@ -36,12 +36,15 @@ public class SecurityConfig {
                 .requestMatchers("/reviews/new/**").authenticated()
 
                 //Amenities
-                .requestMatchers(HttpMethod.GET, "/amenity", "/amenity/{id:\\d+}").permitAll()
-                .requestMatchers("/amenity/new", "/amenity/edit/**", "/amenity/delete/**").hasAnyRole("ADMIN", "HOST")
-                .requestMatchers(HttpMethod.POST, "/amenity").hasAnyRole("ADMIN", "HOST")
+                .requestMatchers(HttpMethod.GET, "/amenity", "/amenity/{id:\\d+}").hasRole("ADMIN")
+                .requestMatchers("/amenity/new", "/amenity/edit/**", "/amenity/delete/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/amenity").hasRole("ADMIN")
 
                 //Conversation
                 .requestMatchers("/conversation/**").hasAnyRole("HOST", "USER")
+
+                //User
+                .requestMatchers("/dashboard").hasRole("ADMIN")
 
                 .anyRequest().authenticated()
         );

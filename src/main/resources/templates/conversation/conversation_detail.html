@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
-    <head th:replace="~{layout/head :: head('Conversación - openHouse')}"></head>
+<head th:replace="~{layout/head :: head('Conversación - openHouse')}"></head>
 <body class="d-flex flex-column min-vh-100" style="background-color: #ffffff;">
 
 <nav th:replace="~{layout/navbar :: navbar}"></nav>
@@ -63,7 +63,7 @@
                 </div>
 
                 <div class="card-footer bg-white p-4 border-top" style="border-color: #EBEBEB !important;">
-                    <form th:action="@{/conversation/{id}/send(id=${conversation.booking.id})}" method="POST" class="d-flex gap-2">
+                    <form th:action="@{/conversation/{id}/send(id=${conversation.id})}" method="POST" class="d-flex gap-2">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <input type="text" name="content" class="form-control px-3" placeholder="Escribe tu mensaje aquí..." required autocomplete="off" style="border-color: #DDDDDD; border-radius: 12px; font-size: 0.95rem;">
                         <button class="btn btn-airbnb d-flex align-items-center justify-content-center px-4" type="submit" style="border-radius: 12px;">

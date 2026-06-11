@@ -8,7 +8,6 @@ import com.demo.repositories.BookingRepository;
 import com.demo.repositories.ConversationRepository;
 import com.demo.repositories.MessageRepository;
 import com.demo.repositories.UserRepository;
-import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,6 +15,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -29,11 +30,19 @@ public class ConversationController {
 
     @GetMapping("/conversation/{id}")
     public String getConversationById(@PathVariable Long id, Model model, @AuthenticationPrincipal User user) {
-        Conversation conversation = conversationRepository.findByBookingId(id);
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        Conversation conversation = conversationRepository.findById(id).orElse(null);
+        if (conversation == null) {
+            return "redirect:/conversation";
+        }
+
         User host = conversation.getBooking().getListing().getOwner();
         User guest = conversation.getBooking().getGuest();
 
-        if (user != null && (user.getId().equals(host.getId()) || user.getId().equals(guest.getId()))) {
+        if (user.getId().equals(host.getId()) || user.getId().equals(guest.getId())) {
 
             List<Message> mensajesNoLeidos = messageRepository.findByConversationId(conversation.getId(), Sort.by(Sort.Direction.ASC, "sentAt"))
                     .stream()
@@ -56,7 +65,6 @@ public class ConversationController {
 
     @GetMapping("/conversation")
     public String showConversations(@RequestParam(value = "search", required = false) String search, Model model, @AuthenticationPrincipal User user) {
-
         if (user == null) {
             return "redirect:/login";
         }
@@ -75,7 +83,7 @@ public class ConversationController {
         List<Booking> comoHuesped = bookingRepository.findByGuestId(userLogged);
         List<Booking> comoAnfitrion = bookingRepository.findByListingOwnerId(userLogged);
 
-        List<Booking> todasLasReservas = new java.util.ArrayList<>();
+        List<Booking> todasLasReservas = new ArrayList<>();
         todasLasReservas.addAll(comoHuesped);
         todasLasReservas.addAll(comoAnfitrion);
 
@@ -92,11 +100,11 @@ public class ConversationController {
     private List<Conversation> ordenarConversacionesPorUltimoMensaje(List<Conversation> lista) {
         return lista.stream()
                 .sorted((c1, c2) -> {
-                    var m1 = messageRepository.findByConversationId(c1.getId(), org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "sentAt"));
-                    var m2 = messageRepository.findByConversationId(c2.getId(), org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "sentAt"));
+                    var m1 = messageRepository.findByConversationId(c1.getId(), Sort.by(Sort.Direction.DESC, "sentAt"));
+                    var m2 = messageRepository.findByConversationId(c2.getId(), Sort.by(Sort.Direction.DESC, "sentAt"));
 
-                    java.time.LocalDateTime t1 = m1.isEmpty() ? java.time.LocalDateTime.MIN : m1.get(0).getSentAt();
-                    java.time.LocalDateTime t2 = m2.isEmpty() ? java.time.LocalDateTime.MIN : m2.get(0).getSentAt();
+                    LocalDateTime t1 = m1.isEmpty() ? LocalDateTime.MIN : m1.get(0).getSentAt();
+                    LocalDateTime t2 = m2.isEmpty() ? LocalDateTime.MIN : m2.get(0).getSentAt();
 
                     return t2.compareTo(t1);
                 })
@@ -104,19 +112,20 @@ public class ConversationController {
     }
 
     @PostMapping("/conversation/{id}/send")
-    public String createMessage(@PathVariable Long id, @RequestParam String content, HttpSession session, @AuthenticationPrincipal User user) {
+    public String createMessage(@PathVariable Long id, @RequestParam String content, @AuthenticationPrincipal User user) {
+        if (user == null) return "redirect:/login";
         if (content == null || content.isBlank()) {
             return "redirect:/conversation/" + id;
         }
 
-        Conversation conversation = conversationRepository.findByBookingId(id);
+        Conversation conversation = conversationRepository.findById(id).orElse(null);
 
         if (conversation != null) {
             Message message = Message.builder()
                     .content(content)
                     .conversation(conversation)
                     .sender(user)
-                    .sentAt(java.time.LocalDateTime.now())
+                    .sentAt(LocalDateTime.now())
                     .isRead(false)
                     .build();
 
@@ -128,6 +137,8 @@ public class ConversationController {
 
     @PostMapping("/conversation/{conversationId}/message/{messageId}/edit")
     public String editMessage(@PathVariable Long conversationId, @PathVariable Long messageId, @RequestParam String content, @AuthenticationPrincipal User user) {
+        if (user == null) return "redirect:/login";
+
         Message message = messageRepository.findById(messageId).orElseThrow();
 
         if (!message.getSender().getId().equals(user.getId())) {
@@ -146,6 +157,8 @@ public class ConversationController {
 
     @PostMapping("/conversation/{conversationId}/message/{messageId}/delete")
     public String deleteMessage(@PathVariable Long conversationId, @PathVariable Long messageId, @AuthenticationPrincipal User user) {
+        if (user == null) return "redirect:/login";
+
         Message message = messageRepository.findById(messageId).orElseThrow();
 
         if (!message.getSender().getId().equals(user.getId())) {
@@ -159,6 +172,8 @@ public class ConversationController {
 
     @PostMapping("/conversation/new")
     public String createConversation(@RequestParam Long bookingId, @RequestParam String content, @AuthenticationPrincipal User user) {
+        if (user == null) return "redirect:/login";
+
         Booking booking = bookingRepository.findById(bookingId).orElseThrow();
 
         Conversation conversation = Conversation.builder()
@@ -166,16 +181,15 @@ public class ConversationController {
                 .build();
         Conversation conversationSaved = conversationRepository.save(conversation);
 
-        var managedUser = userRepository.findById(user.getId()).orElseThrow();
         Message message = Message.builder()
                 .content(content)
                 .conversation(conversationSaved)
                 .sender(user)
-                .sentAt(java.time.LocalDateTime.now())
+                .sentAt(LocalDateTime.now())
                 .isRead(false)
                 .build();
         messageRepository.save(message);
 
-        return "redirect:/conversation/" + booking.getId();
+        return "redirect:/conversation/" + conversationSaved.getId();
     }
 }

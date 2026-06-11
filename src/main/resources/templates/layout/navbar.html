@@ -29,7 +29,7 @@
                     <a class="nav-link px-3 py-2" th:href="@{/conversation}">Mensajes</a>
                 </li>
 
-                <li class="nav-item">
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                     <a class="nav-link px-3 py-2" th:href="@{/amenity}">Comodidades</a>
                 </li>
 
@@ -58,12 +58,21 @@
                         </button>
 
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 mt-2 p-2" aria-labelledby="userMenu" style="min-width: 200px;">
-                            <li><a class="dropdown-to-item dropdown-item rounded-2 py-2 small" th:href="@{/profile}">Mi Perfil</a></li>
+                            <li>
+                                <a class="dropdown-item rounded-2 py-2 small" th:href="@{/profile}">
+                                    <i class="fa-solid fa-circle-user me-2 text-muted"></i> Mi Perfil
+                                </a>
+                            </li>
+                            <li sec:authorize="hasRole('ADMIN')">
+                                <a class="dropdown-item rounded-2 py-2 small fw-semibold" th:href="@{/dashboard}">
+                                    <i class="fa-solid fa-user-shield me-2 text-muted"></i> Gestión
+                                </a>
+                            </li>
                             <li><hr class="dropdown-divider my-1" style="color: #EBEBEB;"></li>
                             <li>
                                 <form th:action="@{/logout}" method="post" class="m-0 p-0">
                                     <button type="submit" class="dropdown-item rounded-2 py-2 small text-danger fw-semibold border-0 bg-transparent w-100 text-start">
-                                        Cerrar sesión
+                                        <i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Cerrar sesión
                                     </button>
                                 </form>
                             </li>

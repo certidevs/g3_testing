@@ -251,6 +251,7 @@ public class DataInitializer implements CommandLineRunner {
                 .checkOut(LocalDateTime.now().plusDays(3))
                 .status(BookingStatus.CONFIRMED)
                 .guest(guest)
+                .totalPrice(241.0)
                 .listing(loft)
                 .build();
 
@@ -259,6 +260,7 @@ public class DataInitializer implements CommandLineRunner {
                 .checkOut(LocalDateTime.of(2026, 4, 25, 15, 30))
                 .status(BookingStatus.CONFIRMED)
                 .guest(guest)
+                .totalPrice(220.0)
                 .listing(ap)
                 .build();
 
