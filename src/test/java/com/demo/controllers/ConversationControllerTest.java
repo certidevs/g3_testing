@@ -97,7 +97,7 @@ public class ConversationControllerTest {
 
     @Test
     void conversationFull() throws Exception {
-        mockMvc.perform(get("/conversation/" + booking.getId()).with(csrf())) //with(user(owner)))
+        mockMvc.perform(get("/conversation/" + conversation.getId()).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("conversation/conversation_detail"))
                 .andExpect(model().attributeExists("conversation"))
@@ -112,7 +112,7 @@ public class ConversationControllerTest {
         UsernamePasswordAuthenticationToken authAjeno = new UsernamePasswordAuthenticationToken(ajeno, null, List.of());
         SecurityContextHolder.getContext().setAuthentication(authAjeno);
 
-        mockMvc.perform(get("/conversation/" + booking.getId()))
+        mockMvc.perform(get("/conversation/" + conversation.getId()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/bookings"));
     }
@@ -136,10 +136,10 @@ public class ConversationControllerTest {
 
     @Test
     void createMessageSuccess() throws Exception {
-        mockMvc.perform(post("/conversation/" + booking.getId() + "/send").with(user(guest))
+        mockMvc.perform(post("/conversation/" + conversation.getId() + "/send").with(user(guest))
                         .param("content", "Mensaje nuevo de prueba"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/conversation/" + booking.getId()));
+                .andExpect(redirectedUrl("/conversation/" + conversation.getId()));
 
         List<Message> messages = messageRepository.findAll();
         boolean exists = false;
@@ -155,10 +155,10 @@ public class ConversationControllerTest {
 
     @Test
     void createMessageEmptyContent() throws Exception {
-        mockMvc.perform(post("/conversation/" + booking.getId() + "/send")
+        mockMvc.perform(post("/conversation/" + conversation.getId() + "/send")
                         .param("content", "   "))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/conversation/" + booking.getId()));
+                .andExpect(redirectedUrl("/conversation/" + conversation.getId()));
     }
 
     @Test
@@ -170,10 +170,10 @@ public class ConversationControllerTest {
                 .build();
         messageRepository.save(msg);
 
-        mockMvc.perform(post("/conversation/" + booking.getId() + "/message/" + msg.getId() + "/edit")
+        mockMvc.perform(post("/conversation/" + conversation.getId() + "/message/" + msg.getId() + "/edit")
                         .param("content", "Texto editado"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/conversation/" + booking.getId()));
+                .andExpect(redirectedUrl("/conversation/" + conversation.getId()));
 
         Message updatedMsg = messageRepository.findById(msg.getId()).orElseThrow();
         assertEquals("Texto editado", updatedMsg.getContent());
@@ -188,10 +188,10 @@ public class ConversationControllerTest {
                 .build();
         messageRepository.save(msg);
 
-        mockMvc.perform(post("/conversation/" + booking.getId() + "/message/" + msg.getId() + "/edit")
+        mockMvc.perform(post("/conversation/" + conversation.getId() + "/message/" + msg.getId() + "/edit")
                         .param("content", ""))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/conversation/" + booking.getId()));
+                .andExpect(redirectedUrl("/conversation/" + conversation.getId()));
 
         Message unchangedMsg = messageRepository.findById(msg.getId()).orElseThrow();
         assertEquals("Texto inicial", unchangedMsg.getContent());
@@ -206,10 +206,10 @@ public class ConversationControllerTest {
                 .build();
         messageRepository.save(msg);
 
-        mockMvc.perform(post("/conversation/" + booking.getId() + "/message/" + msg.getId() + "/edit")
+        mockMvc.perform(post("/conversation/" + conversation.getId() + "/message/" + msg.getId() + "/edit")
                         .param("content", "Intento de hack"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/conversation/" + booking.getId()));
+                .andExpect(redirectedUrl("/conversation/" + conversation.getId()));
 
         Message unchangedMsg = messageRepository.findById(msg.getId()).orElseThrow();
         assertEquals("Prueba Usuario Incorrecto", unchangedMsg.getContent());
@@ -224,9 +224,9 @@ public class ConversationControllerTest {
                 .build();
         messageRepository.save(msg);
 
-        mockMvc.perform(post("/conversation/" + booking.getId() + "/message/" + msg.getId() + "/delete"))
+        mockMvc.perform(post("/conversation/" + conversation.getId() + "/message/" + msg.getId() + "/delete"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/conversation/" + booking.getId()));
+                .andExpect(redirectedUrl("/conversation/" + conversation.getId()));
 
         assertFalse(messageRepository.existsById(msg.getId()));
     }
@@ -240,9 +240,9 @@ public class ConversationControllerTest {
                 .build();
         messageRepository.save(msg);
 
-        mockMvc.perform(post("/conversation/" + booking.getId() + "/message/" + msg.getId() + "/delete"))
+        mockMvc.perform(post("/conversation/" + conversation.getId() + "/message/" + msg.getId() + "/delete"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/conversation/" + booking.getId()));
+                .andExpect(redirectedUrl("/conversation/" + conversation.getId()));
 
         assertTrue(messageRepository.existsById(msg.getId()));
     }
@@ -262,7 +262,6 @@ public class ConversationControllerTest {
         booking2.setTotalPrice(300.0);
         booking2.setStatus(BookingStatus.CONFIRMED);
         bookingRepository.save(booking2);
-
 
         mockMvc.perform(post("/conversation/new").with(user(guest))
                         .param("bookingId", booking2.getId().toString())
@@ -284,6 +283,69 @@ public class ConversationControllerTest {
 
         Conversation convVacia = Conversation.builder().booking(booking2).build();
         conversationRepository.save(convVacia);
+
+        mockMvc.perform(get("/conversation"))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("conversations", hasSize(2)));
+    }
+    @Test
+    void conversationNotFound() throws Exception {
+        mockMvc.perform(get("/conversation/99999"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/conversation"));
+    }
+
+    @Test
+    void conversationListSearchNoResults() throws Exception {
+        mockMvc.perform(get("/conversation").param("search", "xyzxyzxyz"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("conversation/conversation_list"));
+    }
+
+    @Test
+    void sendMessageNullContent() throws Exception {
+        mockMvc.perform(post("/conversation/" + conversation.getId() + "/send")
+                        .param("content", ""))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/conversation/" + conversation.getId()));
+
+        long count = messageRepository.findAll().stream()
+                .filter(m -> m.getContent().isBlank())
+                .count();
+        assertEquals(0, count);
+    }
+
+    @Test
+    void sendMessageConversationNotFound() throws Exception {
+        mockMvc.perform(post("/conversation/99999/send")
+                        .param("content", "Mensaje"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/conversation/99999"));
+    }
+
+    @Test
+    void conversationListOrderedByLastMessage() throws Exception {
+        Booking booking2 = Booking.builder()
+                .checkIn(LocalDateTime.now().plusDays(3))
+                .checkOut(LocalDateTime.now().plusDays(7))
+                .totalPrice(200.0)
+                .status(BookingStatus.CONFIRMED)
+                .guest(guest)
+                .listing(listingRepository.findAll().getFirst())
+                .build();
+        bookingRepository.save(booking2);
+
+        Conversation conv2 = Conversation.builder().booking(booking2).build();
+        conversationRepository.save(conv2);
+
+        Message recentMsg = Message.builder()
+                .content("Mensaje reciente")
+                .sender(guest)
+                .conversation(conv2)
+                .sentAt(LocalDateTime.now().plusHours(1))
+                .isRead(false)
+                .build();
+        messageRepository.save(recentMsg);
 
         mockMvc.perform(get("/conversation"))
                 .andExpect(status().isOk())
