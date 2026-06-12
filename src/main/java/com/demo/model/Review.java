@@ -32,8 +32,9 @@ public class Review {
     private String comment;
 
     // poner false pro defecto
+    @Builder.Default
     @Column(columnDefinition = "BOOLEAN DEFAULT true")
-    private Boolean verified;
+    private Boolean verified = false;
 
     private LocalDate creationDate; // LocalDateTime
     //private LocalDate modifiedDate;

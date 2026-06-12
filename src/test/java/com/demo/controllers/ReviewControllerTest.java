@@ -4,6 +4,7 @@ import com.demo.model.Booking;
 import com.demo.model.Listing;
 import com.demo.model.Review;
 import com.demo.model.enums.BookingStatus;
+import com.demo.model.enums.City;
 import com.demo.repositories.BookingRepository;
 import com.demo.repositories.ListingRepository;
 import com.demo.repositories.ReviewRepository;
@@ -27,7 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
-@Disabled
+
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
 @Transactional
@@ -57,14 +58,16 @@ class ReviewControllerTest {
         listingRepository.deleteAll();
 
 
-        ap = Listing.builder().title("Casa en la Playa").maxNights(7).minNights(2).maxGuests(4).pricePerNight(40.0).longDescription("Bien ubicado en la ciudad de Barcelona").shortDescription("Buen sitio").build();
+        ap = Listing.builder().title("Casa en la Playa").maxNights(7).minNights(2).maxGuests(4).pricePerNight(40.0).longDescription("Bien ubicado en la ciudad de Barcelona").shortDescription("Buen sitio").city(City.ALICANTE).build();
         listingRepository.save(ap);
+
         b1= Booking.builder().checkIn(LocalDateTime.now()).checkOut(LocalDateTime.of(2026,5,17,15,30)).listing(ap).status(BookingStatus.CONFIRMED).build();
         b2 = Booking.builder().listing(ap).status(BookingStatus.CONFIRMED).checkIn(LocalDateTime.of(2026,5,10,15,30)).checkOut(LocalDateTime.of(2026,5,13,15,30)).build();
         List<Booking> bookings = List.of(b1,b2);
         bookingRepository.saveAll(bookings);
 
-        rev1= Review.builder().creationDate(LocalDate.now()).rating(5).comment("La mejor experiencia de mi vida").booking(b1).build();
+        rev1= Review.builder().creationDate(LocalDate.now())
+                .rating(5).comment("La mejor experiencia de mi vida").booking(b1).build();
         reviewRepository.save(rev1);
     }
 

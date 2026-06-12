@@ -22,7 +22,6 @@ import java.util.List;
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
 @Transactional
-@Disabled
 class ListingControllerTest {
 
     @Autowired
@@ -33,13 +32,14 @@ class ListingControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+    User user;
 
     @BeforeEach
     void setUp() {
         listingRepository.deleteAll();
         userRepository.deleteAll();
 
-        User user = userRepository.save(User.builder().name("Juan Perez").build());
+        user = userRepository.save(User.builder().name("Juan Perez").build());
         listingRepository.saveAll(List.of(
                 Listing.builder().title("Apartamento con Vistas").type(ListingType.APARTAMENTO).pricePerNight(150.0).maxGuests(4).minNights(1).maxNights(30).isActive(true).owner(user).build(),
                 Listing.builder().title("Apartamento en el Centro").type(ListingType.APARTAMENTO).pricePerNight(85.0).maxGuests(2).minNights(1).maxNights(30).isActive(true).owner(user).build(),
@@ -58,7 +58,9 @@ class ListingControllerTest {
     @Test //Listado vacío
     void listingsEmpty() throws Exception {
         listingRepository.deleteAll();
-        mockMvc.perform(get("/listings"))
+        mockMvc.perform(get("/listings")
+//                        .with(user(user))
+                )
                 .andExpect(status().isOk())
                 .andExpect(view().name("listing/listing-list"))
                 .andExpect(model().attributeExists("listings"))

@@ -4,8 +4,11 @@ import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Action;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
+import java.time.Duration;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -85,9 +88,16 @@ public class ConversationSeleniumTest extends BaseSeleniumTest {
 
         WebElement messageDiv = driver.findElement(By.id("content-" + messageGuest.getId()));
         WebElement messageWrapper = messageDiv.findElement(By.xpath("./ancestor::div[contains(@class,'mw-75')]"));
-        WebElement btnOption = messageWrapper.findElements(By.className("btn-option")).get(0);
+//        WebElement btnOption = messageWrapper.findElements(By.className("btn-option")).get(0);
+        WebElement btnEdit = messageWrapper.findElement(By.cssSelector(".btn-option:not(.delete)"));
 
-        clickBtnOptionWithJS(btnOption);
+        new Actions(driver)
+                .moveToElement(messageWrapper)
+//                .pause(Duration.ofMillis(500))
+                .moveToElement(btnEdit)
+                .click().perform();
+
+//        clickBtnOptionWithJS(btnOption);
 
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("editModal")));
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("editContent")));
@@ -169,9 +179,16 @@ public class ConversationSeleniumTest extends BaseSeleniumTest {
 
         WebElement messageDiv = driver.findElement(By.id("content-" + messageGuest.getId()));
         WebElement messageWrapper = messageDiv.findElement(By.xpath("./ancestor::div[contains(@class,'mw-75')]"));
-        WebElement btnOption = messageWrapper.findElements(By.className("btn-option")).get(0);
+//        WebElement btnOption = messageWrapper.findElements(By.className("btn-option")).get(0);
+//
+//        clickBtnOptionWithJS(btnOption);
+        WebElement btnEdit = messageWrapper.findElement(By.cssSelector(".btn-option:not(.delete)"));
 
-        clickBtnOptionWithJS(btnOption);
+        new Actions(driver)
+                .moveToElement(messageWrapper)
+//                .pause(Duration.ofMillis(500))
+                .moveToElement(btnEdit)
+                .click().perform();
 
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("editModal")));
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("editContent")));
