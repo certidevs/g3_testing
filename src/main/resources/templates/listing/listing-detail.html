@@ -10,6 +10,18 @@
 
 <main class="container flex-grow-1 my-5">
 
+    <div th:if="${listing.deleted}"
+         class="alert alert-secondary d-flex align-items-center gap-2 rounded-3 mb-4">
+        <i class="fa-solid fa-trash-can"></i>
+        <span>Este alojamiento ha sido eliminado y ya no está visible en las búsquedas.</span>
+    </div>
+
+    <div th:if="${errorMessage}"
+         class="alert alert-danger d-flex align-items-center gap-2 rounded-3 mb-4">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span th:text="${errorMessage}"></span>
+    </div>
+
     <div class="mb-4">
         <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
             <div>
@@ -22,12 +34,16 @@
             </div>
 
             <div>
-                <span th:if="${listing.isActive}" class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-bold">
-                    <i class="fa-solid fa-circle-check me-1"></i> Disponible
-                </span>
-                <span th:unless="${listing.isActive}" class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill fw-bold">
-                    <i class="fa-solid fa-circle-xmark me-1"></i> No disponible
-                </span>
+                <!-- Reemplaza el bloque de 2 spans (Disponible/No disponible) por estos 3 -->
+                <span th:if="${listing.deleted}" class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-2 rounded-pill fw-bold">
+    <i class="fa-solid fa-trash-can me-1"></i> Eliminado
+</span>
+                <span th:if="${!listing.deleted and listing.isActive}" class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-bold">
+    <i class="fa-solid fa-circle-check me-1"></i> Disponible
+</span>
+                <span th:if="${!listing.deleted and !listing.isActive}" class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill fw-bold">
+    <i class="fa-solid fa-circle-xmark me-1"></i> No disponible
+</span>
             </div>
         </div>
     </div>
@@ -119,9 +135,9 @@
                         </div>
                     </div>
 
-                    <div th:if="${listing.isActive}">
-                        <a th:href="@{/bookings/new/{id}(id=${listing.id})}" class="btn btn-airbnb w-100 py-3 fw-bold fs-6 rounded-3 mb-3 text-center d-block">
-                            <i class="fa-solid fa-calendar-days me-2"></i> Reservar ahora
+                    <div th:if="${listing.isActive and !listing.deleted}" sec:authorize="!hasRole('ADMIN')">
+                        <a th:href="@{/bookings/new/{id}(id=${listing.id})}" ...>
+                            Reservar ahora
                         </a>
                     </div>
                     <div th:unless="${listing.isActive}" class="alert alert-warning text-center small py-3 rounded-3 mb-3 fw-medium">
@@ -147,10 +163,28 @@
 
                 </div>
 
-                <div class="text-center mt-3">
+                <div class="text-center mt-3 d-flex flex-column gap-2">
+
+                    <a th:if="${!listing.deleted and (isOwner or #authorization.expression('hasRole(''ADMIN'')'))}"
+                       th:href="@{/listings/edit/{id}(id=${listing.id})}"
+                       class="btn btn-outline-dark fw-bold rounded-3 px-4 py-2 small w-100">
+                        <i class="fa-solid fa-pen me-1"></i> Editar alojamiento
+                    </a>
+
+                    <form th:if="${!listing.deleted and (isOwner or #authorization.expression('hasRole(''ADMIN'')'))}"
+                          th:action="@{/listings/{id}/delete(id=${listing.id})}"
+                          method="post">
+                        <button type="submit"
+                                class="btn btn-outline-danger fw-bold rounded-3 px-4 py-2 small w-100"
+                                onclick="return confirm('¿Seguro que quieres eliminar este alojamiento?')">
+                            <i class="fa-solid fa-trash me-1"></i> Eliminar alojamiento
+                        </button>
+                    </form>
+
                     <a th:href="@{/listings}" class="btn btn-link text-secondary text-decoration-none small fw-semibold">
                         <i class="fa-solid fa-arrow-left me-1"></i> Volver a los resultados
                     </a>
+
                 </div>
 
             </div>

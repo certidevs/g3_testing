@@ -45,6 +45,9 @@ public class Listing {
     @Builder.Default
     private Boolean isActive = true;
 
+    @Builder.Default
+    private Boolean deleted = false;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime registeredAt;
 

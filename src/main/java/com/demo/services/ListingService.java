@@ -37,6 +37,7 @@ public class ListingService {
         List<Listing> listings = listingRepository.findAll();
 
         listings = listings.stream()
+                .filter(l -> !Boolean.TRUE.equals(l.getDeleted()))
                 .filter(l -> type == null || l.getType() == type)
                 .filter(l -> minPrice == null || l.getPricePerNight() >= minPrice)
                 .filter(l -> maxPrice == null || l.getPricePerNight() <= maxPrice)

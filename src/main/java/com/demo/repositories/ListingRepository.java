@@ -11,6 +11,7 @@ import java.util.List;
 public interface ListingRepository extends JpaRepository<Listing, Long> {
 
     List<Listing> findTop10ByIsActiveTrueOrderByRegisteredAtDesc();
+    List<Listing> findTop10ByIsActiveTrueAndDeletedFalseOrderByRegisteredAtDesc();
     List<Listing> findByIsActiveTrue();
     List<Listing> findByIsActiveTrueAndPricePerNightBetween(Double minPrice, Double maxPrice);
     List<Listing> findByIsActiveTrueAndMaxGuestsGreaterThanEqual(Integer minGuests);

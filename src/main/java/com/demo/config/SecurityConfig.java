@@ -26,6 +26,7 @@ public class SecurityConfig {
                 .requestMatchers("/listings/edit/**", "/listings/toggle/**").hasAnyRole("ADMIN", "HOST")
                 .requestMatchers("/listings/new").hasAnyRole("ADMIN", "HOST", "USER")
                 .requestMatchers(HttpMethod.POST, "/listings").hasAnyRole("ADMIN", "HOST", "USER")
+                .requestMatchers(HttpMethod.POST, "/listings/{id:\\d+}/delete").hasAnyRole("ADMIN", "HOST")
 
                 //Bookings
                 .requestMatchers("/bookings/**").authenticated()

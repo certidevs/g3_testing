@@ -7,10 +7,12 @@ import com.demo.model.User;
 import com.demo.model.enums.City;
 import com.demo.model.enums.ListingType;
 import com.demo.model.enums.Role;
+import com.demo.model.enums.BookingStatus;
 import com.demo.repositories.AmenityLineRepository;
 import com.demo.repositories.AmenityRepository;
 import com.demo.repositories.ListingRepository;
 import com.demo.repositories.UserRepository;
+import com.demo.repositories.BookingRepository;
 import com.demo.services.ListingService;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -38,6 +41,7 @@ public class ListingController {
     private final UserRepository userRepository;
     private final ListingService listingService;
     private final AmenityLineRepository amenityLineRepository;
+    private final BookingRepository bookingRepository;
 
     @GetMapping
     public String list(
@@ -108,7 +112,7 @@ public class ListingController {
 
 
     @GetMapping("/{id}")
-    public String detail(@PathVariable Long id, Model model) {
+    public String detail(@PathVariable Long id, Model model, @AuthenticationPrincipal User currentUser) {
         //List<Amenity> amenities = amenityRepository.findByListing_Id(id);
         Listing listing = listingRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -118,8 +122,13 @@ public class ListingController {
                 .map(AmenityLine::getAmenity)
                 .toList();
 
+        boolean isOwner = currentUser != null
+                && listing.getOwner() != null
+                && listing.getOwner().getId().equals(currentUser.getId());
+
         model.addAttribute("listing", listing);
         model.addAttribute("amenities", amenities);
+        model.addAttribute("isOwner", isOwner);
         return "listing/listing-detail";
     }
 
@@ -204,6 +213,39 @@ public class ListingController {
         listingRepository.save(listing);
 
         return "redirect:/listings/" + id;
+
+
+    }
+    @PostMapping("/{id}/delete")
+    public String deleteListing(@PathVariable Long id,
+                                @AuthenticationPrincipal User currentUser,
+                                RedirectAttributes redirectAttributes) {
+
+        Listing listing = listingRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        // Ownership: ADMIN o HOST dueño
+        boolean isAdmin = currentUser.getRole() == Role.ROLE_ADMIN;
+        if (!isAdmin && !listing.getOwner().getId().equals(currentUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+
+        // Validar reservas activas
+        boolean hasActiveBookings =
+                !bookingRepository.findByListingIdAndStatus(id, BookingStatus.PENDING).isEmpty()
+                        || !bookingRepository.findByListingIdAndStatus(id, BookingStatus.CONFIRMED).isEmpty();
+
+        if (hasActiveBookings) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "No se puede eliminar el alojamiento porque tiene reservas activas.");
+            return "redirect:/listings/" + id;
+        }
+
+        // Soft delete
+        listing.setDeleted(true);
+        listingRepository.save(listing);
+
+        return "redirect:/listings";
     }
 
 
