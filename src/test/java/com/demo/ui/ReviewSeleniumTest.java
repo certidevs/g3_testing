@@ -29,24 +29,6 @@ public class ReviewSeleniumTest extends BaseSeleniumTest {
         }
     }
 
-    // ------------------------------------------------------------------
-    // Utilidad: envía un formulario extrayendo el CSRF token del DOM y
-    // haciendo fetch() desde el contexto del browser, evitando que
-    // Selenium bypasee la cookie de sesión o el token CSRF.
-    // Devuelve la URL final tras la redirección.
-    // ------------------------------------------------------------------
-    private void submitFormWithCsrf(String formCssSelector) {
-        String script =
-                "var form = document.querySelector('" + formCssSelector + "');" +
-                        "var csrf = form.querySelector('input[name=\"_csrf\"]');" +
-                        "var data = new FormData(form);" +
-                        "if (csrf) data.set('_csrf', csrf.value);" +
-                        "var action = form.action;" +
-                        "fetch(action, {method:'POST', body: data, redirect:'follow', credentials:'same-origin'})" +
-                        "  .then(function(r){ window.location.href = r.url; });";
-        ((JavascriptExecutor) driver).executeScript(script);
-    }
-
     // =========================================================
     // GET /reviews — Listado principal
     // =========================================================
@@ -378,8 +360,10 @@ public class ReviewSeleniumTest extends BaseSeleniumTest {
         WebElement textarea = driver.findElement(By.cssSelector("textarea#comment"));
         textarea.sendKeys("Estancia muy agradable, volvería sin duda");
 
-        // Enviar el formulario preservando la sesión y el CSRF
-        submitFormWithCsrf("form");
+        // Scroll al botón y click nativo (CSRF deshabilitado en perfil test)
+        WebElement submitBtn = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.cssSelector("button[type='submit']")));
+        scrollAndClick(submitBtn);
 
         // Debe redirigir al detalle de la nueva review
         wait.until(ExpectedConditions.urlMatches(".*/reviews/\\d+"));
@@ -403,8 +387,10 @@ public class ReviewSeleniumTest extends BaseSeleniumTest {
         driver.findElement(By.cssSelector("textarea#comment"))
                 .sendKeys("Muy buena experiencia en general");
 
-        // Enviar el formulario preservando la sesión y el CSRF
-        submitFormWithCsrf("form");
+        // Scroll al botón y click nativo (CSRF deshabilitado en perfil test)
+        WebElement submitBtn = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.cssSelector("button[type='submit']")));
+        scrollAndClick(submitBtn);
 
         wait.until(ExpectedConditions.urlMatches(".*/reviews/\\d+"));
 
@@ -431,27 +417,32 @@ public class ReviewSeleniumTest extends BaseSeleniumTest {
         driver.findElement(By.cssSelector("textarea#comment"))
                 .sendKeys("Comentario sin puntuación");
 
-        // Enviar el formulario preservando la sesión y el CSRF
-        submitFormWithCsrf("form");
+        // Scroll al botón y click nativo (CSRF deshabilitado)
+        WebElement submitBtn = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.cssSelector("button[type='submit']")));
+        scrollAndClick(submitBtn);
 
-        // El JS del formulario intercepta el submit cuando no hay rating y hace e.preventDefault()
-        // → se queda en el formulario mostrando el error inline; si por algún motivo el JS
-        // no lo bloquea, el controller redirige a /bookings con flash de error
-        boolean enFormulario = driver.getCurrentUrl().contains("reviews/new");
-        boolean enBookings   = driver.getCurrentUrl().contains("bookings");
-        assertTrue(enFormulario || enBookings,
-                "Debe quedarse en el formulario (validación JS) o redirigir con error al servidor");
+        // El JS del form hace e.preventDefault() cuando no hay rating → la página NO navega.
+        // Esperamos a que #ratingError sea visible (el JS lo muestra con display:block).
+        // Si por algún motivo el submit llega al servidor, el controller redirige a reviews/new
+        // con flash de error que también contiene "puntuación".
+        wait.until(ExpectedConditions.or(
+                ExpectedConditions.visibilityOfElementLocated(By.id("ratingError")),
+                ExpectedConditions.urlContains("bookings")
+        ));
 
-        String pageText = driver.findElement(By.tagName("body")).getText();
-        // Si se quedó en el formulario, debe mostrarse el div de error de rating
-        // Si redirigió al servidor, debe mostrarse el flash de error
-        if (enFormulario) {
-            WebElement ratingError = driver.findElement(By.id("ratingError"));
-            assertTrue(ratingError.isDisplayed() || pageText.contains("puntuación"),
-                    "Debe mostrarse el error de puntuación en el formulario");
-        } else {
-            assertTrue(pageText.contains("puntuación") || pageText.contains("Error"),
+        String finalUrl = driver.getCurrentUrl();
+        if (finalUrl.contains("bookings")) {
+            // Llegó al servidor sin rating → flash de error en bookings
+            String pageText = driver.findElement(By.tagName("body")).getText();
+            assertTrue(pageText.contains("puntuación") || pageText.contains("error") || pageText.contains("Error"),
                     "Debe mostrarse flash de error al llegar al servidor sin puntuación");
+        } else {
+            // El JS bloqueó el submit → #ratingError visible en el formulario
+            WebElement ratingError = wait.until(
+                    ExpectedConditions.visibilityOfElementLocated(By.id("ratingError")));
+            assertTrue(ratingError.isDisplayed(),
+                    "Debe mostrarse el error de puntuación en el formulario");
         }
     }
 
@@ -468,8 +459,10 @@ public class ReviewSeleniumTest extends BaseSeleniumTest {
         scrollAndClick(stars.get(2)); // 3ª estrella
 
         // No escribimos nada en el textarea
-        // Enviar el formulario preservando la sesión y el CSRF
-        submitFormWithCsrf("form");
+        // Scroll al botón y click nativo (CSRF deshabilitado en perfil test)
+        WebElement submitBtn = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.cssSelector("button[type='submit']")));
+        scrollAndClick(submitBtn);
 
         // El campo tiene `required` → el navegador bloquea el submit con validación nativa
         // Si el browser no lo bloquea, el controller redirige a /bookings con error

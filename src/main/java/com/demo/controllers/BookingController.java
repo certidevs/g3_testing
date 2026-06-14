@@ -102,6 +102,7 @@ public class BookingController {
 
 
         model.addAttribute("bookings", bookings);
+        model.addAttribute("currentUserId", currentUser.getId());
         System.out.println("USUARIO ACTUAL: " + currentUser.getId());
 
         for (Booking booking : bookings) {
