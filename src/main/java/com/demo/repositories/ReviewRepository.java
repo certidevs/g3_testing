@@ -54,5 +54,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("SELECT r FROM Review r JOIN r.booking b JOIN b.listing l WHERE l.city = :city AND r.rating = :rating ORDER BY r.creationDate ASC")
     List<Review> findByCityAndRatingOrderByDateAsc(@Param("city") City city, @Param("rating") int rating);
 
-
+    // ── Valoración media por listing (Review → Booking → Listing) ──────────────
+    @Query("SELECT b.listing.id AS listingId, AVG(r.rating) AS avgRating " +
+            "FROM Review r JOIN r.booking b GROUP BY b.listing.id")
+    List<ListingRatingProjection> findAverageRatingsByListing();
 }

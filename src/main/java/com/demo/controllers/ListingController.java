@@ -8,11 +8,7 @@ import com.demo.model.enums.City;
 import com.demo.model.enums.ListingType;
 import com.demo.model.enums.Role;
 import com.demo.model.enums.BookingStatus;
-import com.demo.repositories.AmenityLineRepository;
-import com.demo.repositories.AmenityRepository;
-import com.demo.repositories.ListingRepository;
-import com.demo.repositories.UserRepository;
-import com.demo.repositories.BookingRepository;
+import com.demo.repositories.*;
 import com.demo.services.ListingService;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -29,7 +25,9 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Controller
@@ -42,6 +40,7 @@ public class ListingController {
     private final ListingService listingService;
     private final AmenityLineRepository amenityLineRepository;
     private final BookingRepository bookingRepository;
+    private final ReviewRepository reviewRepository;
 
     @GetMapping
     public String list(
@@ -53,16 +52,24 @@ public class ListingController {
             @RequestParam(required = false) City city,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) String sort,
             Model model
     ) {
 
         if (guests != null && guests == 0) guests = null;
         if (nights != null && nights == 0) nights = null;
 
-        //List<Listing> listings = listingRepository.search(type, minPrice, maxPrice, guests, nights);
-        List<Listing> listings = listingService.search(
-                type, minPrice, maxPrice, guests, nights, city, startDate, endDate
+        // Validación: minPrice no puede ser mayor que maxPrice
+        boolean priceRangeError = minPrice != null && maxPrice != null && minPrice > maxPrice;
+
+        List<Listing> listings;
+        if (priceRangeError) {
+            listings = List.of();
+        } else {
+        listings = listingService.search(
+                type, minPrice, maxPrice, guests, nights, city, startDate, endDate,sort
         );
+        }
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         boolean isAnonymous = auth instanceof AnonymousAuthenticationToken;
@@ -93,6 +100,13 @@ public class ListingController {
         }
 // ADMIN → no se filtra nada
 
+        Map<Long, Double> ratings = reviewRepository.findAverageRatingsByListing()
+                .stream()
+                .collect(Collectors.toMap(
+                        ListingRatingProjection::getListingId,
+                        ListingRatingProjection::getAvgRating
+                ));
+        model.addAttribute("ratings", ratings);
         model.addAttribute("listings", listings);
         model.addAttribute("types", ListingType.values());
         model.addAttribute("selectedType", type);
@@ -106,6 +120,8 @@ public class ListingController {
         model.addAttribute("endDate", endDate);
         model.addAttribute("currentUserEmail", email);
         model.addAttribute("isAdmin", isAdmin);
+        model.addAttribute("priceRangeError", priceRangeError);
+        model.addAttribute("selectedSort", sort);
 
         return "listing/listing-list";
     }
