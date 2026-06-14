@@ -97,11 +97,23 @@
                 </div>
 
                 <div class="card-footer bg-white border-0 pt-0 pb-3 px-3">
+
+                    <!-- Botón para ADMIN -->
                     <a th:href="@{/bookings/{id}(id=${booking.id})}"
-                       class="btn btn-outline-dark btn-sm w-100 fw-bold rounded-3 py-2 small">
-                        <i class="fa-regular fa-eye me-1.5"></i>Gestionar reserva
+                       class="btn btn-outline-dark btn-sm w-100 fw-bold rounded-3 py-2 small"
+                       sec:authorize="hasRole('ADMIN')">
+                        <i class="fa-regular fa-eye me-1.5"></i> Gestionar reserva
                     </a>
+
+                    <!-- Botón para cualquier otro rol -->
+                    <a th:href="@{/bookings/{id}(id=${booking.id})}"
+                       class="btn btn-outline-dark btn-sm w-100 fw-bold rounded-3 py-2 small"
+                       sec:authorize="!hasRole('ADMIN')">
+                        <i class="fa-regular fa-eye me-1.5"></i> Ver reserva
+                    </a>
+
                 </div>
+
 
             </div>
         </div>

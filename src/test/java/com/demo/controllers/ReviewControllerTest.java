@@ -90,7 +90,7 @@ class ReviewControllerTest {
         reviewRepository.deleteById(rev1.getId());
         assertFalse(reviewRepository.findById(rev1.getId()).isPresent());
 
-        mockMvc.perform(get("/reviews/delete/" + rev1.getId()))
+        mockMvc.perform(post("/reviews/delete/" + rev1.getId()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/reviews"))
                 .andExpect(flash().attributeExists("message"))
@@ -116,6 +116,7 @@ class ReviewControllerTest {
         mockMvc.perform(post("/reviews")
                         .param("booking.id", String.valueOf(b2.getId()))
                         .param("rating", "4")
+                        .param("verified", "true")
                         .param("comment", "Apartamento muy limpio y bien ubicado"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrlPattern("/reviews/*"))
