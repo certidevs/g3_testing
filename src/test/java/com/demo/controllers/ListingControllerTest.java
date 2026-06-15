@@ -2,25 +2,39 @@ package com.demo.controllers;
 
 import com.demo.model.Listing;
 import com.demo.model.User;
+import com.demo.model.Amenity;
+import com.demo.model.AmenityLine;
 import com.demo.model.enums.ListingType;
+import com.demo.model.enums.AmenityType;
+import com.demo.model.enums.Role;
 import com.demo.repositories.ListingRepository;
 import com.demo.repositories.UserRepository;
+import com.demo.repositories.AmenityRepository;
+import com.demo.repositories.AmenityLineRepository;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.hamcrest.Matchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.authority.AuthorityUtils;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @SpringBootTest
-@AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureMockMvc
 @Transactional
 class ListingControllerTest {
 
@@ -31,20 +45,34 @@ class ListingControllerTest {
     private UserRepository userRepository;
 
     @Autowired
+    private AmenityRepository amenityRepository;
+
+    @Autowired
+    private AmenityLineRepository amenityLineRepository;
+
+    @Autowired
     private MockMvc mockMvc;
+
     User user;
+     Authentication anonymousAuth;
 
     @BeforeEach
     void setUp() {
         listingRepository.deleteAll();
         userRepository.deleteAll();
 
-        user = userRepository.save(User.builder().name("Juan Perez").build());
+        user = userRepository.save(User.builder().username("pepe").name("Host Test").email("host@test.com").role(Role.ROLE_ADMIN).build());
         listingRepository.saveAll(List.of(
                 Listing.builder().title("Apartamento con Vistas").type(ListingType.APARTAMENTO).pricePerNight(150.0).maxGuests(4).minNights(1).maxNights(30).isActive(true).owner(user).build(),
                 Listing.builder().title("Apartamento en el Centro").type(ListingType.APARTAMENTO).pricePerNight(85.0).maxGuests(2).minNights(1).maxNights(30).isActive(true).owner(user).build(),
                 Listing.builder().title("Casa Rural").type(ListingType.CASA).pricePerNight(80.0).maxGuests(5).minNights(2).maxNights(30).isActive(true).owner(user).build()
         ));
+
+        anonymousAuth = new AnonymousAuthenticationToken(
+                "anonymous-key",
+                "anonymousUser",
+                AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")
+        );
     }
 
     @Test //Test1 Listado con datos
@@ -183,4 +211,46 @@ class ListingControllerTest {
                 .andExpect(model().attribute("listing", hasProperty("isActive", is(listing.getIsActive()))));
 
     }
+
+    @DisplayName("Detalle de listing inactivo muestra aviso de pausa (owner)")
+    @Test
+    void listingDetailInactiveReturnsOkWithPauseWarning() throws Exception {
+
+        // 1. Guardamos el owner real en la BD
+        User owner = userRepository.save(
+                User.builder()
+                        .email("owner@mail.com")
+                        .password("1234")
+                        .role(Role.ROLE_HOST)
+                        .build()
+        );
+
+        // 2. Guardamos el listing inactivo
+        Listing inactive = listingRepository.save(
+                Listing.builder()
+                        .title("Apartamento Pausado")
+                        .type(ListingType.APARTAMENTO)
+                        .pricePerNight(99.0)
+                        .maxGuests(2)
+                        .minNights(1)
+                        .maxNights(10)
+                        .isActive(false)
+                        .owner(owner)
+                        .build()
+        );
+
+        // 3. Autenticamos al owner REAL como principal
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                owner,
+                owner.getPassword(),
+                owner.getAuthorities()
+        );
+
+        mockMvc.perform(get("/listings/" + inactive.getId()).with(user(user)))
+                .andExpect(status().isOk())
+                .andExpect(view().name("listing/listing-detail"))
+                .andExpect(model().attribute("listing", hasProperty("isActive", is(false))))
+                .andExpect(content().string(containsString("pausado temporalmente")));
+    }
+
 }
