@@ -3,6 +3,35 @@
 
 <head th:replace="~{layout/head :: head('Confirmar tu reserva - openHouse')}"></head>
 
+<style>
+    .card-type-btn {
+        background-color: #fff;
+        color: #555;
+        border-color: #ddd !important;
+        transition: all 0.15s ease;
+    }
+    .card-type-btn:hover {
+        border-color: #aaa !important;
+        background-color: #f8f8f8;
+    }
+    .active-card-type {
+        border-color: #ff385c !important;
+        background-color: #fff5f6 !important;
+        color: #e31c5f !important;
+        box-shadow: 0 0 0 1px #ff385c;
+    }
+    #paymentModal .modal-content {
+        border-radius: 20px !important;
+    }
+    #paymentModal .form-control:focus {
+        border-color: #ff385c !important;
+        box-shadow: 0 0 0 3px rgba(255,56,92,0.12) !important;
+    }
+    #paymentModal .form-control.is-invalid {
+        border-color: #dc3545 !important;
+    }
+</style>
+
 <body class="d-flex flex-column min-vh-100" style="background-color: #ffffff;">
 
 <nav th:replace="~{layout/navbar :: navbar}"></nav>
@@ -23,7 +52,7 @@
         </p>
     </div>
 
-    <form th:action="@{/bookings}" method="post" th:object="${booking}" autocomplete="off">
+    <form id="bookingForm" th:action="@{/bookings}" method="post" th:object="${booking}" autocomplete="off">
 
         <input type="hidden" th:field="*{listing.id}">
 
@@ -68,7 +97,7 @@
                 </div>
 
                 <div class="mt-5 pt-4 border-top d-flex gap-3 align-items-center" style="border-color: var(--border-light) !important;">
-                    <button type="submit" class="btn btn-airbnb fw-bold px-5 py-3 rounded-3 fs-6 flex-fill flex-sm-none">
+                    <button type="button" id="openPaymentModal" class="btn btn-airbnb fw-bold px-5 py-3 rounded-3 fs-6 flex-fill flex-sm-none">
                         <i class="fa-solid fa-credit-card me-2"></i>Confirmar Reserva
                     </button>
                     <a th:href="@{/listings/{id}(id=${listing.id})}" class="btn btn-outline-secondary fw-bold px-4 py-3 rounded-3 small">
@@ -113,6 +142,124 @@
     </form>
 
 </main>
+
+<!-- ========== MODAL PASARELA DE PAGO ========== -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
+        <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+
+            <!-- Header -->
+            <div class="modal-header border-0 px-4 pt-4 pb-2">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-2 rounded-3" style="background: linear-gradient(135deg, #ff385c, #e31c5f);">
+                        <i class="fa-solid fa-lock text-white"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold text-dark mb-0" id="paymentModalLabel">Pago seguro</h5>
+                        <span class="text-muted small">Conexión cifrada SSL</span>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <!-- Resumen del cobro -->
+            <div class="mx-4 my-3 p-3 rounded-3" style="background-color: #f8f8f8; border: 1px solid #ebebeb;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="small text-muted d-block">Total a pagar por tu estancia</span>
+                        <span id="modalTotalPrice" class="fs-4 fw-bold text-dark">0,00 €</span>
+                    </div>
+                    <div class="text-end">
+                        <span class="small text-muted d-block">Alojamiento</span>
+                        <span class="small fw-semibold text-dark" th:text="${listing.title}">Alojamiento</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cuerpo -->
+            <div class="modal-body px-4 pt-1 pb-4">
+
+                <!-- Selector de tipo de tarjeta -->
+                <div class="mb-4">
+                    <label class="form-label text-dark fw-bold small mb-2">Tipo de tarjeta</label>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="card-type-btn btn btn-sm border rounded-3 px-3 py-2 active-card-type fw-semibold small" data-type="visa">
+                            <i class="fa-brands fa-cc-visa me-1" style="font-size: 1.2rem; color: #1a1f71;"></i> Visa
+                        </button>
+                        <button type="button" class="card-type-btn btn btn-sm border rounded-3 px-3 py-2 fw-semibold small" data-type="mastercard">
+                            <i class="fa-brands fa-cc-mastercard me-1" style="font-size: 1.2rem; color: #eb001b;"></i> Mastercard
+                        </button>
+                        <button type="button" class="card-type-btn btn btn-sm border rounded-3 px-3 py-2 fw-semibold small" data-type="amex">
+                            <i class="fa-brands fa-cc-amex me-1" style="font-size: 1.2rem; color: #007bc1;"></i> Amex
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Número de tarjeta -->
+                <div class="mb-3">
+                    <label for="cardNumber" class="form-label text-dark fw-bold small">
+                        Número de tarjeta
+                    </label>
+                    <div class="input-group">
+                        <input type="text" class="form-control border rounded-3 py-2 fw-medium"
+                               id="cardNumber" placeholder="0000 0000 0000 0000"
+                               maxlength="19" inputmode="numeric">
+                        <span class="input-group-text bg-light border-start-0 rounded-end-3" id="cardIconSlot">
+                            <i class="fa-brands fa-cc-visa text-muted" style="font-size: 1.3rem;"></i>
+                        </span>
+                    </div>
+                    <div id="cardNumberFeedback" class="invalid-feedback fw-semibold"></div>
+                </div>
+
+                <!-- Titular -->
+                <div class="mb-3">
+                    <label for="cardHolder" class="form-label text-dark fw-bold small">
+                        Titular de la tarjeta
+                    </label>
+                    <input type="text" class="form-control border rounded-3 py-2 fw-medium"
+                           id="cardHolder" placeholder="NOMBRE APELLIDO"
+                           style="text-transform: uppercase;">
+                    <div id="cardHolderFeedback" class="invalid-feedback fw-semibold"></div>
+                </div>
+
+                <!-- Caducidad + CVV -->
+                <div class="row g-3 mb-4">
+                    <div class="col-7">
+                        <label for="cardExpiry" class="form-label text-dark fw-bold small">
+                            Fecha de caducidad
+                        </label>
+                        <input type="text" class="form-control border rounded-3 py-2 fw-medium"
+                               id="cardExpiry" placeholder="MM/AA" maxlength="5" inputmode="numeric">
+                        <div id="cardExpiryFeedback" class="invalid-feedback fw-semibold"></div>
+                    </div>
+                    <div class="col-5">
+                        <label for="cardCvv" class="form-label text-dark fw-bold small">
+                            CVV <i class="fa-solid fa-circle-question text-muted ms-1" data-bs-toggle="tooltip" title="Los 3 dígitos del reverso de tu tarjeta"></i>
+                        </label>
+                        <input type="password" class="form-control border rounded-3 py-2 fw-medium"
+                               id="cardCvv" placeholder="•••" maxlength="4" inputmode="numeric">
+                        <div id="cardCvvFeedback" class="invalid-feedback fw-semibold"></div>
+                    </div>
+                </div>
+
+                <!-- Aviso -->
+                <p class="text-muted small text-center mb-4">
+                    <i class="fa-solid fa-shield-halved me-1"></i>
+                    Tus datos de pago están protegidos con cifrado de extremo a extremo. openHouse nunca almacena los datos de tu tarjeta.
+                </p>
+
+                <!-- Botón pagar -->
+                <button type="button" id="submitPaymentBtn"
+                        class="btn btn-airbnb w-100 fw-bold py-3 rounded-3 fs-6">
+                    <i class="fa-solid fa-lock me-2"></i>
+                    Pagar <span id="payBtnTotal">0,00 €</span>
+                </button>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ========== FIN MODAL PASARELA DE PAGO ========== -->
 
 <footer th:replace="~{layout/footer :: footer}"></footer >
 <script th:replace="~{layout/footer :: scripts}"></script>
@@ -181,6 +328,142 @@
     });
 
     checkOutInput.addEventListener('change', calculatePrice);
+
+    // ========== LÓGICA MODAL PASARELA DE PAGO ==========
+
+    const bookingForm = document.querySelector('form[th\\:action]') || document.querySelector('form[action]');
+    const openModalBtn = document.getElementById('openPaymentModal');
+    const submitPaymentBtn = document.getElementById('submitPaymentBtn');
+    const paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+    const modalTotalPrice = document.getElementById('modalTotalPrice');
+    const payBtnTotal = document.getElementById('payBtnTotal');
+
+    // Inicializar tooltips Bootstrap
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+        new bootstrap.Tooltip(el);
+    });
+
+    // Abrir modal al pulsar "Confirmar Reserva"
+    openModalBtn.addEventListener('click', () => {
+        // Sincronizar el total en el modal con el calculado en el form
+        const currentTotal = totalPriceSpan.textContent;
+        modalTotalPrice.textContent = currentTotal;
+        payBtnTotal.textContent = currentTotal;
+        paymentModal.show();
+    });
+
+    // Selector de tipo de tarjeta
+    const cardTypeIcons = {
+        visa: '<i class="fa-brands fa-cc-visa" style="font-size:1.3rem; color:#1a1f71;"></i>',
+        mastercard: '<i class="fa-brands fa-cc-mastercard" style="font-size:1.3rem; color:#eb001b;"></i>',
+        amex: '<i class="fa-brands fa-cc-amex" style="font-size:1.3rem; color:#007bc1;"></i>'
+    };
+    let selectedCardType = 'visa';
+    document.querySelectorAll('.card-type-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.card-type-btn').forEach(b => b.classList.remove('active-card-type'));
+            btn.classList.add('active-card-type');
+            selectedCardType = btn.dataset.type;
+            document.getElementById('cardIconSlot').innerHTML = cardTypeIcons[selectedCardType];
+            // Ajustar maxlength del CVV para Amex (4 dígitos)
+            document.getElementById('cardCvv').maxLength = selectedCardType === 'amex' ? 4 : 3;
+            document.getElementById('cardCvv').placeholder = selectedCardType === 'amex' ? '••••' : '•••';
+        });
+    });
+
+    // Formateo automático número de tarjeta
+    document.getElementById('cardNumber').addEventListener('input', function () {
+        let val = this.value.replace(/\D/g, '').substring(0, 16);
+        this.value = val.replace(/(.{4})/g, '$1 ').trim();
+        this.classList.remove('is-invalid');
+    });
+
+    // Formateo automático caducidad MM/AA
+    document.getElementById('cardExpiry').addEventListener('input', function () {
+        let val = this.value.replace(/\D/g, '').substring(0, 4);
+        if (val.length >= 3) {
+            val = val.substring(0, 2) + '/' + val.substring(2);
+        }
+        this.value = val;
+        this.classList.remove('is-invalid');
+    });
+
+    // Limpiar errores CVV al escribir
+    document.getElementById('cardCvv').addEventListener('input', function () {
+        this.value = this.value.replace(/\D/g, '');
+        this.classList.remove('is-invalid');
+    });
+
+    // Titular en mayúsculas automáticas
+    document.getElementById('cardHolder').addEventListener('input', function () {
+        this.classList.remove('is-invalid');
+    });
+
+    // Validación y submit del pago
+    submitPaymentBtn.addEventListener('click', () => {
+        const cardNumber = document.getElementById('cardNumber');
+        const cardHolder = document.getElementById('cardHolder');
+        const cardExpiry = document.getElementById('cardExpiry');
+        const cardCvv = document.getElementById('cardCvv');
+        let valid = true;
+
+        // Validar número
+        const rawNumber = cardNumber.value.replace(/\s/g, '');
+        if (rawNumber.length < 13 || rawNumber.length > 16 || !/^\d+$/.test(rawNumber)) {
+            cardNumber.classList.add('is-invalid');
+            document.getElementById('cardNumberFeedback').textContent = 'Introduce un número de tarjeta válido.';
+            valid = false;
+        }
+
+        // Validar titular
+        if (cardHolder.value.trim().length < 3) {
+            cardHolder.classList.add('is-invalid');
+            document.getElementById('cardHolderFeedback').textContent = 'Introduce el nombre del titular.';
+            valid = false;
+        }
+
+        // Validar caducidad MM/AA
+        const expiryParts = cardExpiry.value.split('/');
+        const expiryValid = expiryParts.length === 2 &&
+            expiryParts[0].length === 2 &&
+            expiryParts[1].length === 2 &&
+            parseInt(expiryParts[0]) >= 1 &&
+            parseInt(expiryParts[0]) <= 12;
+        if (!expiryValid) {
+            cardExpiry.classList.add('is-invalid');
+            document.getElementById('cardExpiryFeedback').textContent = 'Formato inválido. Usa MM/AA.';
+            valid = false;
+        } else {
+            // Comprobar que no esté caducada
+            const now = new Date();
+            const expMonth = parseInt(expiryParts[0]);
+            const expYear = 2000 + parseInt(expiryParts[1]);
+            if (expYear < now.getFullYear() || (expYear === now.getFullYear() && expMonth < now.getMonth() + 1)) {
+                cardExpiry.classList.add('is-invalid');
+                document.getElementById('cardExpiryFeedback').textContent = 'Esta tarjeta está caducada.';
+                valid = false;
+            }
+        }
+
+        // Validar CVV
+        const cvvLength = selectedCardType === 'amex' ? 4 : 3;
+        if (cardCvv.value.length !== cvvLength) {
+            cardCvv.classList.add('is-invalid');
+            document.getElementById('cardCvvFeedback').textContent = `El CVV debe tener ${cvvLength} dígitos.`;
+            valid = false;
+        }
+
+        if (!valid) return;
+
+        // Todo correcto: mostrar estado de procesando y luego hacer submit real
+        submitPaymentBtn.disabled = true;
+        submitPaymentBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Procesando pago...';
+
+        setTimeout(() => {
+            // Submit del form original de reserva
+            document.getElementById('bookingForm').submit();
+        }, 1800);
+    });
 </script>
 
 </body>

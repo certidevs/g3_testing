@@ -20,6 +20,28 @@
               th:text="|${#lists.size(bookings)} resultados|">0 resultados</span>
     </div>
 
+    <!-- Toggle filtro HOST: visible solo para anfitriones -->
+    <div sec:authorize="hasRole('HOST')" class="mb-4 d-flex gap-2" id="hostToggle">
+        <button type="button"
+                class="btn btn-dark btn-sm fw-bold rounded-3 px-4 py-2 small"
+                id="btnTodas"
+                onclick="filtrarBookings('todas')">
+            <i class="fa-solid fa-layer-group me-1.5"></i> Todas
+        </button>
+        <button type="button"
+                class="btn btn-outline-dark btn-sm fw-bold rounded-3 px-4 py-2 small"
+                id="btnAnfitrion"
+                onclick="filtrarBookings('anfitrion')">
+            <i class="fa-solid fa-user-shield me-1.5"></i> Como anfitrión
+        </button>
+        <button type="button"
+                class="btn btn-outline-dark btn-sm fw-bold rounded-3 px-4 py-2 small"
+                id="btnHuesped"
+                onclick="filtrarBookings('huesped')">
+            <i class="fa-solid fa-user me-1.5"></i> Como huésped
+        </button>
+    </div>
+
     <div th:if="${#lists.isEmpty(bookings)}" class="text-center py-5 my-4">
         <div class="p-4 bg-light rounded-circle d-inline-block mb-4" style="width: 90px; height: 90px; line-height: 45px;">
             <i class="fa-solid fa-calendar-xmark fa-2x text-secondary opacity-75"></i>
@@ -33,7 +55,9 @@
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" th:if="${not #lists.isEmpty(bookings)}">
 
-        <div class="col" th:each="booking : ${bookings}">
+        <div class="col"
+             th:each="booking : ${bookings}"
+             th:attr="data-booking-role=${booking.listing.owner.id == currentUserId ? 'anfitrion' : 'huesped'}">
             <div class="card h-100 border shadow-sm" style="border-color: var(--border-light) !important; border-radius: 18px; overflow: hidden; background-color: #ffffff;">
 
                 <div class="position-relative" style="height: 140px; background-color: #f8f9fa;">
@@ -97,11 +121,23 @@
                 </div>
 
                 <div class="card-footer bg-white border-0 pt-0 pb-3 px-3">
+
+                    <!-- Botón para ADMIN -->
                     <a th:href="@{/bookings/{id}(id=${booking.id})}"
-                       class="btn btn-outline-dark btn-sm w-100 fw-bold rounded-3 py-2 small">
-                        <i class="fa-regular fa-eye me-1.5"></i>Gestionar reserva
+                       class="btn btn-outline-dark btn-sm w-100 fw-bold rounded-3 py-2 small"
+                       sec:authorize="hasRole('ADMIN')">
+                        <i class="fa-regular fa-eye me-1.5"></i> Gestionar reserva
                     </a>
+
+                    <!-- Botón para cualquier otro rol -->
+                    <a th:href="@{/bookings/{id}(id=${booking.id})}"
+                       class="btn btn-outline-dark btn-sm w-100 fw-bold rounded-3 py-2 small"
+                       sec:authorize="!hasRole('ADMIN')">
+                        <i class="fa-regular fa-eye me-1.5"></i> Ver reserva
+                    </a>
+
                 </div>
+
 
             </div>
         </div>
@@ -112,6 +148,32 @@
 
 <footer th:replace="~{layout/footer :: footer}"></footer>
 <script th:replace="~{layout/footer :: scripts}"></script>
+
+
+<script th:inline="javascript">
+    function filtrarBookings(filtro) {
+        const cards   = document.querySelectorAll('[data-booking-role]');
+        const btnMap  = {
+            'todas':      document.getElementById('btnTodas'),
+            'anfitrion':  document.getElementById('btnAnfitrion'),
+            'huesped':    document.getElementById('btnHuesped')
+        };
+
+        // Actualizar estilos de botones
+        Object.entries(btnMap).forEach(([key, btn]) => {
+            if (!btn) return;
+            btn.classList.toggle('btn-dark',         key === filtro);
+            btn.classList.toggle('btn-outline-dark', key !== filtro);
+        });
+
+        // Mostrar/ocultar cards
+        cards.forEach(card => {
+            const rol = card.getAttribute('data-booking-role');
+            const visible = (filtro === 'todas') || (rol === filtro);
+            card.style.display = visible ? '' : 'none';
+        });
+    }
+</script>
 
 </body>
 </html>

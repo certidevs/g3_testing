@@ -7,6 +7,7 @@ import lombok.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @ToString
 @AllArgsConstructor
@@ -36,7 +37,7 @@ public class Review {
     @Column(columnDefinition = "BOOLEAN DEFAULT true")
     private Boolean verified = false;
 
-    private LocalDate creationDate; // LocalDateTime
+    private LocalDateTime creationDate; // LocalDateTime
     //private LocalDate modifiedDate;
 
 

@@ -16,7 +16,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled
+
 public class BookingSeleniumTest extends BaseSeleniumTest {
 
     // ------------------------------------------------------------------
@@ -373,7 +373,7 @@ public class BookingSeleniumTest extends BaseSeleniumTest {
     // =========================================================
     // POST /bookings — Crear reserva (casos válidos)
     // =========================================================
-
+    @Disabled
     @Test
     void crearReservaValidaRedirigADetalle() {
         loginUser();
@@ -394,6 +394,7 @@ public class BookingSeleniumTest extends BaseSeleniumTest {
                 "Debe mostrarse mensaje de reserva creada correctamente");
     }
 
+    @Disabled
     @Test
     void reservaCreadaQuedaEnEstadoPending() {
         loginUser();
@@ -402,12 +403,9 @@ public class BookingSeleniumTest extends BaseSeleniumTest {
         setDateInput("input[name='checkIn']",  "2027-02-01");
         setDateInput("input[name='checkOut']", "2027-02-05");
 
-//        WebElement submitBtn = wait.until(ExpectedConditions.elementToBeClickable(
-//                By.cssSelector("button[type='submit']")));
-//        scrollAndClick(submitBtn);
-        new Actions(driver).moveToElement(
-                driver.findElement(By.cssSelector("button[type='submit']"))
-        ).click().perform();
+        WebElement submitBtn = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.cssSelector("button[type='submit']")));
+        scrollAndClick(submitBtn);
 
         wait.until(ExpectedConditions.urlMatches(".*/bookings/\\d+"));
 

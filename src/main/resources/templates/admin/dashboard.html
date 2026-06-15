@@ -10,6 +10,15 @@
         .audit-modal .nav-tabs .nav-link.active { background-color: #f8f9fa; font-weight: bold; }
         .section-panel { display: none; }
         .section-panel.visible { display: block; }
+        .filter-bar input, .filter-bar select {
+            border-color: #DDDDDD !important;
+            font-size: 0.85rem;
+        }
+        .filter-bar input:focus, .filter-bar select:focus {
+            box-shadow: none;
+            border-color: #aaa !important;
+        }
+        .filter-row-hidden { display: none !important; }
     </style>
 </head>
 <body class="d-flex flex-column min-vh-100" style="background-color: #f9f9f9;">
@@ -77,8 +86,23 @@
         <div class="card border shadow-sm p-4 bg-white" style="border-radius: 20px;">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3 class="h5 fw-bold text-dark m-0"><i class="fa-solid fa-users me-2 text-muted"></i>Usuarios</h3>
-                <span class="text-muted small" th:text="${#lists.size(users)} + ' usuarios'"></span>
+                <span class="text-muted small" id="users-count" th:text="${#lists.size(users)} + ' usuarios'"></span>
             </div>
+
+            <div class="filter-bar row g-2 mb-3">
+                <div class="col-md-8">
+                    <input type="text" id="users-search" class="form-control py-2 rounded-3" placeholder="Buscar por nombre, usuario o email...">
+                </div>
+                <div class="col-md-4">
+                    <select id="users-role-filter" class="form-select py-2 rounded-3">
+                        <option value="">Todos los roles</option>
+                        <option value="ROLE_USER">Huésped</option>
+                        <option value="ROLE_HOST">Anfitrión</option>
+                        <option value="ROLE_ADMIN">Administrador</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="table-responsive">
                 <table class="table align-middle mb-0">
                     <thead class="table-light text-secondary small fw-bold text-uppercase">
@@ -90,8 +114,10 @@
                         <th class="pe-3 py-3 text-end border-0">Acciones</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    <tr th:each="u : ${users}">
+                    <tbody id="users-tbody">
+                    <tr th:each="u : ${users}"
+                        th:data-name="${(u.name != null ? u.name : '') + ' ' + (u.username != null ? u.username : '') + ' ' + (u.email != null ? u.email : '')}"
+                        th:data-role="${u.role.name()}">
                         <td class="ps-3 py-3 text-muted" th:text="'#' + ${u.id}"></td>
                         <td class="py-3 fw-semibold text-dark text-truncate" style="max-width:180px;" th:text="${u.name != null && u.name != '' ? u.name : '@' + u.username}"></td>
                         <td class="py-3 text-muted text-truncate" style="max-width:250px;" th:text="${u.email}"></td>
@@ -114,6 +140,9 @@
                     </tr>
                     </tbody>
                 </table>
+                <div id="users-empty" class="text-center py-4 text-muted small d-none">
+                    <i class="fa-solid fa-magnifying-glass d-block mb-2 fs-4 opacity-50"></i>Sin resultados para este filtro.
+                </div>
             </div>
         </div>
     </div>
@@ -123,8 +152,28 @@
         <div class="card border shadow-sm p-4 bg-white" style="border-radius: 20px;">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3 class="h5 fw-bold text-dark m-0"><i class="fa-solid fa-house-user me-2 text-muted"></i>Alojamientos</h3>
-                <span class="text-muted small" th:text="${#lists.size(listings)} + ' alojamientos'"></span>
+                <span class="text-muted small" id="listings-count" th:text="${#lists.size(listings)} + ' alojamientos'"></span>
             </div>
+
+            <div class="filter-bar row g-2 mb-3">
+                <div class="col-md-6">
+                    <input type="text" id="listings-search" class="form-control py-2 rounded-3" placeholder="Buscar por título o anfitrión...">
+                </div>
+                <div class="col-md-3">
+                    <select id="listings-city-filter" class="form-select py-2 rounded-3">
+                        <option value="">Todas las ciudades</option>
+                        <option th:each="cityOption : ${T(com.demo.model.enums.City).values()}" th:value="${cityOption.name()}" th:text="${#strings.capitalize(#strings.toLowerCase(cityOption.name()))}"></option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select id="listings-status-filter" class="form-select py-2 rounded-3">
+                        <option value="">Todos los estados</option>
+                        <option value="true">Activo</option>
+                        <option value="false">Inactivo</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="table-responsive">
                 <table class="table align-middle mb-0">
                     <thead class="table-light text-secondary small fw-bold text-uppercase">
@@ -133,16 +182,26 @@
                         <th class="py-3 border-0">Título</th>
                         <th class="py-3 border-0">Ciudad</th>
                         <th class="py-3 border-0">Anfitrión</th>
+                        <th class="py-3 text-center border-0">Estado</th>
                         <th class="py-3 text-end border-0">Precio / noche</th>
                         <th class="pe-3 py-3 text-end border-0">Acciones</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    <tr th:each="l : ${listings}">
+                    <tbody id="listings-tbody">
+                    <tr th:each="l : ${listings}"
+                        th:data-name="${(l.title != null ? l.title : '') + ' ' + (l.owner.name != null ? l.owner.name : l.owner.username)}"
+                        th:data-city="${l.city != null ? l.city.name() : ''}"
+                        th:data-active="${l.isActive}">
                         <td class="ps-3 py-3 text-muted" th:text="'#' + ${l.id}"></td>
                         <td class="py-3 fw-semibold text-dark text-truncate" style="max-width:200px;" th:text="${l.title}"></td>
                         <td class="py-3 text-muted" th:text="${#strings.capitalize(#strings.toLowerCase(l.city))}"></td>
                         <td class="py-3 text-muted" th:text="${l.owner.name != null ? l.owner.name : l.owner.username}"></td>
+                        <td class="py-3 text-center">
+                            <span class="badge px-2 py-1 small"
+                                  th:classappend="${l.isActive ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-secondary-subtle text-secondary border'}"
+                                  th:text="${l.isActive ? 'Activo' : 'Inactivo'}">
+                            </span>
+                        </td>
                         <td class="py-3 text-end fw-semibold text-dark" th:text="${#numbers.formatCurrency(l.pricePerNight)}"></td>
                         <td class="pe-3 py-3 text-end">
                             <a th:href="@{/listings/{id}(id=${l.id})}" class="btn btn-sm btn-outline-secondary px-3 fw-semibold rounded-3">
@@ -152,6 +211,9 @@
                     </tr>
                     </tbody>
                 </table>
+                <div id="listings-empty" class="text-center py-4 text-muted small d-none">
+                    <i class="fa-solid fa-magnifying-glass d-block mb-2 fs-4 opacity-50"></i>Sin resultados para este filtro.
+                </div>
             </div>
         </div>
     </div>
@@ -161,8 +223,23 @@
         <div class="card border shadow-sm p-4 bg-white" style="border-radius: 20px;">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3 class="h5 fw-bold text-dark m-0"><i class="fa-solid fa-calendar-check me-2 text-muted"></i>Reservas</h3>
-                <span class="text-muted small" th:text="${#lists.size(bookings)} + ' reservas'"></span>
+                <span class="text-muted small" id="bookings-count" th:text="${#lists.size(bookings)} + ' reservas'"></span>
             </div>
+
+            <div class="filter-bar row g-2 mb-3">
+                <div class="col-md-8">
+                    <input type="text" id="bookings-search" class="form-control py-2 rounded-3" placeholder="Buscar por alojamiento o huésped...">
+                </div>
+                <div class="col-md-4">
+                    <select id="bookings-status-filter" class="form-select py-2 rounded-3">
+                        <option value="">Todos los estados</option>
+                        <option value="CONFIRMED">Confirmada</option>
+                        <option value="PENDING">Pendiente</option>
+                        <option value="CANCELLED">Cancelada</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="table-responsive">
                 <table class="table align-middle mb-0">
                     <thead class="table-light text-secondary small fw-bold text-uppercase">
@@ -176,8 +253,10 @@
                         <th class="pe-3 py-3 text-end border-0">Total</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    <tr th:each="b : ${bookings}">
+                    <tbody id="bookings-tbody">
+                    <tr th:each="b : ${bookings}"
+                        th:data-name="${(b.listing.title != null ? b.listing.title : '') + ' ' + (b.guest.name != null ? b.guest.name : b.guest.username)}"
+                        th:data-status="${b.status.name()}">
                         <td class="ps-3 py-3 text-muted" th:text="'#' + ${b.id}"></td>
                         <td class="py-3 fw-semibold text-dark text-truncate" style="max-width:180px;" th:text="${b.listing.title}"></td>
                         <td class="py-3 text-muted" th:text="${b.guest.name != null ? b.guest.name : b.guest.username}"></td>
@@ -193,6 +272,9 @@
                     </tr>
                     </tbody>
                 </table>
+                <div id="bookings-empty" class="text-center py-4 text-muted small d-none">
+                    <i class="fa-solid fa-magnifying-glass d-block mb-2 fs-4 opacity-50"></i>Sin resultados para este filtro.
+                </div>
             </div>
         </div>
     </div>
@@ -202,8 +284,25 @@
         <div class="card border shadow-sm p-4 bg-white" style="border-radius: 20px;">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3 class="h5 fw-bold text-dark m-0"><i class="fa-solid fa-star me-2 text-muted"></i>Reseñas</h3>
-                <span class="text-muted small" th:text="${#lists.size(reviews)} + ' reseñas'"></span>
+                <span class="text-muted small" id="reviews-count" th:text="${#lists.size(reviews)} + ' reseñas'"></span>
             </div>
+
+            <div class="filter-bar row g-2 mb-3">
+                <div class="col-md-8">
+                    <input type="text" id="reviews-search" class="form-control py-2 rounded-3" placeholder="Buscar por alojamiento, usuario o comentario...">
+                </div>
+                <div class="col-md-4">
+                    <select id="reviews-rating-filter" class="form-select py-2 rounded-3">
+                        <option value="">Todas las valoraciones</option>
+                        <option value="5">5 estrellas</option>
+                        <option value="4">4 estrellas</option>
+                        <option value="3">3 estrellas</option>
+                        <option value="2">2 estrellas</option>
+                        <option value="1">1 estrella</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="table-responsive">
                 <table class="table align-middle mb-0">
                     <thead class="table-light text-secondary small fw-bold text-uppercase">
@@ -216,8 +315,10 @@
                         <th class="pe-3 py-3 border-0">Fecha</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    <tr th:each="r : ${reviews}">
+                    <tbody id="reviews-tbody">
+                    <tr th:each="r : ${reviews}"
+                        th:data-name="${(r.booking.listing.title != null ? r.booking.listing.title : '') + ' ' + (r.booking.guest.name != null ? r.booking.guest.name : r.booking.guest.username) + ' ' + (r.comment != null ? r.comment : '')}"
+                        th:data-rating="${r.rating}">
                         <td class="ps-3 py-3 text-muted" th:text="'#' + ${r.id}"></td>
                         <td class="py-3 fw-semibold text-dark text-truncate" style="max-width:160px;" th:text="${r.booking.listing.title}"></td>
                         <td class="py-3 text-muted" th:text="${r.booking.guest.name != null ? r.booking.guest.name : r.booking.guest.username}"></td>
@@ -230,6 +331,9 @@
                     </tr>
                     </tbody>
                 </table>
+                <div id="reviews-empty" class="text-center py-4 text-muted small d-none">
+                    <i class="fa-solid fa-magnifying-glass d-block mb-2 fs-4 opacity-50"></i>Sin resultados para este filtro.
+                </div>
             </div>
         </div>
     </div>
@@ -301,6 +405,7 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         bsModal = new bootstrap.Modal(document.getElementById('auditModal'));
+        initFilters();
     });
 
     const panels = ['users', 'listings', 'bookings', 'reviews'];
@@ -312,6 +417,102 @@
         });
         document.getElementById('panel-' + name).classList.add('visible');
         document.getElementById('stat-' + name).classList.add('active-stat');
+    }
+
+    function normalize(text) {
+        return (text || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function applyFilter(tbodyId, emptyId, countId, countLabel, matchFn) {
+        const tbody = document.getElementById(tbodyId);
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const visible = matchFn(row);
+            row.classList.toggle('filter-row-hidden', !visible);
+            if (visible) visibleCount++;
+        });
+
+        const emptyEl = document.getElementById(emptyId);
+        if (emptyEl) emptyEl.classList.toggle('d-none', visibleCount !== 0);
+
+        const countEl = document.getElementById(countId);
+        if (countEl) countEl.innerText = visibleCount + ' ' + countLabel;
+    }
+
+    function initFilters() {
+        // --- Usuarios ---
+        const usersSearch = document.getElementById('users-search');
+        const usersRole = document.getElementById('users-role-filter');
+
+        function filterUsers() {
+            const term = normalize(usersSearch.value);
+            const role = usersRole.value;
+            applyFilter('users-tbody', 'users-empty', 'users-count', 'usuarios', row => {
+                const matchesText = normalize(row.dataset.name).includes(term);
+                const matchesRole = !role || row.dataset.role === role;
+                return matchesText && matchesRole;
+            });
+        }
+
+        usersSearch.addEventListener('input', filterUsers);
+        usersRole.addEventListener('change', filterUsers);
+
+        // --- Alojamientos ---
+        const listingsSearch = document.getElementById('listings-search');
+        const listingsCity = document.getElementById('listings-city-filter');
+        const listingsStatus = document.getElementById('listings-status-filter');
+
+        function filterListings() {
+            const term = normalize(listingsSearch.value);
+            const city = listingsCity.value;
+            const status = listingsStatus.value;
+            applyFilter('listings-tbody', 'listings-empty', 'listings-count', 'alojamientos', row => {
+                const matchesText = normalize(row.dataset.name).includes(term);
+                const matchesCity = !city || row.dataset.city === city;
+                const matchesStatus = !status || row.dataset.active === status;
+                return matchesText && matchesCity && matchesStatus;
+            });
+        }
+
+        listingsSearch.addEventListener('input', filterListings);
+        listingsCity.addEventListener('change', filterListings);
+        listingsStatus.addEventListener('change', filterListings);
+
+        // --- Reservas ---
+        const bookingsSearch = document.getElementById('bookings-search');
+        const bookingsStatus = document.getElementById('bookings-status-filter');
+
+        function filterBookings() {
+            const term = normalize(bookingsSearch.value);
+            const status = bookingsStatus.value;
+            applyFilter('bookings-tbody', 'bookings-empty', 'bookings-count', 'reservas', row => {
+                const matchesText = normalize(row.dataset.name).includes(term);
+                const matchesStatus = !status || row.dataset.status === status;
+                return matchesText && matchesStatus;
+            });
+        }
+
+        bookingsSearch.addEventListener('input', filterBookings);
+        bookingsStatus.addEventListener('change', filterBookings);
+
+        // --- Reseñas ---
+        const reviewsSearch = document.getElementById('reviews-search');
+        const reviewsRating = document.getElementById('reviews-rating-filter');
+
+        function filterReviews() {
+            const term = normalize(reviewsSearch.value);
+            const rating = reviewsRating.value;
+            applyFilter('reviews-tbody', 'reviews-empty', 'reviews-count', 'reseñas', row => {
+                const matchesText = normalize(row.dataset.name).includes(term);
+                const matchesRating = !rating || row.dataset.rating === rating;
+                return matchesText && matchesRating;
+            });
+        }
+
+        reviewsSearch.addEventListener('input', filterReviews);
+        reviewsRating.addEventListener('change', filterReviews);
     }
 
     function auditUser(userId) {

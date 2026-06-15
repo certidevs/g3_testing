@@ -207,7 +207,7 @@ public class BaseSeleniumTest {
                 .rating(5)
                 .comment("Increíble lugar, muy recomendado")
                 .verified(true)
-                .creationDate(LocalDate.now())
+                .creationDate(LocalDateTime.now())
                 .booking(bookingPasado)
                 .build());
 

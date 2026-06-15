@@ -72,9 +72,12 @@ public class ListingController {
         }
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        boolean isAnonymous = auth instanceof AnonymousAuthenticationToken;
+        // Evita NPE cuando no hay autenticación
+        boolean isAnonymous = (auth == null) || auth instanceof AnonymousAuthenticationToken;
 
-        User currentUser = isAnonymous ? null : (User) auth.getPrincipal();
+        User currentUser = (!isAnonymous && auth.getPrincipal() instanceof User)
+                ? (User) auth.getPrincipal()
+                : null;
         String email = currentUser != null ? currentUser.getEmail() : null;
 
         boolean isUser = !isAnonymous && auth.getAuthorities().stream()
@@ -127,26 +130,57 @@ public class ListingController {
     }
 
 
+//    @GetMapping("/{id}")
+//    public String detail(@PathVariable Long id, Model model, @AuthenticationPrincipal User currentUser) {
+//        //List<Amenity> amenities = amenityRepository.findByListing_Id(id);
+//        Listing listing = listingRepository.findById(id)
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+//
+//        List<Amenity> amenities = amenityLineRepository.findByListingId(id)
+//                .stream()
+//                .map(AmenityLine::getAmenity)
+//                .toList();
+//
+//        boolean isOwner = currentUser != null
+//                && listing.getOwner() != null
+//                && listing.getOwner().getId().equals(currentUser.getId());
+//
+//        model.addAttribute("listing", listing);
+//        model.addAttribute("amenities", amenities);
+//        model.addAttribute("isOwner", isOwner);
+//        return "listing/listing-detail";
+//    }
+
     @GetMapping("/{id}")
     public String detail(@PathVariable Long id, Model model, @AuthenticationPrincipal User currentUser) {
-        //List<Amenity> amenities = amenityRepository.findByListing_Id(id);
+
         Listing listing = listingRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        boolean isInactive = Boolean.FALSE.equals(listing.getIsActive());
+        boolean isAdmin = currentUser != null && currentUser.getRole() == Role.ROLE_ADMIN;
+        boolean isOwner = currentUser != null
+                && listing.getOwner() != null
+                && listing.getOwner().getId().equals(currentUser.getId());
+
+        // Regla de negocio robusta:
+        // Un listing inactivo solo lo ven: ADMIN o el dueño
+        if (isInactive && !isAdmin && !isOwner) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
 
         List<Amenity> amenities = amenityLineRepository.findByListingId(id)
                 .stream()
                 .map(AmenityLine::getAmenity)
                 .toList();
 
-        boolean isOwner = currentUser != null
-                && listing.getOwner() != null
-                && listing.getOwner().getId().equals(currentUser.getId());
-
         model.addAttribute("listing", listing);
         model.addAttribute("amenities", amenities);
         model.addAttribute("isOwner", isOwner);
+
         return "listing/listing-detail";
     }
+
 
     @GetMapping("/new")
     public String createListing(Model model) {

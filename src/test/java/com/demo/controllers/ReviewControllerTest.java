@@ -66,7 +66,7 @@ class ReviewControllerTest {
         List<Booking> bookings = List.of(b1,b2);
         bookingRepository.saveAll(bookings);
 
-        rev1= Review.builder().creationDate(LocalDate.now())
+        rev1= Review.builder().creationDate(LocalDateTime.now())
                 .rating(5).comment("La mejor experiencia de mi vida").booking(b1).build();
         reviewRepository.save(rev1);
     }
@@ -90,7 +90,7 @@ class ReviewControllerTest {
         reviewRepository.deleteById(rev1.getId());
         assertFalse(reviewRepository.findById(rev1.getId()).isPresent());
 
-        mockMvc.perform(get("/reviews/delete/" + rev1.getId()))
+        mockMvc.perform(post("/reviews/delete/" + rev1.getId()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/reviews"))
                 .andExpect(flash().attributeExists("message"))
@@ -116,6 +116,7 @@ class ReviewControllerTest {
         mockMvc.perform(post("/reviews")
                         .param("booking.id", String.valueOf(b2.getId()))
                         .param("rating", "4")
+                        .param("verified", "true")
                         .param("comment", "Apartamento muy limpio y bien ubicado"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrlPattern("/reviews/*"))
@@ -131,7 +132,7 @@ class ReviewControllerTest {
         assertEquals(4, guardada.getRating());
         assertEquals("Apartamento muy limpio y bien ubicado", guardada.getComment());
         assertTrue(guardada.getVerified());
-        assertEquals(LocalDate.now(), guardada.getCreationDate());
+        assertEquals(LocalDate.now(), guardada.getCreationDate().toLocalDate());
     }
 
     @Test
