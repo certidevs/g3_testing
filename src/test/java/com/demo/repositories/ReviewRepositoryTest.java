@@ -110,7 +110,7 @@ class ReviewRepositoryTest {
     @Test
     @DisplayName("Buscar review entre fechas")
     void findByDateBetween(){
-        List<Review>lista = reviewRepository.findByCreationDateBetween(LocalDate.of(2020,2,2),LocalDate.now());
+        List<Review>lista = reviewRepository.findByCreationDateBetween(LocalDateTime.of(2020,2,2,0,0),LocalDateTime.now());
         assertNotNull(lista);
         assertEquals(2, lista.size());
     }

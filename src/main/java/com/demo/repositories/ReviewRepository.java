@@ -9,13 +9,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByVerifiedTrue();
     List<Review> findByRatingBetween(int minRating, int maxRating);
     List<Review> findByVerifiedTrueAndRatingBetween(int minRating, int maxRating);
-    List<Review> findByCreationDateBetween(LocalDate startDate, LocalDate endDate);
+    List<Review> findByCreationDateBetween(LocalDateTime startDate, LocalDateTime endDate);
     List<Review> findByRating(int rating);
     List<Review>findByVerifiedFalse();
     List<Review>findByBooking_ListingId(Long listingId);
