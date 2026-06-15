@@ -136,9 +136,20 @@
                     </div>
 
                     <div th:if="${listing.isActive and !listing.deleted}" sec:authorize="!hasRole('ADMIN')">
-                        <a th:href="@{/bookings/new/{id}(id=${listing.id})}" ...>
+
+                        <!-- Si es el propietario, mostrar aviso -->
+                        <div th:if="${listing.owner != null and listing.owner.id == #authentication.principal.id}"
+                             class="alert alert-secondary text-center small py-3 rounded-3 mb-3 fw-medium">
+                            <i class="fa-solid fa-ban me-1"></i> No puedes reservar tu propio alojamiento
+                        </div>
+
+                        <!-- Si NO es el propietario, mostrar botón -->
+                        <a th:if="${listing.owner == null or listing.owner.id != #authentication.principal.id}"
+                           th:href="@{/bookings/new/{id}(id=${listing.id})}"
+                           class="btn btn-airbnb fw-bold w-100 py-3 rounded-3 mb-3">
                             Reservar ahora
                         </a>
+
                     </div>
                     <div th:unless="${listing.isActive}" class="alert alert-warning text-center small py-3 rounded-3 mb-3 fw-medium">
                         Este alojamiento se encuentra pausado temporalmente.

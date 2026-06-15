@@ -66,7 +66,7 @@ class ReviewControllerTest {
         List<Booking> bookings = List.of(b1,b2);
         bookingRepository.saveAll(bookings);
 
-        rev1= Review.builder().creationDate(LocalDate.now())
+        rev1= Review.builder().creationDate(LocalDateTime.now())
                 .rating(5).comment("La mejor experiencia de mi vida").booking(b1).build();
         reviewRepository.save(rev1);
     }
@@ -132,7 +132,7 @@ class ReviewControllerTest {
         assertEquals(4, guardada.getRating());
         assertEquals("Apartamento muy limpio y bien ubicado", guardada.getComment());
         assertTrue(guardada.getVerified());
-        assertEquals(LocalDate.now(), guardada.getCreationDate());
+        assertEquals(LocalDate.now(), guardada.getCreationDate().toLocalDate());
     }
 
     @Test

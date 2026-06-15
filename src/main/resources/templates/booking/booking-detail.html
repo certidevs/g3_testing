@@ -34,6 +34,9 @@
             <p class="text-secondary fs-5 mb-0 fw-medium" th:if="${booking.listing != null}">
                 <i class="fa-solid fa-house me-1 text-muted" style="font-size: 1.1rem;"></i>
                 <span th:text="${booking.listing.title}">Nombre de la propiedad</span>
+                <span class="text-muted mx-1">·</span>
+                <i class="fa-solid fa-location-dot me-1 text-danger" style="font-size: 0.95rem;"></i>
+                <span class="fs-6" th:text="${#strings.capitalize(#strings.toLowerCase(booking.listing.city))}">Ciudad</span>
             </p>
         </div>
 
@@ -45,6 +48,38 @@
                 <i class="fa-solid fa-circle me-1" style="font-size: 0.6rem; vertical-align: middle;"></i>
                 <span th:text="${booking.status}">Estado</span>
             </span>
+        </div>
+    </div>
+
+    <!-- Imagen del listing -->
+    <div th:if="${booking.listing != null}" class="mb-5 rounded-4 overflow-hidden shadow-sm position-relative" style="height: 350px; background-color: #f8f9fa;">
+        <img th:if="${booking.listing.imageUrl != null}"
+             th:src="@{${booking.listing.imageUrl}}"
+             class="w-100 h-100"
+             style="object-fit: cover;"
+             alt="Fotografía del alojamiento">
+        <div th:unless="${booking.listing.imageUrl != null}"
+             class="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-secondary opacity-50">
+            <i class="fa-solid fa-house-chimney fs-1 mb-2"></i>
+            <span class="fw-medium">Imagen no disponible</span>
+        </div>
+        <!-- Overlay con info del listing -->
+        <div class="position-absolute bottom-0 start-0 end-0 p-4"
+             style="background: linear-gradient(to top, rgba(0,0,0,0.55), transparent);">
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <span class="badge bg-white text-dark fw-semibold px-3 py-2 rounded-pill shadow-sm small">
+                    <i class="fa-solid fa-tag me-1 text-secondary"></i>
+                    <span th:text="${#numbers.formatCurrency(booking.listing.pricePerNight)}">0 €</span> / noche
+                </span>
+                <span class="badge bg-white text-dark fw-semibold px-3 py-2 rounded-pill shadow-sm small">
+                    <i class="fa-solid fa-users me-1 text-secondary"></i>
+                    Hasta <span th:text="${booking.listing.maxGuests}">0</span> huéspedes
+                </span>
+                <a th:href="@{/listings/{id}(id=${booking.listing.id})}"
+                   class="badge bg-dark text-white fw-semibold px-3 py-2 rounded-pill shadow-sm small text-decoration-none ms-auto">
+                    <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Ver alojamiento
+                </a>
+            </div>
         </div>
     </div>
 

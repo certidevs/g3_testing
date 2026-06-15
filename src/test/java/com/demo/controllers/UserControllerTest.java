@@ -93,7 +93,7 @@ public class UserControllerTest {
                 .rating(4)
                 .comment("Muy limpio y excelente ubicación.")
                 .verified(true)
-                .creationDate(LocalDate.now())
+                .creationDate(LocalDateTime.now())
                 .booking(booking)
                 .build();
         reviewRepository.save(review);

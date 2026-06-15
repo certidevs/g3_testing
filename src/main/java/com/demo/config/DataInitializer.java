@@ -311,7 +311,7 @@ public class DataInitializer implements CommandLineRunner {
                 .rating(5)
                 .comment("Increíble lugar, muy recomendado")
                 .verified(true)
-                .creationDate(LocalDate.now())
+                .creationDate(LocalDateTime.now())
                 .booking(booking)
                 .build();
 
@@ -319,7 +319,7 @@ public class DataInitializer implements CommandLineRunner {
                 .rating(4)
                 .comment("Muy buen alojamiento, aunque el wifi a veces fallaba")
                 .verified(true)
-                .creationDate(LocalDate.now())
+                .creationDate(LocalDateTime.now())
                 .booking(booking2)
                 .build();
 

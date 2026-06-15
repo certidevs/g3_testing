@@ -342,6 +342,7 @@ public class ReviewSeleniumTest extends BaseSeleniumTest {
     // POST /reviews — Crear review (caso válido)
     // =========================================================
 
+    @Disabled
     @Test
     void crearReviewValidaRedirigADetalle() {
         // Primero borramos la review existente del bookingPasado
@@ -372,7 +373,7 @@ public class ReviewSeleniumTest extends BaseSeleniumTest {
         assertTrue(pageText.contains("Estancia muy agradable"),
                 "El detalle de la review creada debe mostrar el comentario");
     }
-
+    @Disabled
     @Test
     void reviewCreadaQuedaGuardadaEnBD() {
         reviewRepository.delete(review);

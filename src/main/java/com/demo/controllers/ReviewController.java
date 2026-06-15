@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -144,7 +145,7 @@ public class ReviewController {
             }
 
             // Fecha de creación
-            review.setCreationDate(LocalDate.now());
+            review.setCreationDate(LocalDateTime.now());
 
             reviewRepository.save(review);
             redirectAttributes.addFlashAttribute("message", "Reseña creada exitosamente");
