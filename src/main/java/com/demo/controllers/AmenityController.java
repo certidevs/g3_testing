@@ -19,6 +19,7 @@ public class AmenityController {
 
     private final AmenityRepository amenityRepository;
     private final AmenityLineRepository amenityLineRepository;
+    //private final AmenityLineRepository amenityLineRepository;
 
     @GetMapping("/amenity")
     public String amenity(Model model) {
@@ -32,18 +33,19 @@ public class AmenityController {
         return "amenity/amenity-detail";
     }
 
-    @GetMapping("/amenity/new")
-    public String create(Model model) {
-        model.addAttribute("amenityLine", new AmenityLine());
-        model.addAttribute("amenities", amenityRepository.findAll());
-        return "amenity/amenity-form";
-    }
+//    @GetMapping("/amenity/new")
+//    public String create(Model model) {
+//        model.addAttribute("amenityLine", new AmenityLine());
+//        model.addAttribute("amenities", amenityRepository.findAll());
+//        model.addAttribute("listings", listingRepository.findAll());
+//        return "amenity/amenity-form";
+//    }
 
-    @PostMapping("/amenity")
-    public String save(@ModelAttribute AmenityLine amenityLine) {
-        amenityLineRepository.save(amenityLine);
-        return "redirect:/listings/" + amenityLine.getListing().getId();
-    }
+//    @PostMapping("/amenity")
+//    public String save(@ModelAttribute AmenityLine amenityLine) {
+//        amenityLineRepository.save(amenityLine);
+//        return "redirect:/listings/" + amenityLine.getListing().getId();
+//    }
 
     @GetMapping("/amenity/create")
     public String showCreateForm(Model model) {
