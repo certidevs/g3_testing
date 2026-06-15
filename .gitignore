@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# SonarQube local
+sonar/token.txt
