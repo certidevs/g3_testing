@@ -223,6 +223,8 @@ public class BaseSeleniumTest {
         prefs.put("profile.password_manager_leak_detection", false);   // ← la clave del modal
         chromeOptions.setExperimentalOption("prefs", prefs);
         chromeOptions.addArguments("--disable-features=PasswordLeakDetection");
+        chromeOptions.addArguments("--force-device-scale-factor=1", "--start-maximized");
+
         if (ci) {
             chromeOptions.addArguments("--headless=new", "--no-sandbox", "--disable-gpu", "--disable-dev-shm-usage");
         }

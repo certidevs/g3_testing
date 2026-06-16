@@ -12,6 +12,7 @@ services:
   sonarqube:
     image: sonarqube:community
     container_name: sonarqube-local
+    restart: unless-stopped
     depends_on:
       sonar-db:
         condition: service_healthy
@@ -33,6 +34,7 @@ services:
   sonar-db:
     image: postgres:16
     container_name: sonarqube-local-db
+    restart: unless-stopped
     environment:
       POSTGRES_USER: sonar
       POSTGRES_PASSWORD: sonar
