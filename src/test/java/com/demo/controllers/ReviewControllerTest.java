@@ -231,4 +231,62 @@ class ReviewControllerTest {
 
         assertEquals(reviewsAntes, reviewRepository.count());
     }
+
+    // ── GET /reviews con filtros ────────────────────────────────────────────
+
+    @Test
+    void listarReviewsFiltrandoPorRating() throws Exception {
+        // Crear una segunda review con rating distinto para verificar el filtro
+        Review rev2 = Review.builder()
+                .creationDate(LocalDateTime.now())
+                .rating(3)
+                .comment("Estaba bien pero mejorable")
+                .booking(b2)
+                .build();
+        reviewRepository.save(rev2);
+
+        // Filtramos por rating=5 → solo rev1
+        mockMvc.perform(get("/reviews").with(user(admin))
+                        .param("rating", "5"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("review/review-list"))
+                .andExpect(model().attribute("reviews", hasSize(1)));
+    }
+
+    @Test
+    void listarReviewsFiltrandoPorCiudad() throws Exception {
+        mockMvc.perform(get("/reviews").with(user(admin))
+                        .param("city", "ALICANTE"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("review/review-list"))
+                .andExpect(model().attribute("reviews", hasSize(1)));
+    }
+
+    // ── GET /reviews/new/{bookingId} ────────────────────────────────────────
+
+    @Test
+    void mostrarFormularioNuevaReview() throws Exception {
+        mockMvc.perform(get("/reviews/new/" + b2.getId()).with(user(admin)))
+                .andExpect(status().isOk())
+                .andExpect(view().name("review/review-form"))
+                .andExpect(model().attributeExists("review"));
+    }
+
+    // ── GET /listing/{id}/reviews — sin reviews ─────────────────────────────
+
+    @Test
+    void obtenerReviewsPorListingSinReviewsRedirige() throws Exception {
+        // Creamos un listing sin reviews asociadas
+        Listing otro = Listing.builder()
+                .title("Piso sin reseñas")
+                .maxNights(5).minNights(1).maxGuests(2).pricePerNight(30.0)
+                .shortDescription("Piso nuevo").longDescription("Sin historial aún")
+                .city(City.MADRID)
+                .build();
+        listingRepository.save(otro);
+
+        mockMvc.perform(get("/listing/" + otro.getId() + "/reviews").with(user(admin)))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/listings/" + otro.getId()));
+    }
 }

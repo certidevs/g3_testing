@@ -289,4 +289,40 @@ class BookingControllerTest {
 
         assertEquals(bookingsAntes, bookingRepository.count());
     }
+
+    // ── GET /bookings — vistas por rol ──────────────────────────────────────
+
+    @Test
+    void listaBookingComoUsuarioNormalSoloVeSusReservas() throws Exception {
+        // userNormal no tiene ninguna booking asignada como guest → lista vacía
+        mockMvc.perform(get("/bookings").with(user(userNormal)))
+                .andExpect(status().isOk())
+                .andExpect(view().name("booking/booking-list"))
+                .andExpect(model().attribute("bookings", hasSize(0)));
+    }
+
+    @Test
+    void mostrarFormularioNuevaReserva() throws Exception {
+        mockMvc.perform(get("/bookings/new/" + apartamento.getId()).with(user(admin)))
+                .andExpect(status().isOk())
+                .andExpect(view().name("booking/booking-form"))
+                .andExpect(model().attributeExists("booking"))
+                .andExpect(model().attributeExists("listing"));
+    }
+
+    @Test
+    void crearBookingMasDeMaxNochesDevuelveError() throws Exception {
+        // maxNights = 10, intentamos reservar 12 noches
+        long bookingsAntes = bookingRepository.count();
+
+        mockMvc.perform(post("/bookings")
+                        .with(csrf()).with(user(admin))
+                        .param("listing.id", String.valueOf(apartamento.getId()))
+                        .param("checkIn", "2026-10-01")
+                        .param("checkOut", "2026-10-13"))  // 12 noches > maxNights(10)
+                .andExpect(status().is3xxRedirection())
+                .andExpect(flash().attributeExists("error"));
+
+        assertEquals(bookingsAntes, bookingRepository.count());
+    }
 }
