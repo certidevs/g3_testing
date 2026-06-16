@@ -102,7 +102,7 @@ public class AdminControllerTest {
                 .rating(5)
                 .comment("Una estancia increíble, todo perfecto.")
                 .verified(true)
-                .creationDate(LocalDate.now())
+                .creationDate(LocalDateTime.now())
                 .booking(booking)
                 .build();
         reviewRepository.save(review);
