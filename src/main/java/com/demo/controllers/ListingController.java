@@ -9,6 +9,7 @@ import com.demo.model.enums.ListingType;
 import com.demo.model.enums.Role;
 import com.demo.model.enums.BookingStatus;
 import com.demo.repositories.*;
+import com.demo.services.FileService;
 import com.demo.services.ListingService;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -21,6 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDate;
@@ -41,6 +43,7 @@ public class ListingController {
     private final AmenityLineRepository amenityLineRepository;
     private final BookingRepository bookingRepository;
     private final ReviewRepository reviewRepository;
+    private final FileService fileService;
 
     @GetMapping
     public String list(
@@ -210,7 +213,12 @@ public class ListingController {
         return "listing/listing-form";
     }
     @PostMapping
-    public String saveListing(@ModelAttribute Listing listing,  @RequestParam(required = false) List<Long> amenityIds, @AuthenticationPrincipal User user) {
+    public String saveListing(
+            @ModelAttribute Listing listing,
+            @RequestParam(required = false)
+            List<Long> amenityIds,
+            @AuthenticationPrincipal User user,
+            @RequestParam("imageFile") MultipartFile imageFile) {
 
 
         // Si el usuario es USER, lo promovemos a HOST
@@ -232,6 +240,10 @@ public class ListingController {
         listing.setOwner(user);
 
         // Guardar listing
+        String imageUrl = fileService.store(imageFile);
+        if (imageUrl != null)
+            listing.setImageUrl(imageUrl);
+
         Listing saved = listingRepository.save(listing);
 
         // Borrar amenityLines existentes (cubre tanto crear como editar)

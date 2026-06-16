@@ -15,22 +15,12 @@ import java.util.UUID;
 @Service
 public class FileService {
 
-    public static final String UPLOAD_DIR = "src/main/resources/static/images";
+    public static final String UPLOAD_DIR = "uploads";
 
     public String store(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             return null;
         }
-
-        // 🔹 Validar que sea una imagen
-        if (!file.getContentType().startsWith("image/")) {
-            throw new RuntimeException("Solo se permiten imágenes");
-        }
-        // 🔹 Validar tamaño máximo (5 MB)
-        if (file.getSize() > 10 * 1024 * 1024) {
-            throw new RuntimeException("La imagen es demasiado grande (máx. 5 MB)");
-        }
-
         try {
             Path dir = Paths.get(UPLOAD_DIR).toAbsolutePath().normalize();
             Files.createDirectories(dir); // crea la carpeta si no existe
@@ -41,7 +31,7 @@ public class FileService {
                 ext = original.substring(dot);
             String filename = UUID.randomUUID() + ext;
             file.transferTo(dir.resolve(filename));
-            return "/images/" + filename;
+            return "/uploads/" + filename;
         } catch (IOException e) {
             throw new RuntimeException("No se pudo guardar el archivo", e);
         }

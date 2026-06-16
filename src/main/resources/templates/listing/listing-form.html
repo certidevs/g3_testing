@@ -15,7 +15,7 @@
         <p class="text-muted small mb-0">Rellena los detalles para configurar las características y precios del alojamiento.</p>
     </div>
 
-    <form th:action="@{/listings}" th:object="${listing}" method="post" class="row g-4" autocomplete="off">
+    <form th:action="@{/listings}" th:object="${listing}" enctype="multipart/form-data" method="post" class="row g-4" autocomplete="off">
 
         <input type="hidden" th:field="*{id}"/>
         <div class="col-12">
@@ -47,14 +47,22 @@
         </div>
 
         <div class="col-md-6">
-            <label class="form-label text-dark fw-bold small">Ruta de la Imagen (Estáticos o URL)</label>
-            <input type="text" class="form-control bg-light border-0 py-2.5 rounded-3"
-                   placeholder="Ej. /img/loft-industrial.jpg" th:field="*{imageUrl}">
-            <small class="text-warning mt-1 d-block">
-                <i class="fa-solid fa-triangle-exclamation me-1"></i>
-                Sin foto el anuncio tendrá menos visibilidad.
-            </small>
+            <label for="imageFile" class="form-label">Imagen</label>
+            <input type="hidden" th:field="*{imageUrl}">
+            <input type="file" class="form-control" id="imageFile" name="imageFile" accept="image/*">
+            <img id="preview" alt="Previsualización" class="mt-2 rounded"
+                 style="max-height:150px; display:none"
+                 th:src="${listing != null and listing.imageUrl != null ? listing.imageUrl : null}">
         </div>
+<!--        <div class="col-md-6">-->
+<!--            <label class="form-label text-dark fw-bold small">Ruta de la Imagen (Estáticos o URL)</label>-->
+<!--            <input type="text" class="form-control bg-light border-0 py-2.5 rounded-3"-->
+<!--                   placeholder="Ej. /img/loft-industrial.jpg" th:field="*{imageUrl}">-->
+<!--            <small class="text-warning mt-1 d-block">-->
+<!--                <i class="fa-solid fa-triangle-exclamation me-1"></i>-->
+<!--                Sin foto el anuncio tendrá menos visibilidad.-->
+<!--            </small>-->
+<!--        </div>-->
 
         <div class="col-md-4">
             <label class="form-label text-dark fw-bold small">Precio por noche <span class="text-danger">*</span></label>
@@ -208,6 +216,7 @@
 
 <footer th:replace="~{layout/footer :: footer}"></footer>
 <script th:replace="~{layout/footer :: scripts}"></script>
+<script th:src="@{/js/img-preview.js}"></script>
 
 
 </body>
