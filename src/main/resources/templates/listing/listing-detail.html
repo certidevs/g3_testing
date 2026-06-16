@@ -138,13 +138,13 @@
                     <div th:if="${listing.isActive and !listing.deleted}" sec:authorize="!hasRole('ADMIN')">
 
                         <!-- Si es el propietario, mostrar aviso -->
-                        <div th:if="${listing.owner != null and listing.owner.id == #authentication.principal.id}"
+                        <div th:if="${isOwner}"
                              class="alert alert-secondary text-center small py-3 rounded-3 mb-3 fw-medium">
                             <i class="fa-solid fa-ban me-1"></i> No puedes reservar tu propio alojamiento
                         </div>
 
                         <!-- Si NO es el propietario, mostrar botón -->
-                        <a th:if="${listing.owner == null or listing.owner.id != #authentication.principal.id}"
+                        <a th:unless="${isOwner}"
                            th:href="@{/bookings/new/{id}(id=${listing.id})}"
                            class="btn btn-airbnb fw-bold w-100 py-3 rounded-3 mb-3">
                             Reservar ahora
