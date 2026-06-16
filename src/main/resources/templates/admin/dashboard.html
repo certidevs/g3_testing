@@ -198,8 +198,8 @@
                         <td class="py-3 text-muted" th:text="${l.owner.name != null ? l.owner.name : l.owner.username}"></td>
                         <td class="py-3 text-center">
                             <span class="badge px-2 py-1 small"
-                                  th:classappend="${l.isActive ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-secondary-subtle text-secondary border'}"
-                                  th:text="${l.isActive ? 'Activo' : 'Inactivo'}">
+                                  th:classappend="${l.deleted ? 'bg-danger-subtle text-danger border border-danger-subtle' : (l.isActive ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-secondary-subtle text-secondary border')}"
+                                  th:text="${l.deleted ? 'Eliminado' : (l.isActive ? 'Activo' : 'Inactivo')}">
                             </span>
                         </td>
                         <td class="py-3 text-end fw-semibold text-dark" th:text="${#numbers.formatCurrency(l.pricePerNight)}"></td>
