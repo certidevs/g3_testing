@@ -33,7 +33,7 @@
                     <a class="nav-link px-3 py-2" th:href="@{/amenity}">Comodidades</a>
                 </li>
 
-                <li class="nav-item ms-lg-2">
+                <li class="nav-item ms-lg-2" sec:authorize="!hasRole('ADMIN')">
                     <a class="btn btn-airbnb-outline px-4 py-2" th:href="@{/listings/new}">Anunciar tu casa</a>
                 </li>
 

@@ -24,7 +24,7 @@ public class SecurityConfig {
                 .requestMatchers("/", "/register", "/error", "/login", "/css/**", "/webjars/**", "/images/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/listings", "/listings/{id:\\d+}").permitAll()
                 .requestMatchers("/listings/edit/**", "/listings/toggle/**").hasAnyRole("ADMIN", "HOST")
-                .requestMatchers("/listings/new").hasAnyRole("ADMIN", "HOST", "USER")
+                .requestMatchers("/listings/new").hasAnyRole("HOST", "USER")
                 .requestMatchers(HttpMethod.POST, "/listings").hasAnyRole("ADMIN", "HOST", "USER")
                 .requestMatchers(HttpMethod.POST, "/listings/{id:\\d+}/delete").hasAnyRole("ADMIN", "HOST")
 
