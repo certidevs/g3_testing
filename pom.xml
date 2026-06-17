@@ -35,7 +35,9 @@
         <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.exclusions>
             **/DataInitializer.java,
-            **/G3TestingApplication.java
+            **/G3TestingApplication.java,
+            **/SecurityConfig.java,
+            **/WebConfig.java
         </sonar.exclusions>
 
     </properties>
