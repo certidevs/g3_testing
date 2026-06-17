@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * Nota: baseUrl YA termina en "/", por eso se navega con baseUrl + "listings".
  */
-@Disabled
 public class ListingSeleniumTest extends BaseSeleniumTest {
 
     // ------------------------------------------------------------------

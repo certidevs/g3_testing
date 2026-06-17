@@ -13,7 +13,7 @@ import org.openqa.selenium.support.ui.Select;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-@Disabled
+
 public class ReviewSeleniumTest extends BaseSeleniumTest {
 
     // ------------------------------------------------------------------
@@ -447,6 +447,7 @@ public class ReviewSeleniumTest extends BaseSeleniumTest {
         }
     }
 
+    @Disabled
     @Test
     void crearReviewSinComentarioMuestraError() {
         reviewRepository.delete(review);
