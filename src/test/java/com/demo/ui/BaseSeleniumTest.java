@@ -40,6 +40,7 @@ public class BaseSeleniumTest {
     @Autowired MessageRepository messageRepository;
     @Autowired ConversationRepository conversationRepository;
     @Autowired AmenityRepository amenityRepository;
+    @Autowired AmenityLineRepository amenityLineRepository;
     @Autowired PasswordEncoder passwordEncoder;
 
     String baseUrl;
@@ -70,6 +71,7 @@ public class BaseSeleniumTest {
         messageRepository.deleteAll();
         conversationRepository.deleteAll();
         reviewRepository.deleteAll();
+        amenityLineRepository.deleteAll();
         amenityRepository.deleteAll();
         bookingRepository.deleteAll();
         listingRepository.deleteAll();
@@ -237,6 +239,14 @@ public class BaseSeleniumTest {
         if (driver != null) {
             driver.quit();
         }
+        messageRepository.deleteAll();
+        conversationRepository.deleteAll();
+        reviewRepository.deleteAll();
+        amenityLineRepository.deleteAll();
+        amenityRepository.deleteAll();
+        bookingRepository.deleteAll();
+        listingRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     // --- Helpers de login ---
