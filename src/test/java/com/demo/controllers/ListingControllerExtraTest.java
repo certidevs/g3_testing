@@ -403,4 +403,33 @@ class ListingControllerExtraTest {
         assertEquals("Apartamento con Vistas (Reformado)", actualizado.getTitle());
         assertEquals(175.0, actualizado.getPricePerNight(), 0.001);
     }
+
+    @Test
+    @DisplayName("detail: el modelo expone listing, amenities e isOwner (relaciones)")
+    void detailModelExposesRelations() throws Exception {
+        Listing l = listingRepository.findAll().getFirst();
+
+        mockMvc.perform(get("/listings/" + l.getId()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("listing/listing-detail"))
+                .andExpect(model().attributeExists("listing", "amenities", "isOwner"));
+    }
+
+    @Test
+    @DisplayName("detail: el HTML renderizado contiene title, price y guests")
+    void detailHtmlContainsKeyData() throws Exception {
+        Listing l = listingRepository.save(Listing.builder()
+                .title("Atico Vista Mar HTML")
+                .type(ListingType.APARTAMENTO)
+                .pricePerNight(137.0)
+                .maxGuests(19)
+                .minNights(2).maxNights(28)
+                .isActive(true).owner(admin).build());
+
+        mockMvc.perform(get("/listings/" + l.getId()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Atico Vista Mar HTML"))) // title
+                .andExpect(content().string(containsString("137")))                  // price
+                .andExpect(content().string(containsString("19")));                  // guests (maxGuests)
+    }
 }
