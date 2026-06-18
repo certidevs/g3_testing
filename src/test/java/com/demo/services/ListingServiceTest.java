@@ -9,7 +9,7 @@ import com.demo.repositories.BookingRepository;
 import com.demo.repositories.ListingRatingProjection;
 import com.demo.repositories.ListingRepository;
 import com.demo.repositories.ReviewRepository;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,286 +18,299 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Tests unitarios de {@link ListingService} con mocks de los repositorios.
+ * Cubren: validación de precios, cada filtro de búsqueda, disponibilidad por
+ * fechas (solape de reservas) y todas las ramas de ordenación.
+ */
 @ExtendWith(MockitoExtension.class)
-public class ListingServiceTest {
+class ListingServiceTest {
 
     @Mock
-    private ListingRepository listingRepository;
-
+    ListingRepository listingRepository;
     @Mock
-    private BookingRepository bookingRepository;
-
+    BookingRepository bookingRepository;
     @Mock
-    private ReviewRepository reviewRepository;
+    ReviewRepository reviewRepository;
 
     @InjectMocks
-    private ListingService listingService;
+    ListingService listingService;
 
-    private Listing loft;
-    private Listing apto;
-    private Listing chalet;
-    private List<Listing> allListings;
+    // ───────────────────────── helpers ─────────────────────────
 
-    @BeforeEach
-    void setUp() {
-        loft = Listing.builder()
-                .id(1L)
-                .title("Loft Industrial")
-                .type(ListingType.LOFT)
-                .pricePerNight(100.0)
-                .maxGuests(2)
-                .minNights(1)
-                .maxNights(10)
-                .city(City.MADRID)
-                .registeredAt(LocalDateTime.of(2026, 1, 1, 12, 0))
+    private Listing listing(long id, ListingType type, double price, int guests,
+                            int minNights, int maxNights, City city) {
+        return Listing.builder()
+                .id(id)
+                .title("L" + id)
+                .type(type)
+                .pricePerNight(price)
+                .maxGuests(guests)
+                .minNights(minNights)
+                .maxNights(maxNights)
+                .city(city)
+                .isActive(true)
                 .deleted(false)
+                .registeredAt(LocalDateTime.of(2026, 1, (int) id, 12, 0))
                 .build();
-
-        apto = Listing.builder()
-                .id(2L)
-                .title("Apartamento Centro")
-                .type(ListingType.APARTAMENTO)
-                .pricePerNight(150.0)
-                .maxGuests(4)
-                .minNights(2)
-                .maxNights(20)
-                .city(City.MADRID)
-                .registeredAt(LocalDateTime.of(2026, 2, 1, 12, 0))
-                .deleted(false)
-                .build();
-
-        chalet = Listing.builder()
-                .id(3L)
-                .title("Chalet de Lujo")
-                .type(ListingType.CHALET)
-                .pricePerNight(300.0)
-                .maxGuests(6)
-                .minNights(3)
-                .maxNights(30)
-                .city(City.ALICANTE)
-                .registeredAt(LocalDateTime.of(2025, 12, 1, 12, 0))
-                .deleted(false)
-                .build();
-
-        allListings = new ArrayList<>(List.of(loft, apto, chalet));
     }
 
-    @Test
-    void searchInvalidPriceRangeReturnsEmptyList() {
-        List<Listing> result = listingService.search(null, 200.0, 100.0, null, null, null, null, null, null);
+    private Booking booking(BookingStatus status, LocalDate checkIn, LocalDate checkOut) {
+        return Booking.builder()
+                .status(status)
+                .checkIn(checkIn.atStartOfDay())
+                .checkOut(checkOut.atStartOfDay())
+                .build();
+    }
 
-        assertNotNull(result);
+    private ListingRatingProjection rating(long listingId, double avg) {
+        return new ListingRatingProjection() {
+            public Long getListingId() { return listingId; }
+            public Double getAvgRating() { return avg; }
+        };
+    }
+
+    /** Búsqueda sin filtros, solo con criterio de orden. */
+    private List<Listing> searchSorted(String sort) {
+        return listingService.search(null, null, null, null, null, null, null, null, sort);
+    }
+
+    // ───────────────────────── validación de precios ─────────────────────────
+
+    @Test
+    @DisplayName("minPrice > maxPrice devuelve lista vacía sin tocar repositorios")
+    void minPriceGreaterThanMaxPriceReturnsEmpty() {
+        List<Listing> result = listingService.search(
+                null, 200.0, 100.0, null, null, null, null, null, null);
+
         assertTrue(result.isEmpty());
-        verifyNoInteractions(listingRepository);
+        verifyNoInteractions(listingRepository, bookingRepository, reviewRepository);
+    }
+
+    // ───────────────────────── filtros ─────────────────────────
+
+    @Test
+    @DisplayName("sin filtros devuelve todos los no borrados")
+    void noFiltersReturnsNonDeleted() {
+        Listing a = listing(1, ListingType.APARTAMENTO, 100, 4, 1, 30, City.MADRID);
+        Listing b = listing(2, ListingType.CASA, 80, 5, 2, 30, City.BARCELONA);
+        Listing borrado = listing(3, ListingType.LOFT, 50, 2, 1, 30, City.SEVILLA);
+        borrado.setDeleted(true);
+        when(listingRepository.findAll()).thenReturn(List.of(a, b, borrado));
+
+        List<Listing> result = searchSorted(null);
+
+        assertEquals(2, result.size());
+        assertTrue(result.containsAll(List.of(a, b)));
+        assertFalse(result.contains(borrado));
     }
 
     @Test
-    void searchWithoutFiltersReturnsAllNonDeletedListings() {
-        Listing deletedListing = Listing.builder().id(4L).deleted(true).build();
-        allListings.add(deletedListing);
-
-        when(listingRepository.findAll()).thenReturn(allListings);
-
-        List<Listing> result = listingService.search(null, null, null, null, null, null, null, null, null);
-
-        assertEquals(3, result.size());
-        assertFalse(result.contains(deletedListing));
-    }
-
-    @Test
-    void searchByFiltersCombination() {
-        when(listingRepository.findAll()).thenReturn(allListings);
+    @DisplayName("filtra por tipo")
+    void filtersByType() {
+        Listing apto = listing(1, ListingType.APARTAMENTO, 100, 4, 1, 30, City.MADRID);
+        Listing casa = listing(2, ListingType.CASA, 80, 5, 2, 30, City.BARCELONA);
+        when(listingRepository.findAll()).thenReturn(List.of(apto, casa));
 
         List<Listing> result = listingService.search(
-                ListingType.LOFT,
-                50.0,
-                120.0,
-                2,
-                5,
-                City.MADRID,
-                null, null, null
-        );
+                ListingType.CASA, null, null, null, null, null, null, null, null);
 
-        assertEquals(1, result.size());
-        assertEquals("Loft Industrial", result.get(0).getTitle());
+        assertEquals(List.of(casa), result);
     }
 
     @Test
-    void searchWithDatesAvailable() {
-        when(listingRepository.findAll()).thenReturn(List.of(loft));
+    @DisplayName("filtra por rango de precio")
+    void filtersByPriceRange() {
+        Listing barato = listing(1, ListingType.APARTAMENTO, 50, 4, 1, 30, City.MADRID);
+        Listing medio = listing(2, ListingType.APARTAMENTO, 100, 4, 1, 30, City.MADRID);
+        Listing caro = listing(3, ListingType.APARTAMENTO, 200, 4, 1, 30, City.MADRID);
+        when(listingRepository.findAll()).thenReturn(List.of(barato, medio, caro));
 
-        Booking booking = Booking.builder()
-                .status(BookingStatus.CONFIRMED)
-                .checkIn(LocalDateTime.of(2026, 7, 10, 15, 0))
-                .checkOut(LocalDateTime.of(2026, 7, 15, 12, 0))
-                .build();
+        List<Listing> result = listingService.search(
+                null, 80.0, 150.0, null, null, null, null, null, null);
 
-        when(bookingRepository.findByListingId(1L)).thenReturn(List.of(booking));
+        assertEquals(List.of(medio), result);
+    }
+
+    @Test
+    @DisplayName("filtra por número de huéspedes")
+    void filtersByGuests() {
+        Listing peque = listing(1, ListingType.APARTAMENTO, 50, 2, 1, 30, City.MADRID);
+        Listing grande = listing(2, ListingType.APARTAMENTO, 100, 6, 1, 30, City.MADRID);
+        when(listingRepository.findAll()).thenReturn(List.of(peque, grande));
+
+        List<Listing> result = listingService.search(
+                null, null, null, 5, null, null, null, null, null);
+
+        assertEquals(List.of(grande), result);
+    }
+
+    @Test
+    @DisplayName("filtra por noches dentro del rango min/max del alojamiento")
+    void filtersByNights() {
+        Listing cortas = listing(1, ListingType.APARTAMENTO, 50, 4, 1, 3, City.MADRID);
+        Listing largas = listing(2, ListingType.APARTAMENTO, 100, 4, 5, 30, City.MADRID);
+        when(listingRepository.findAll()).thenReturn(List.of(cortas, largas));
+
+        List<Listing> result = listingService.search(
+                null, null, null, null, 7, null, null, null, null);
+
+        assertEquals(List.of(largas), result);
+    }
+
+    @Test
+    @DisplayName("filtra por ciudad")
+    void filtersByCity() {
+        Listing madrid = listing(1, ListingType.APARTAMENTO, 50, 4, 1, 30, City.MADRID);
+        Listing barcelona = listing(2, ListingType.APARTAMENTO, 100, 4, 1, 30, City.BARCELONA);
+        when(listingRepository.findAll()).thenReturn(List.of(madrid, barcelona));
+
+        List<Listing> result = listingService.search(
+                null, null, null, null, null, City.BARCELONA, null, null, null);
+
+        assertEquals(List.of(barcelona), result);
+    }
+
+    // ───────────────────────── disponibilidad por fechas ─────────────────────────
+
+    @Test
+    @DisplayName("excluye alojamiento con reserva CONFIRMED solapada")
+    void excludesListingWithOverlappingConfirmedBooking() {
+        Listing ocupado = listing(1, ListingType.APARTAMENTO, 100, 4, 1, 30, City.MADRID);
+        Listing libre = listing(2, ListingType.APARTAMENTO, 100, 4, 1, 30, City.MADRID);
+        when(listingRepository.findAll()).thenReturn(List.of(ocupado, libre));
+        when(bookingRepository.findByListingId(1L)).thenReturn(List.of(
+                booking(BookingStatus.CONFIRMED, LocalDate.of(2026, 7, 12), LocalDate.of(2026, 7, 18))));
+        when(bookingRepository.findByListingId(2L)).thenReturn(List.of());
 
         List<Listing> result = listingService.search(
                 null, null, null, null, null, null,
-                LocalDate.of(2026, 7, 1),
-                LocalDate.of(2026, 7, 5),
-                null
-        );
+                LocalDate.of(2026, 7, 10), LocalDate.of(2026, 7, 15), null);
 
-        assertEquals(1, result.size());
+        assertEquals(List.of(libre), result);
     }
 
     @Test
-    void searchWithDatesOverlapReturnsEmpty() {
-        when(listingRepository.findAll()).thenReturn(List.of(loft));
-
-        Booking booking = Booking.builder()
-                .status(BookingStatus.CONFIRMED)
-                .checkIn(LocalDateTime.of(2026, 7, 10, 15, 0))
-                .checkOut(LocalDateTime.of(2026, 7, 15, 12, 0))
-                .build();
-
-        when(bookingRepository.findByListingId(1L)).thenReturn(List.of(booking));
+    @DisplayName("una reserva CANCELED o no solapada no bloquea la disponibilidad")
+    void canceledOrNonOverlappingBookingDoesNotBlock() {
+        Listing l = listing(1, ListingType.APARTAMENTO, 100, 4, 1, 30, City.MADRID);
+        when(listingRepository.findAll()).thenReturn(List.of(l));
+        when(bookingRepository.findByListingId(1L)).thenReturn(List.of(
+                booking(BookingStatus.CANCELED, LocalDate.of(2026, 7, 11), LocalDate.of(2026, 7, 14)),  // solapa pero cancelada
+                booking(BookingStatus.CONFIRMED, LocalDate.of(2026, 8, 1), LocalDate.of(2026, 8, 5))    // confirmada pero no solapa
+        ));
 
         List<Listing> result = listingService.search(
                 null, null, null, null, null, null,
-                LocalDate.of(2026, 7, 12),
-                LocalDate.of(2026, 7, 18),
-                null
-        );
+                LocalDate.of(2026, 7, 10), LocalDate.of(2026, 7, 15), null);
 
-        assertTrue(result.isEmpty());
+        assertEquals(List.of(l), result);
     }
 
     @Test
-    void searchWithDatesSingleStartAndNullEnd() {
-        when(listingRepository.findAll()).thenReturn(List.of(loft));
+    @DisplayName("con solo fecha de inicio (end=null) también evalúa disponibilidad")
+    void onlyStartDateStillChecksAvailability() {
+        Listing l = listing(1, ListingType.APARTAMENTO, 100, 4, 1, 30, City.MADRID);
+        when(listingRepository.findAll()).thenReturn(List.of(l));
+        when(bookingRepository.findByListingId(1L)).thenReturn(List.of(
+                booking(BookingStatus.PENDING, LocalDate.of(2026, 7, 10), LocalDate.of(2026, 7, 12))));
+
+        List<Listing> result = listingService.search(
+                null, null, null, null, null, null,
+                LocalDate.of(2026, 7, 11), null, null);
+
+        assertTrue(result.isEmpty()); // la reserva PENDING solapa el día 11
+    }
+
+    @Test
+    @DisplayName("con solo fecha de fin (start=null) también evalúa disponibilidad")
+    void onlyEndDateStillChecksAvailability() {
+        Listing l = listing(1, ListingType.APARTAMENTO, 100, 4, 1, 30, City.MADRID);
+        when(listingRepository.findAll()).thenReturn(List.of(l));
         when(bookingRepository.findByListingId(1L)).thenReturn(List.of());
 
         List<Listing> result = listingService.search(
                 null, null, null, null, null, null,
-                LocalDate.of(2026, 7, 12),
-                null,
-                null
-        );
+                null, LocalDate.of(2026, 7, 20), null);
 
-        assertEquals(1, result.size());
+        assertEquals(List.of(l), result);
+    }
+
+    // ───────────────────────── ordenación ─────────────────────────
+
+    @Test
+    @DisplayName("sort=priceAsc ordena por precio ascendente")
+    void sortPriceAsc() {
+        Listing a = listing(1, ListingType.APARTAMENTO, 150, 4, 1, 30, City.MADRID);
+        Listing b = listing(2, ListingType.APARTAMENTO, 80, 4, 1, 30, City.MADRID);
+        Listing c = listing(3, ListingType.APARTAMENTO, 120, 4, 1, 30, City.MADRID);
+        when(listingRepository.findAll()).thenReturn(List.of(a, b, c));
+
+        assertEquals(List.of(b, c, a), searchSorted("priceAsc"));
     }
 
     @Test
-    void searchWithDatesNullStartAndSingleEnd() {
-        when(listingRepository.findAll()).thenReturn(List.of(loft));
-        when(bookingRepository.findByListingId(1L)).thenReturn(List.of());
+    @DisplayName("sort=priceDesc ordena por precio descendente")
+    void sortPriceDesc() {
+        Listing a = listing(1, ListingType.APARTAMENTO, 150, 4, 1, 30, City.MADRID);
+        Listing b = listing(2, ListingType.APARTAMENTO, 80, 4, 1, 30, City.MADRID);
+        Listing c = listing(3, ListingType.APARTAMENTO, 120, 4, 1, 30, City.MADRID);
+        when(listingRepository.findAll()).thenReturn(List.of(a, b, c));
 
-        List<Listing> result = listingService.search(
-                null, null, null, null, null, null,
-                null,
-                LocalDate.of(2026, 7, 12),
-                null
-        );
-
-        assertEquals(1, result.size());
+        assertEquals(List.of(a, c, b), searchSorted("priceDesc"));
     }
 
     @Test
-    void applySortPriceAscending() {
-        when(listingRepository.findAll()).thenReturn(allListings);
+    @DisplayName("sort=dateNewest y dateOldest ordenan por fecha de alta")
+    void sortByDate() {
+        Listing viejo = listing(1, ListingType.APARTAMENTO, 100, 4, 1, 30, City.MADRID); // 2026-01-01
+        Listing nuevo = listing(5, ListingType.APARTAMENTO, 100, 4, 1, 30, City.MADRID); // 2026-01-05
+        when(listingRepository.findAll()).thenReturn(List.of(viejo, nuevo));
 
-        List<Listing> result = listingService.search(null, null, null, null, null, null, null, null, "priceAsc");
-
-        assertEquals(3, result.size());
-        assertEquals(100.0, result.get(0).getPricePerNight());
-        assertEquals(150.0, result.get(1).getPricePerNight());
-        assertEquals(300.0, result.get(2).getPricePerNight());
+        assertEquals(List.of(nuevo, viejo), searchSorted("dateNewest"));
+        assertEquals(List.of(viejo, nuevo), searchSorted("dateOldest"));
     }
 
     @Test
-    void applySortPriceDescending() {
-        when(listingRepository.findAll()).thenReturn(allListings);
+    @DisplayName("sort nulo, vacío o desconocido no cambia el orden")
+    void sortNullBlankOrUnknownKeepsOrder() {
+        Listing a = listing(1, ListingType.APARTAMENTO, 150, 4, 1, 30, City.MADRID);
+        Listing b = listing(2, ListingType.APARTAMENTO, 80, 4, 1, 30, City.MADRID);
+        when(listingRepository.findAll()).thenReturn(List.of(a, b));
 
-        List<Listing> result = listingService.search(null, null, null, null, null, null, null, null, "priceDesc");
-
-        assertEquals(3, result.size());
-        assertEquals(300.0, result.get(0).getPricePerNight());
-        assertEquals(150.0, result.get(1).getPricePerNight());
-        assertEquals(100.0, result.get(2).getPricePerNight());
+        assertEquals(List.of(a, b), searchSorted(null));
+        assertEquals(List.of(a, b), searchSorted(""));
+        assertEquals(List.of(a, b), searchSorted("loQueSea"));
     }
 
     @Test
-    void applySortDateNewest() {
-        when(listingRepository.findAll()).thenReturn(allListings);
+    @DisplayName("sort=ratingDesc ordena por valoración media; sin valoración al final")
+    void sortRatingDesc() {
+        Listing alta = listing(1, ListingType.APARTAMENTO, 100, 4, 1, 30, City.MADRID);   // 4.5
+        Listing media = listing(2, ListingType.APARTAMENTO, 100, 4, 1, 30, City.MADRID);  // 3.0
+        Listing sin = listing(3, ListingType.APARTAMENTO, 100, 4, 1, 30, City.MADRID);    // sin reseñas
+        when(listingRepository.findAll()).thenReturn(List.of(sin, media, alta));
+        when(reviewRepository.findAverageRatingsByListing())
+                .thenReturn(List.of(rating(1, 4.5), rating(2, 3.0)));
 
-        List<Listing> result = listingService.search(null, null, null, null, null, null, null, null, "dateNewest");
-
-        assertEquals("Apartamento Centro", result.get(0).getTitle());
-        assertEquals("Loft Industrial", result.get(1).getTitle());
-        assertEquals("Chalet de Lujo", result.get(2).getTitle());
+        assertEquals(List.of(alta, media, sin), searchSorted("ratingDesc"));
     }
 
     @Test
-    void applySortDateOldest() {
-        when(listingRepository.findAll()).thenReturn(allListings);
+    @DisplayName("sort=ratingAsc ordena ascendente; sin valoración al final")
+    void sortRatingAsc() {
+        Listing alta = listing(1, ListingType.APARTAMENTO, 100, 4, 1, 30, City.MADRID);   // 4.5
+        Listing media = listing(2, ListingType.APARTAMENTO, 100, 4, 1, 30, City.MADRID);  // 3.0
+        Listing sin = listing(3, ListingType.APARTAMENTO, 100, 4, 1, 30, City.MADRID);    // sin reseñas
+        when(listingRepository.findAll()).thenReturn(List.of(sin, alta, media));
+        when(reviewRepository.findAverageRatingsByListing())
+                .thenReturn(List.of(rating(1, 4.5), rating(2, 3.0)));
 
-        List<Listing> result = listingService.search(null, null, null, null, null, null, null, null, "dateOldest");
-
-        assertEquals("Chalet de Lujo", result.get(0).getTitle());
-        assertEquals("Loft Industrial", result.get(1).getTitle());
-        assertEquals("Apartamento Centro", result.get(2).getTitle());
-    }
-
-    @Test
-    void applySortUnknownStringReturnsUnsorted() {
-        when(listingRepository.findAll()).thenReturn(allListings);
-
-        List<Listing> result = listingService.search(null, null, null, null, null, null, null, null, "unknown_sort");
-
-        assertEquals(allListings, result);
-    }
-
-    @Test
-    void applySortRatingDescWithProjections() {
-        when(listingRepository.findAll()).thenReturn(allListings);
-
-        ListingRatingProjection p1 = mock(ListingRatingProjection.class);
-        when(p1.getListingId()).thenReturn(1L);
-        when(p1.getAvgRating()).thenReturn(4.0);
-
-        ListingRatingProjection p2 = mock(ListingRatingProjection.class);
-        when(p2.getListingId()).thenReturn(2L);
-        when(p2.getAvgRating()).thenReturn(5.0);
-
-        when(reviewRepository.findAverageRatingsByListing()).thenReturn(List.of(p1, p2));
-
-        List<Listing> result = listingService.search(null, null, null, null, null, null, null, null, "ratingDesc");
-
-        assertEquals(3, result.size());
-        assertEquals(2L, result.get(0).getId()); // 5.0 rating primero
-        assertEquals(1L, result.get(1).getId()); // 4.0 rating segundo
-        assertEquals(3L, result.get(2).getId()); // Sin rating (-1.0) al final
-    }
-
-    @Test
-    void applySortRatingAscWithProjections() {
-        when(listingRepository.findAll()).thenReturn(allListings);
-
-        ListingRatingProjection p1 = mock(ListingRatingProjection.class);
-        when(p1.getListingId()).thenReturn(1L);
-        when(p1.getAvgRating()).thenReturn(4.0);
-
-        ListingRatingProjection p2 = mock(ListingRatingProjection.class);
-        when(p2.getListingId()).thenReturn(2L);
-        when(p2.getAvgRating()).thenReturn(5.0);
-
-        when(reviewRepository.findAverageRatingsByListing()).thenReturn(List.of(p1, p2));
-
-        List<Listing> result = listingService.search(null, null, null, null, null, null, null, null, "ratingAsc");
-
-        assertEquals(3, result.size());
-        assertEquals(1L, result.get(0).getId()); // 4.0 rating primero en asc
-        assertEquals(2L, result.get(1).getId()); // 5.0 rating segundo en asc
-        assertEquals(3L, result.get(2).getId()); // Sin rating (-1.0) siempre al final
+        assertEquals(List.of(media, alta, sin), searchSorted("ratingAsc"));
     }
 }

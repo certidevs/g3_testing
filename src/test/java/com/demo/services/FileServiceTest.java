@@ -1,104 +1,113 @@
 package com.demo.services;
 
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Comparator;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-public class FileServiceTest {
+/**
+ * Tests unitarios de {@link FileService}.
+ * Las rutas felices escriben de verdad en la carpeta "uploads" y se limpian en {@link #cleanUp()}.
+ */
+class FileServiceTest {
 
-    @InjectMocks
-    private FileService fileService;
+    private final FileService fileService = new FileService();
+    private final List<Path> createdFiles = new ArrayList<>();
 
-    @AfterAll
-    static void cleanUpUploads() throws IOException {
-        Path path = Paths.get(FileService.UPLOAD_DIR).toAbsolutePath().normalize();
-        if (Files.exists(path)) {
-            Files.walk(path)
-                    .sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    .forEach(java.io.File::delete);
+    @AfterEach
+    void cleanUp() throws IOException {
+        for (Path p : createdFiles) {
+            Files.deleteIfExists(p);
         }
     }
 
-    @Test
-    void storeNullFileReturnsNull() {
-        String result = fileService.store(null);
-        assertNull(result);
+    private Path resolveStored(String url) {
+        String filename = url.substring("/uploads/".length());
+        return Paths.get(FileService.UPLOAD_DIR).toAbsolutePath().normalize().resolve(filename);
     }
 
     @Test
-    void storeEmptyFileReturnsNull() {
-        MultipartFile emptyFile = new MockMultipartFile("file", "test.txt", "text/plain", new byte[0]);
-        String result = fileService.store(emptyFile);
-        assertNull(result);
+    @DisplayName("store(null) devuelve null")
+    void storeNullReturnsNull() {
+        assertNull(fileService.store(null));
     }
 
     @Test
-    void storeSuccessWithExtension() {
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "imagen.proyecto.png",
-                "image/png",
-                "contenido de prueba".getBytes()
-        );
-
-        String result = fileService.store(file);
-
-        assertNotNull(result);
-        assertTrue(result.startsWith("/uploads/"));
-        assertTrue(result.endsWith(".png"));
-
-        String generatedFilename = result.substring("/uploads/".length());
-        Path filePath = Paths.get(FileService.UPLOAD_DIR, generatedFilename).toAbsolutePath().normalize();
-        assertTrue(Files.exists(filePath));
+    @DisplayName("store de un archivo vacío devuelve null")
+    void storeEmptyReturnsNull() {
+        MultipartFile empty = new MockMultipartFile("imageFile", "foto.png", "image/png", new byte[0]);
+        assertNull(fileService.store(empty));
     }
 
     @Test
-    void storeSuccessWithoutExtension() {
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "archivo-sin-extension",
-                "application/octet-stream",
-                "datos".getBytes()
-        );
+    @DisplayName("store de un archivo válido lo guarda y devuelve /uploads/<uuid>.ext")
+    void storeValidFilePersistsAndReturnsUrl() throws IOException {
+        byte[] content = "contenido-imagen".getBytes(StandardCharsets.UTF_8);
+        MultipartFile file = new MockMultipartFile("imageFile", "foto.png", "image/png", content);
 
-        String result = fileService.store(file);
+        String url = fileService.store(file);
 
-        assertNotNull(result);
-        assertTrue(result.startsWith("/uploads/"));
+        assertNotNull(url);
+        assertTrue(url.startsWith("/uploads/"), "la url debe empezar por /uploads/");
+        assertTrue(url.endsWith(".png"), "debe conservar la extensión original");
 
-        String generatedFilename = result.substring("/uploads/".length());
-        assertFalse(generatedFilename.contains("."));
-        Path filePath = Paths.get(FileService.UPLOAD_DIR, generatedFilename).toAbsolutePath().normalize();
-        assertTrue(Files.exists(filePath));
+        Path stored = resolveStored(url);
+        createdFiles.add(stored);
+        assertTrue(Files.exists(stored), "el archivo debe existir en disco");
+        assertArrayEquals(content, Files.readAllBytes(stored));
     }
 
     @Test
-    void storeThrowsRuntimeExceptionOnIOException() throws IOException {
-        MultipartFile mockedFile = mock(MultipartFile.class);
-        when(mockedFile.isEmpty()).thenReturn(false);
-        when(mockedFile.getOriginalFilename()).thenReturn("error.jpg");
-        doThrow(new IOException("Error simulado de disco")).when(mockedFile).transferTo(any(Path.class));
+    @DisplayName("store de un archivo sin extensión genera un nombre sin punto")
+    void storeFileWithoutExtension() {
+        MultipartFile file = new MockMultipartFile(
+                "imageFile", "sinextension", "image/png", "x".getBytes(StandardCharsets.UTF_8));
 
-        RuntimeException exception = assertThrows(RuntimeException.class,
-                () -> fileService.store(mockedFile));
+        String url = fileService.store(file);
 
-        assertEquals("No se pudo guardar el archivo", exception.getMessage());
-        verify(mockedFile).isEmpty();
-        verify(mockedFile).getOriginalFilename();
+        assertNotNull(url);
+        createdFiles.add(resolveStored(url));
+        String filename = url.substring("/uploads/".length());
+        assertFalse(filename.contains("."), "no debe añadir extensión si el original no la tenía");
+    }
+
+    @Test
+    @DisplayName("dos archivos con el mismo nombre generan rutas distintas (UUID)")
+    void storeGeneratesUniqueNames() {
+        MultipartFile a = new MockMultipartFile("imageFile", "foto.png", "image/png", "a".getBytes(StandardCharsets.UTF_8));
+        MultipartFile b = new MockMultipartFile("imageFile", "foto.png", "image/png", "b".getBytes(StandardCharsets.UTF_8));
+
+        String urlA = fileService.store(a);
+        String urlB = fileService.store(b);
+        createdFiles.add(resolveStored(urlA));
+        createdFiles.add(resolveStored(urlB));
+
+        assertNotEquals(urlA, urlB);
+    }
+
+    @Test
+    @DisplayName("si transferTo lanza IOException, store la envuelve en RuntimeException")
+    void storeWrapsIOExceptionInRuntime() throws IOException {
+        MultipartFile file = mock(MultipartFile.class);
+        when(file.isEmpty()).thenReturn(false);
+        when(file.getOriginalFilename()).thenReturn("foto.png");
+        doThrow(new IOException("disco lleno")).when(file).transferTo(any(Path.class));
+
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> fileService.store(file));
+        assertEquals("No se pudo guardar el archivo", ex.getMessage());
+        assertInstanceOf(IOException.class, ex.getCause());
     }
 }
