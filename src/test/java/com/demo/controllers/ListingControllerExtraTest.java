@@ -432,4 +432,17 @@ class ListingControllerExtraTest {
                 .andExpect(content().string(containsString("137")))                  // price
                 .andExpect(content().string(containsString("19")));                  // guests (maxGuests)
     }
+
+    @Test
+    @DisplayName("GET /listings/new: el formulario se muestra vacio, sin datos previos")
+    void newListingFormIsEmptyInitially() throws Exception {
+        User host = saveUser("hostvacio", "vacio@test.com", Role.ROLE_HOST);
+
+        mockMvc.perform(get("/listings/new").with(user(host)))
+                .andExpect(status().isOk())
+                .andExpect(view().name("listing/listing-form"))
+                .andExpect(model().attribute("listing", hasProperty("id", nullValue())))
+                .andExpect(model().attribute("listing", hasProperty("title", nullValue())))
+                .andExpect(model().attribute("selectedAmenityIds", empty()));
+    }
 }
