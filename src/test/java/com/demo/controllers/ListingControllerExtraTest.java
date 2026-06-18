@@ -373,5 +373,34 @@ class ListingControllerExtraTest {
                 .andExpect(flash().attributeExists("errorMessage"));
 
         assertFalse(listingRepository.findById(l.getId()).orElseThrow().getDeleted());
+
+    }
+    @Test
+    @DisplayName("POST /listings con id existente actualiza el alojamiento sin duplicar y redirige")
+    void updateListingModificaExistenteYRedirige() throws Exception {
+        Listing existente = listingRepository.findAll().getFirst();
+        long total = listingRepository.count();
+
+        mockMvc.perform(multipart("/listings")
+                        .file(new MockMultipartFile("imageFile", "", "image/png", new byte[0]))
+                        .param("id", String.valueOf(existente.getId()))
+                        .param("title", "Apartamento con Vistas (Reformado)")
+                        .param("type", existente.getType().name())
+                        .param("pricePerNight", "175.0")
+                        .param("maxGuests", "4")
+                        .param("minNights", "1")
+                        .param("maxNights", "30")
+                        .with(user(admin))
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/listings"));
+
+        // Es una actualizacion: no se crea una fila nueva
+        assertEquals(total, listingRepository.count());
+
+        // La fila existente quedo modificada
+        Listing actualizado = listingRepository.findById(existente.getId()).orElseThrow();
+        assertEquals("Apartamento con Vistas (Reformado)", actualizado.getTitle());
+        assertEquals(175.0, actualizado.getPricePerNight(), 0.001);
     }
 }
