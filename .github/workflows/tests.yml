@@ -78,3 +78,35 @@ jobs:
           cache: maven
       - name: Ejecutar *SecurityTest
         run: mvn -B test -Dtest='*SecurityTest'
+
+  selenium-tests:
+    name: Tests de Selenium E2E
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Java 25 + cache Maven
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - name: Versión de Chrome del runner
+        run: google-chrome --version
+      - name: Ejecutar tests de Selenium
+        run: mvn -B test -Dtest="${{ inputs.test }}"
+        # opcional, para ver más detalles
+      - name: Subir reporte de Selenium a GitHub Actions
+        if: always() # Siempre subir el reporte, incluso si los tests fallan
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: '**/target/surefire-reports/'
+          retention-days: 7
+      - name: Subir capturas de fallos
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: selenium-screenshots
+          path: 'target/screenshots/'
+          retention-days: 7
