@@ -165,8 +165,11 @@ public class UserController {
         }
 
         if (newPassword != null && !newPassword.isBlank()) {
-            if (newPassword.length() < 8) {
-                model.addAttribute("passwordError", "La contraseña debe tener al menos 8 caracteres.");
+            // 👇 NUEVA VALIDACIÓN CON EXPRESIÓN REGULAR 👇
+            String passwordPattern = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).{8,}$";
+
+            if (!newPassword.matches(passwordPattern)) {
+                model.addAttribute("passwordError", "La contraseña debe tener al menos 8 caracteres, incluir una mayúscula, un número y un carácter especial (@$!%*?&).");
                 hasErrors = true;
             } else if (!newPassword.equals(confirmPassword)) {
                 model.addAttribute("passwordError", "Las contraseñas no coinciden.");
