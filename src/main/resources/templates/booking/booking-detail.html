@@ -30,7 +30,7 @@
 
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 pb-4 border-bottom" style="border-color: var(--border-light) !important;">
         <div>
-            <h1 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;" th:text="'Reserva #' + ${booking.id}">Reserva #000</h1>
+            <h1 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">Detalle de la reserva</h1>
             <p class="text-secondary fs-5 mb-0 fw-medium" th:if="${booking.listing != null}">
                 <i class="fa-solid fa-house me-1 text-muted" style="font-size: 1.1rem;"></i>
                 <span th:text="${booking.listing.title}">Nombre de la propiedad</span>
@@ -195,7 +195,7 @@
 
             <p class="text-secondary lh-base mb-3 italic" style="font-style: italic;" th:text="'&ldquo;' + ${review.comment} + '&rdquo;'">"Comentario de la reseña..."</p>
             <div class="text-muted small border-top pt-2" style="font-size: 0.8rem;">
-                Publicada el <span th:text="${#temporals.format(review.creationDate, 'dd/MM/yyyy')}">01/01/2026</span> · Ref: #<span th:text="${review.id}">0</span>
+                Publicada el <span th:text="${#temporals.format(review.creationDate, 'dd/MM/yyyy')}">01/01/2026</span>
             </div>
         </div>
 
@@ -216,15 +216,11 @@
     <div class="mb-5 pt-4 border-top" style="border-color: var(--border-light) !important;">
         <h3 class="h5 fw-bold text-dark mb-3">Auditoría del registro</h3>
         <div class="card border rounded-4 overflow-hidden" style="border-color: var(--border-light) !important;">
-            <div class="p-3 bg-light border-bottom d-flex justify-content-between small">
-                <span class="text-muted font-monospace">IDENTIFICADOR RESERVA</span>
-                <span class="text-dark fw-bold font-monospace" th:text="'ID-' + ${booking.id}">ID-0</span>
-            </div>
-            <div class="p-3 bg-white border-bottom d-flex justify-content-between small" th:if="${booking.listing != null}">
+            <div class="p-3 bg-light border-bottom d-flex justify-content-between small" th:if="${booking.listing != null}">
                 <span class="text-muted font-monospace">IDENTIFICADOR ALOJAMIENTO</span>
                 <span class="text-dark fw-bold font-monospace" th:text="'LIS-' + ${booking.listing.id}">LIS-0</span>
             </div>
-            <div class="p-3 bg-light d-flex justify-content-between small">
+            <div class="p-3 bg-white d-flex justify-content-between small">
                 <span class="text-muted font-monospace">CÓDIGO DE FLUJO (STATUS)</span>
                 <span class="text-dark fw-bold font-monospace" th:text="${booking.status.name()}">PENDING</span>
             </div>
@@ -234,18 +230,20 @@
     <div class="d-flex justify-content-between align-items-center border-top pt-4 flex-wrap gap-3" style="border-color: var(--border-light) !important;">
 
         <div class="d-flex gap-2">
-            <form th:if="${booking.status.name() == 'PENDING' and (#authorization.expression('hasRole(''ADMIN'')') or (#authorization.expression('hasRole(''HOST'')') and booking.listing.owner.id == #authentication.principal.id))}"
+            <form id="formConfirmarReserva"
+                  th:if="${booking.status.name() == 'PENDING' and (#authorization.expression('hasRole(''ADMIN'')') or (#authorization.expression('hasRole(''HOST'')') and booking.listing.owner.id == #authentication.principal.id))}"
                   th:action="@{/bookings/{id}/confirm(id=${booking.id})}" method="post">
-                <button type="submit" class="btn btn-success fw-bold px-4 py-2.5 rounded-3 small"
-                        onclick="return confirm('¿Seguro que deseas confirmar esta solicitud de reserva?')">
+                <button type="button" class="btn btn-success fw-bold px-4 py-2.5 rounded-3 small"
+                        data-bs-toggle="modal" data-bs-target="#modalConfirmarReserva">
                     <i class="fa-solid fa-circle-check me-1"></i> Confirmar reserva
                 </button>
             </form>
 
-            <form th:if="${booking.status.name() == 'PENDING' or (booking.status.name() == 'CONFIRMED' and (#authorization.expression('hasRole(''ADMIN'')') or (#authorization.expression('hasRole(''HOST'')') and booking.listing.owner.id == #authentication.principal.id)))}"
+            <form id="formCancelarReserva"
+                  th:if="${booking.status.name() == 'PENDING' or (booking.status.name() == 'CONFIRMED' and (#authorization.expression('hasRole(''ADMIN'')') or (#authorization.expression('hasRole(''HOST'')') and booking.listing.owner.id == #authentication.principal.id)))}"
                   th:action="@{/bookings/{id}/cancel(id=${booking.id})}" method="post">
-                <button type="submit" class="btn btn-outline-danger fw-bold px-4 py-2.5 rounded-3 small"
-                        onclick="return confirm('¿Estás completamente seguro de que deseas rechazar/cancelar esta reserva?')">
+                <button type="button" class="btn btn-outline-danger fw-bold px-4 py-2.5 rounded-3 small"
+                        data-bs-toggle="modal" data-bs-target="#modalCancelarReserva">
                     <i class="fa-solid fa-trash-can me-1"></i> Cancelar estancia
                 </button>
             </form>
@@ -259,6 +257,50 @@
     </div>
 
 </main>
+
+<!-- Modal Confirmar Reserva -->
+<div class="modal fade" id="modalConfirmarReserva" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-body text-center p-4 pb-3">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success-subtle mb-3"
+                     style="width: 64px; height: 64px;">
+                    <i class="fa-solid fa-circle-check text-success fs-3"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">¿Confirmar esta reserva?</h5>
+                <p class="text-muted small mb-0">El huésped recibirá la reserva como confirmada y dejará de estar pendiente.</p>
+            </div>
+            <div class="modal-footer border-0 px-4 pb-4 pt-0 d-flex gap-2">
+                <button type="button" class="btn btn-light fw-bold rounded-3 flex-fill" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="formConfirmarReserva" class="btn btn-success fw-bold rounded-3 flex-fill">
+                    <i class="fa-solid fa-circle-check me-1"></i> Sí, confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Cancelar Reserva -->
+<div class="modal fade" id="modalCancelarReserva" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-body text-center p-4 pb-3">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger-subtle mb-3"
+                     style="width: 64px; height: 64px;">
+                    <i class="fa-solid fa-trash-can text-danger fs-3"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">¿Cancelar esta estancia?</h5>
+                <p class="text-muted small mb-0">Esta acción no se puede deshacer. La reserva quedará marcada como cancelada.</p>
+            </div>
+            <div class="modal-footer border-0 px-4 pb-4 pt-0 d-flex gap-2">
+                <button type="button" class="btn btn-light fw-bold rounded-3 flex-fill" data-bs-dismiss="modal">Volver</button>
+                <button type="submit" form="formCancelarReserva" class="btn btn-danger fw-bold rounded-3 flex-fill">
+                    <i class="fa-solid fa-trash-can me-1"></i> Sí, cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <footer th:replace="~{layout/footer :: footer}"></footer>
 <script th:replace="~{layout/footer :: scripts}"></script>
