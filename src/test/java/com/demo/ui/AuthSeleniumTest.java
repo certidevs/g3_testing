@@ -37,8 +37,8 @@ public class AuthSeleniumTest extends BaseSeleniumTest {
         driver.findElement(By.id("name")).sendKeys("Test User");
         driver.findElement(By.id("username")).sendKeys("testopenhouse");
         driver.findElement(By.id("email")).sendKeys("testopenhouse@gmail.com");
-        driver.findElement(By.id("password")).sendKeys("password123");
-        driver.findElement(By.id("passwordConfirmed")).sendKeys("password123");
+        driver.findElement(By.id("password")).sendKeys("Pass1wrd@");
+        driver.findElement(By.id("passwordConfirmed")).sendKeys("Pass1wrd@");
 
         var checkbox = driver.findElement(By.cssSelector("input[type='checkbox']"));
         if (!checkbox.isSelected()) {

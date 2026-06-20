@@ -19,7 +19,7 @@
                 <span th:text="${error}">Error al registrarse.</span>
             </div>
 
-            <form th:action="@{/register}" th:object="${registerDTO}" method="post" class="d-flex flex-column gap-2">
+            <form id="registerForm" th:action="@{/register}" th:object="${registerDTO}" method="post" class="d-flex flex-column gap-2">
 
                 <div>
                     <label class="form-label small fw-bold text-dark mb-0.5" style="font-size: 0.85rem;">Nombre y apellidos</label>
@@ -56,23 +56,33 @@
 
                 <div>
                     <label class="form-label small fw-bold text-dark mb-0.5" style="font-size: 0.85rem;">Contraseña</label>
-                    <div class="input-group" style="border: 1px solid #DDDDDD; border-radius: 10px; background-color: #F7F7F7; overflow: hidden;">
+                    <div id="passwordWrapper" class="input-group" style="border: 1px solid #DDDDDD; border-radius: 10px; background-color: #F7F7F7; overflow: hidden; transition: border-color 0.2s;">
                         <span class="input-group-text border-0 bg-transparent ps-3 pe-2 text-muted">
                             <i class="fa-solid fa-lock" style="font-size: 0.85rem;"></i>
                         </span>
-                        <input type="password" th:field="*{password}" class="form-control border-0 bg-transparent shadow-none ps-1"
-                               placeholder="Mínimo 6 caracteres" required style="font-size: 0.9rem; height: 38px;">
+                        <input type="password" th:field="*{password}" id="password" class="form-control border-0 bg-transparent shadow-none ps-1"
+                               placeholder="Crea una contraseña segura" required style="font-size: 0.9rem; height: 38px;">
+                    </div>
+
+                    <div class="mt-1.5 p-2 border rounded-3 bg-light dynamic-requirements" style="font-size: 0.78rem; display: none;">
+                        <div id="reqLength" class="text-danger mb-1"><i class="fa-solid fa-circle-xmark me-1"></i><span>Mínimo 8 caracteres</span></div>
+                        <div id="reqUpper" class="text-danger mb-1"><i class="fa-solid fa-circle-xmark me-1"></i><span>Al menos una letra mayúscula</span></div>
+                        <div id="reqNumber" class="text-danger mb-1"><i class="fa-solid fa-circle-xmark me-1"></i><span>Al menos un número</span></div>
+                        <div id="reqSpecial" class="text-danger"><i class="fa-solid fa-circle-xmark me-1"></i><span>Al menos un carácter especial (@$!%*?&)</span></div>
                     </div>
                 </div>
 
                 <div>
                     <label class="form-label small fw-bold text-dark mb-0.5" style="font-size: 0.85rem;">Confirmar contraseña</label>
-                    <div class="input-group" style="border: 1px solid #DDDDDD; border-radius: 10px; background-color: #F7F7F7; overflow: hidden;">
+                    <div id="passwordConfirmWrapper" class="input-group" style="border: 1px solid #DDDDDD; border-radius: 10px; background-color: #F7F7F7; overflow: hidden; transition: border-color 0.2s;">
                         <span class="input-group-text border-0 bg-transparent ps-3 pe-2 text-muted">
                             <i class="fa-solid fa-lock-open" style="font-size: 0.85rem;"></i>
                         </span>
-                        <input type="password" th:field="*{passwordConfirmed}" class="form-control border-0 bg-transparent shadow-none ps-1"
+                        <input type="password" th:field="*{passwordConfirmed}" id="passwordConfirmed" class="form-control border-0 bg-transparent shadow-none ps-1"
                                placeholder="Repite tu contraseña" required style="font-size: 0.9rem; height: 38px;">
+                    </div>
+                    <div id="matchError" class="text-danger mt-1 small" style="font-size: 0.78rem; display: none;">
+                        <i class="fa-solid fa-circle-xmark me-1"></i> Las contraseñas no coinciden.
                     </div>
                 </div>
 
@@ -83,7 +93,7 @@
                     </label>
                 </div>
 
-                <button type="submit" class="btn btn-airbnb w-100 d-flex align-items-center justify-content-center mt-1" style="border-radius: 10px; height: 42px; font-size: 0.95rem;">
+                <button type="submit" id="submitBtn" class="btn btn-airbnb w-100 d-flex align-items-center justify-content-center mt-1" style="border-radius: 10px; height: 42px; font-size: 0.95rem;">
                     Registrarse
                 </button>
 
@@ -105,5 +115,95 @@
 <footer th:replace="~{layout/footer :: footer}"></footer>
 <script th:replace="~{layout/footer :: scripts}"></script>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const passwordInput = document.getElementById("password");
+        const confirmInput = document.getElementById("passwordConfirmed");
+        const reqBox = document.querySelector(".dynamic-requirements");
+        const form = document.getElementById("registerForm");
+
+        const reqLength = document.getElementById("reqLength");
+        const reqUpper = document.getElementById("reqUpper");
+        const reqNumber = document.getElementById("reqNumber");
+        const reqSpecial = document.getElementById("reqSpecial");
+        const matchError = document.getElementById("matchError");
+
+        const passWrapper = document.getElementById("passwordWrapper");
+        const confirmWrapper = document.getElementById("passwordConfirmWrapper");
+
+        passwordInput.addEventListener("focus", () => reqBox.style.display = "block");
+
+        passwordInput.addEventListener("input", validatePassword);
+        confirmInput.addEventListener("input", validateMatch);
+
+        function validatePassword() {
+            const val = passwordInput.value;
+
+            const hasLength = val.length >= 8;
+            const hasUpper = /[A-Z]/.test(val);
+            const hasNumber = /\d/.test(val);
+            const hasSpecial = /[@$!%*?&]/.test(val);
+
+            updateIndicator(reqLength, hasLength);
+            updateIndicator(reqUpper, hasUpper);
+            updateIndicator(reqNumber, hasNumber);
+            updateIndicator(reqSpecial, hasSpecial);
+
+            if (hasLength && hasUpper && hasNumber && hasSpecial) {
+                passWrapper.style.borderColor = "#28a745";
+                return true;
+            } else {
+                passWrapper.style.borderColor = val.length > 0 ? "#dc3545" : "#DDDDDD";
+                return false;
+            }
+        }
+
+        function validateMatch() {
+            if (confirmInput.value.length === 0) {
+                confirmWrapper.style.borderColor = "#DDDDDD";
+                matchError.style.display = "none";
+                return false;
+            }
+
+            if (passwordInput.value === confirmInput.value) {
+                confirmWrapper.style.borderColor = "#28a745";
+                matchError.style.display = "none";
+                return true;
+            } else {
+                confirmWrapper.style.borderColor = "#dc3545";
+                matchError.style.display = "block";
+                return false;
+            }
+        }
+
+        function updateIndicator(element, isValid) {
+            const icon = element.querySelector("i");
+            if (isValid) {
+                element.classList.remove("text-danger");
+                element.classList.add("text-success");
+                if (icon) {
+                    icon.className = "fa-solid fa-circle-check me-1";
+                }
+            } else {
+                element.classList.remove("text-success");
+                element.classList.add("text-danger");
+                if (icon) {
+                    icon.className = "fa-solid fa-circle-xmark me-1";
+                }
+            }
+        }
+
+        form.addEventListener("submit", function (e) {
+            const isPassValid = validatePassword();
+            const isMatchValid = validateMatch();
+
+            if (!isPassValid || !isMatchValid) {
+                e.preventDefault();
+                reqBox.style.display = "block";
+                passwordInput.focus();
+            }
+        });
+    });
+</script>
 </body>
 </html>

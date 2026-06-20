@@ -197,13 +197,13 @@ public class UserControllerTest {
                         .param("name", "Guest User")
                         .param("username", "guest1")
                         .param("email", "guest@test.com")
-                        .param("newPassword", "newvalidpassword123")
-                        .param("confirmPassword", "newvalidpassword123"))
+                        .param("newPassword", "Pass1wrd@")
+                        .param("confirmPassword", "Pass1wrd@"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/profile?success"));
 
         User updatedUser = userRepository.findById(guestUser.getId()).orElseThrow();
-        assertTrue(passwordEncoder.matches("newvalidpassword123", updatedUser.getPassword()));
+        assertTrue(passwordEncoder.matches("Pass1wrd@", updatedUser.getPassword()));
     }
 
     @Test

@@ -35,13 +35,13 @@ public class UserServiceTest {
         when(userRepository.existsByUsername("user")).thenReturn(false);
         when(userRepository.existsByEmail("moha@moha.com")).thenReturn(false);
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(passwordEncoder.encode("123456")).thenReturn("encodedPassword");
+        when(passwordEncoder.encode("Pass1wrd@")).thenReturn("encodedPassword");
 
         RegisterDTO registerDTO = new RegisterDTO();
         registerDTO.setUsername("user");
         registerDTO.setEmail("moha@moha.com");
-        registerDTO.setPassword("123456");
-        registerDTO.setPasswordConfirmed("123456");
+        registerDTO.setPassword("Pass1wrd@");
+        registerDTO.setPasswordConfirmed("Pass1wrd@");
         registerDTO.setAcceptRGPD(true);
 
         User user = userService.register(registerDTO);
@@ -54,7 +54,7 @@ public class UserServiceTest {
 
         verify(userRepository).existsByUsername("user");
         verify(userRepository).existsByEmail("moha@moha.com");
-        verify(passwordEncoder).encode("123456");
+        verify(passwordEncoder).encode("Pass1wrd@");
         verify(userRepository).save(any(User.class));
     }
 
@@ -151,8 +151,8 @@ public class UserServiceTest {
         RegisterDTO registerDTO = new RegisterDTO();
         registerDTO.setUsername("libre");
         registerDTO.setEmail("libre@moha.com");
-        registerDTO.setPassword("123456");
-        registerDTO.setPasswordConfirmed("123456");
+        registerDTO.setPassword("Pass1wrd@");
+        registerDTO.setPasswordConfirmed("Pass1wrd@");
         registerDTO.setAcceptRGPD(false);
 
         RuntimeException exception = assertThrows(RuntimeException.class,
