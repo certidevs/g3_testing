@@ -4,7 +4,6 @@ import com.demo.model.Booking;
 import com.demo.model.enums.BookingStatus;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
@@ -163,10 +162,14 @@ public class BookingSeleniumTest extends BaseSeleniumTest {
                 By.cssSelector("form[action*='/confirm'] button")));
         scrollAndClick(confirmBtn);
 
-        Alert alert = wait.until(ExpectedConditions.alertIsPresent());
-        alert.accept();
+        // El botón ya no lanza un confirm() nativo: abre un modal de Bootstrap.
+        // Confirmamos pulsando el botón de submit que hay dentro del modal.
+        WebElement modalConfirmBtn = wait.until(ExpectedConditions.elementToBeClickable(
+                By.cssSelector("#modalConfirmarReserva button[type='submit']")));
+        scrollAndClick(modalConfirmBtn);
 
-        wait.until(ExpectedConditions.urlContains("/bookings/" + booking.getId()));
+        wait.until(ExpectedConditions.textToBePresentInElementLocated(
+                By.cssSelector(".alert-success"), "confirmada"));
 
         String pageText = driver.findElement(By.tagName("body")).getText();
         assertTrue(pageText.contains("confirmada"),
@@ -188,10 +191,14 @@ public class BookingSeleniumTest extends BaseSeleniumTest {
                 By.cssSelector("form[action*='/confirm'] button")));
         scrollAndClick(confirmBtn);
 
-        Alert alert = wait.until(ExpectedConditions.alertIsPresent());
-        alert.accept();
+        // El botón ya no lanza un confirm() nativo: abre un modal de Bootstrap.
+        // Confirmamos pulsando el botón de submit que hay dentro del modal.
+        WebElement modalConfirmBtn = wait.until(ExpectedConditions.elementToBeClickable(
+                By.cssSelector("#modalConfirmarReserva button[type='submit']")));
+        scrollAndClick(modalConfirmBtn);
 
-        wait.until(ExpectedConditions.urlContains("/bookings/" + booking.getId()));
+        wait.until(ExpectedConditions.textToBePresentInElementLocated(
+                By.cssSelector(".alert-success"), "confirmada"));
 
         Booking updated = bookingRepository.findById(booking.getId()).orElseThrow();
         assertEquals(BookingStatus.CONFIRMED, updated.getStatus());
@@ -237,10 +244,14 @@ public class BookingSeleniumTest extends BaseSeleniumTest {
                 By.cssSelector("form[action*='/cancel'] button")));
         scrollAndClick(cancelBtn);
 
-        Alert alert = wait.until(ExpectedConditions.alertIsPresent());
-        alert.accept();
+        // El botón ya no lanza un confirm() nativo: abre un modal de Bootstrap.
+        // Cancelamos pulsando el botón de submit que hay dentro del modal.
+        WebElement modalCancelBtn = wait.until(ExpectedConditions.elementToBeClickable(
+                By.cssSelector("#modalCancelarReserva button[type='submit']")));
+        scrollAndClick(modalCancelBtn);
 
-        wait.until(ExpectedConditions.urlContains("/bookings/" + booking.getId()));
+        wait.until(ExpectedConditions.textToBePresentInElementLocated(
+                By.cssSelector(".alert-success"), "cancelada"));
 
         String pageText = driver.findElement(By.tagName("body")).getText();
         assertTrue(pageText.contains("cancelada"),
@@ -263,10 +274,14 @@ public class BookingSeleniumTest extends BaseSeleniumTest {
                 By.cssSelector("form[action*='/cancel'] button")));
         scrollAndClick(cancelBtn);
 
-        Alert alert = wait.until(ExpectedConditions.alertIsPresent());
-        alert.accept();
+        // El botón ya no lanza un confirm() nativo: abre un modal de Bootstrap.
+        // Cancelamos pulsando el botón de submit que hay dentro del modal.
+        WebElement modalCancelBtn = wait.until(ExpectedConditions.elementToBeClickable(
+                By.cssSelector("#modalCancelarReserva button[type='submit']")));
+        scrollAndClick(modalCancelBtn);
 
-        wait.until(ExpectedConditions.urlContains("/bookings/" + booking.getId()));
+        wait.until(ExpectedConditions.textToBePresentInElementLocated(
+                By.cssSelector(".alert-success"), "cancelada"));
 
         Booking updated = bookingRepository.findById(booking.getId()).orElseThrow();
         assertEquals(BookingStatus.CANCELED, updated.getStatus());
