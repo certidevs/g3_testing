@@ -34,7 +34,7 @@ public class AuthController {
     public String register(@ModelAttribute RegisterDTO user, RedirectAttributes redirectAttributes){
         try {
             userService.register(user);
-            User userRegistrado = userRepository.findByEmail(user.getEmail()).orElseThrow();
+            User userRegistrado = userRepository.findByEmail(user.getEmail().toLowerCase()).orElseThrow();
             redirectAttributes.addFlashAttribute("message", "Cuenta creada correctamente, inicia sesión.");
             return "redirect:/login";
         } catch (Exception e) {

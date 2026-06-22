@@ -20,14 +20,14 @@ public class UserService implements UserDetailsService{
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmail(email.toLowerCase())
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario con el correo (" + email + ") no encontrado"));
     }
 
     public User register(RegisterDTO registerDTO){
         if (userRepository.existsByUsername(registerDTO.getUsername())) {
             throw new RuntimeException("El nombre de usuario ya existe");
-        } else if (userRepository.existsByEmail(registerDTO.getEmail())) {
+        } else if (userRepository.existsByEmail(registerDTO.getEmail().toLowerCase())) {
             throw new RuntimeException("El correo electrónico ya existe");
         } else if (!registerDTO.getPassword().equals(registerDTO.getPasswordConfirmed())) {
             throw new RuntimeException("Las contraseñas no coinciden");
@@ -48,7 +48,7 @@ public class UserService implements UserDetailsService{
         User user = new User();
         user.setName(registerDTO.getName());
         user.setUsername(registerDTO.getUsername());
-        user.setEmail(registerDTO.getEmail());
+        user.setEmail(registerDTO.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
         user.setRole(Role.ROLE_USER);
         return userRepository.save(user);
