@@ -207,7 +207,7 @@ public class DataInitializer implements CommandLineRunner {
                 .minNights(2)
                 .maxNights(15)
                 .maxGuests(4)
-                .imageUrl("https://images.com/villa")
+                .imageUrl("/images/7.jpg")
                 .registeredAt(LocalDateTime.now())
                 .owner(userExtra)
                 .city(City.BILBAO)
