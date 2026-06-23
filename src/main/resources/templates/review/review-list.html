@@ -147,9 +147,9 @@
                                 <i class="fa-regular fa-eye me-1"></i> Detalles
                             </a>
 
-                            <form sec:authorize="hasRole('ADMIN')" th:action="@{/reviews/delete/{id}(id=${review.id})}" method="post" class="m-0">
-                                <button type="submit" class="btn btn-outline-danger btn-sm px-2.5 rounded-2 fw-medium small"
-                                        onclick="return confirm('¿Estás seguro de que deseas eliminar administrativamente esta reseña?')">
+                            <form sec:authorize="hasRole('ADMIN')" th:id="${'formEliminarReview' + review.id}" th:action="@{/reviews/delete/{id}(id=${review.id})}" method="post" class="m-0">
+                                <button type="button" class="btn btn-outline-danger btn-sm px-2.5 rounded-2 fw-medium small"
+                                        data-bs-toggle="modal" th:data-bs-target="${'#modalEliminarReview' + review.id}">
                                     <i class="fa-solid fa-trash-can"></i>
                                 </button>
                             </form>
@@ -159,6 +159,29 @@
                 </div>
 
             </div>
+
+            <!-- Modal Eliminar Reseña -->
+            <div class="modal fade" th:id="${'modalEliminarReview' + review.id}" sec:authorize="hasRole('ADMIN')" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 rounded-4 shadow">
+                        <div class="modal-body text-center p-4 pb-3">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger-subtle mb-3"
+                                 style="width: 64px; height: 64px;">
+                                <i class="fa-solid fa-trash-can text-danger fs-3"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-2">¿Eliminar esta reseña?</h5>
+                            <p class="text-muted small mb-0">Esta acción no se puede deshacer. El comentario se eliminará permanentemente.</p>
+                        </div>
+                        <div class="modal-footer border-0 px-4 pb-4 pt-0 d-flex gap-2">
+                            <button type="button" class="btn btn-light fw-bold rounded-3 flex-fill" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" th:form="${'formEliminarReview' + review.id}" class="btn btn-danger fw-bold rounded-3 flex-fill">
+                                <i class="fa-solid fa-trash-can me-1"></i> Sí, eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </div>

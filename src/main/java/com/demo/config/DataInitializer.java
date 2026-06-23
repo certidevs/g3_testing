@@ -101,7 +101,15 @@ public class DataInitializer implements CommandLineRunner {
                 .role(Role.ROLE_HOST)
                 .build();
 
-        userRepository.saveAll(List.of(admin, admin2, guest, guest2, userExtra));
+        User guest3 = User.builder()
+                .name("Pedro Sanchez")
+                .email("pedro@mail.com")
+                .username("pedro@mail.com")
+                .password(passwordEncriptada)
+                .role(Role.ROLE_USER)
+                .build();
+
+        userRepository.saveAll(List.of(admin, admin2, guest, guest2, userExtra, guest3));
 
         Listing loft = Listing.builder()
                 .title("Loft Industrial")
@@ -215,7 +223,104 @@ public class DataInitializer implements CommandLineRunner {
                 .type(ListingType.CHALET)
                 .build();
 
-        List<Listing> listings = List.of(loft, ap, ap2, cf, hp, vi, cha);
+        Listing estudio = Listing.builder()
+                .title("Estudio Moderno en el Albaicín")
+                .shortDescription("Encanto andaluz en pleno casco histórico")
+                .longDescription("Estudio reformado a pocos pasos de la Alhambra, ideal para parejas")
+                .pricePerNight(70.0)
+                .minNights(1)
+                .maxNights(12)
+                .maxGuests(2)
+                .imageUrl("/images/8.jpg")
+                .registeredAt(LocalDateTime.now())
+                .owner(admin2)
+                .city(City.GRANADA)
+                .isActive(true)
+                .type(ListingType.APARTAMENTO)
+                .build();
+
+        Listing casaRural = Listing.builder()
+                .title("Casa Rural con Encanto")
+                .shortDescription("Naturaleza y tranquilidad")
+                .longDescription("Casa de campo rodeada de olivos, perfecta para desconectar")
+                .pricePerNight(90.0)
+                .minNights(2)
+                .maxNights(20)
+                .maxGuests(5)
+                .imageUrl("/images/9.jpg")
+                .registeredAt(LocalDateTime.now())
+                .owner(userExtra)
+                .city(City.GRANADA)
+                .isActive(true)
+                .type(ListingType.CASA)
+                .build();
+
+        Listing atico = Listing.builder()
+                .title("Ático con Vistas a Sierra Nevada")
+                .shortDescription("Terraza privada con vistas únicas")
+                .longDescription("Ático luminoso con terraza panorámica, totalmente equipado")
+                .pricePerNight(120.0)
+                .minNights(2)
+                .maxNights(15)
+                .maxGuests(4)
+                .imageUrl("/images/10.jpg")
+                .registeredAt(LocalDateTime.now())
+                .owner(admin2)
+                .city(City.GRANADA)
+                .isActive(true)
+                .type(ListingType.APARTAMENTO)
+                .build();
+
+        Listing bungalow = Listing.builder()
+                .title("Bungalow Tranquilo")
+                .shortDescription("Escapada relajante")
+                .longDescription("Pequeño bungalow independiente con jardín privado")
+                .pricePerNight(60.0)
+                .minNights(1)
+                .maxNights(10)
+                .maxGuests(2)
+                .imageUrl("/images/11.jpg")
+                .registeredAt(LocalDateTime.now())
+                .owner(userExtra)
+                .city(City.ALICANTE)
+                .isActive(true)
+                .type(ListingType.CHALET)
+                .build();
+
+        Listing loftCentrico = Listing.builder()
+                .title("Loft Céntrico")
+                .shortDescription("En el corazón de la ciudad")
+                .longDescription("Loft de diseño a un paso de todos los monumentos principales")
+                .pricePerNight(100.0)
+                .minNights(1)
+                .maxNights(18)
+                .maxGuests(3)
+                .imageUrl("/images/12.jpg")
+                .registeredAt(LocalDateTime.now())
+                .owner(admin2)
+                .city(City.BILBAO)
+                .isActive(true)
+                .type(ListingType.LOFT)
+                .build();
+
+        Listing villaAndaluza = Listing.builder()
+                .title("Villa Andaluza con Piscina")
+                .shortDescription("Lujo y descanso")
+                .longDescription("Villa amplia con piscina privada y jardines cuidados")
+                .pricePerNight(280.0)
+                .minNights(3)
+                .maxNights(25)
+                .maxGuests(7)
+                .imageUrl("/images/13.jpg")
+                .registeredAt(LocalDateTime.now())
+                .owner(userExtra)
+                .city(City.GRANADA)
+                .isActive(true)
+                .type(ListingType.VILLA)
+                .build();
+
+        List<Listing> listings = List.of(loft, ap, ap2, cf, hp, vi, cha,
+                estudio, casaRural, atico, bungalow, loftCentrico, villaAndaluza);
         listingRepository.saveAll(listings);
 
         // ── CATÁLOGO DE AMENITIES (generado desde el enum) ────────────
@@ -247,8 +352,8 @@ public class DataInitializer implements CommandLineRunner {
         ));
 
         Booking booking = Booking.builder()
-                .checkIn(LocalDateTime.now().plusDays(1))
-                .checkOut(LocalDateTime.now().plusDays(3))
+                .checkIn(LocalDateTime.of(2026, 1, 5, 15, 30))
+                .checkOut(LocalDateTime.of(2026, 1, 8, 15, 30))
                 .status(BookingStatus.CONFIRMED)
                 .guest(guest)
                 .totalPrice(241.0)
@@ -264,7 +369,52 @@ public class DataInitializer implements CommandLineRunner {
                 .listing(ap)
                 .build();
 
-        List<Booking> bookings = List.of(booking, booking2);
+        Booking booking3 = Booking.builder()
+                .checkIn(LocalDateTime.of(2026, 2, 10, 16, 0))
+                .checkOut(LocalDateTime.of(2026, 2, 13, 11, 0))
+                .status(BookingStatus.CONFIRMED)
+                .guest(guest2)
+                .totalPrice(255.0)
+                .listing(ap2)
+                .build();
+
+        Booking booking4 = Booking.builder()
+                .checkIn(LocalDateTime.of(2026, 3, 1, 16, 0))
+                .checkOut(LocalDateTime.of(2026, 3, 5, 11, 0))
+                .status(BookingStatus.CONFIRMED)
+                .guest(guest3)
+                .totalPrice(1400.0)
+                .listing(vi)
+                .build();
+
+        Booking booking5 = Booking.builder()
+                .checkIn(LocalDateTime.of(2026, 4, 10, 16, 0))
+                .checkOut(LocalDateTime.of(2026, 4, 12, 11, 0))
+                .status(BookingStatus.CONFIRMED)
+                .guest(guest3)
+                .totalPrice(140.0)
+                .listing(estudio)
+                .build();
+
+        Booking booking6 = Booking.builder()
+                .checkIn(LocalDateTime.of(2026, 5, 1, 16, 0))
+                .checkOut(LocalDateTime.of(2026, 5, 4, 11, 0))
+                .status(BookingStatus.CONFIRMED)
+                .guest(guest)
+                .totalPrice(270.0)
+                .listing(casaRural)
+                .build();
+
+        Booking booking7 = Booking.builder()
+                .checkIn(LocalDateTime.of(2026, 5, 15, 16, 0))
+                .checkOut(LocalDateTime.of(2026, 5, 17, 11, 0))
+                .status(BookingStatus.CONFIRMED)
+                .guest(guest2)
+                .totalPrice(200.0)
+                .listing(loftCentrico)
+                .build();
+
+        List<Booking> bookings = List.of(booking, booking2, booking3, booking4, booking5, booking6, booking7);
         bookingRepository.saveAll(bookings);
 
         Conversation conv = Conversation.builder()
@@ -323,7 +473,47 @@ public class DataInitializer implements CommandLineRunner {
                 .booking(booking2)
                 .build();
 
-        List<Review> reviews = List.of(review, review2);
+        Review review3 = Review.builder()
+                .rating(4)
+                .comment("Apartamento muy céntrico, perfecto para visitar la ciudad")
+                .verified(true)
+                .creationDate(LocalDateTime.now())
+                .booking(booking3)
+                .build();
+
+        Review review4 = Review.builder()
+                .rating(5)
+                .comment("La villa superó nuestras expectativas, volveremos seguro")
+                .verified(true)
+                .creationDate(LocalDateTime.now())
+                .booking(booking4)
+                .build();
+
+        Review review5 = Review.builder()
+                .rating(4)
+                .comment("Estudio pequeño pero con muchísimo encanto y bien ubicado")
+                .verified(true)
+                .creationDate(LocalDateTime.now())
+                .booking(booking5)
+                .build();
+
+        Review review6 = Review.builder()
+                .rating(5)
+                .comment("La casa rural es una pasada, mucha paz y tranquilidad")
+                .verified(true)
+                .creationDate(LocalDateTime.now())
+                .booking(booking6)
+                .build();
+
+        Review review7 = Review.builder()
+                .rating(3)
+                .comment("Buena ubicación, aunque el loft era algo más pequeño de lo esperado")
+                .verified(true)
+                .creationDate(LocalDateTime.now())
+                .booking(booking7)
+                .build();
+
+        List<Review> reviews = List.of(review, review2, review3, review4, review5, review6, review7);
         reviewRepository.saveAll(reviews);
     }
 }
