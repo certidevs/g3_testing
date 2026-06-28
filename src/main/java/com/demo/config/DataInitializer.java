@@ -59,7 +59,7 @@ public class DataInitializer implements CommandLineRunner {
 
         addonRepository.saveAll(List.of(breakfast, transport));
 
-        String passwordEncriptada = passwordEncoder.encode("1234");
+        String passwordEncriptada = passwordEncoder.encode("Madr1d*Mund1aL");
 
         User admin = User.builder()
                 .name("Admin")
